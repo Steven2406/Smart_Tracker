@@ -12,6 +12,28 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Medical HQ">
 <meta name="theme-color" content="#f4f5f1">
+<script id="mhq-courses-shim">
+/* Multi-course storage: every course keeps its own copy of the app's data. The first course uses the original keys, so existing progress is untouched. */
+(function(){
+  var REG="mhqRegistryV60",BASE=["medicalHQ", "mhqCourseV59", "mhqLastLectureV58", "mhqMotivationV52", "mhqMotivationV51"];
+  var GLOBAL=/^(medicalHQThemeV57|mhqRegistryV60|mhqBackupMetaV60|mhqProtectSnoozeV60|mhqInstallDismissV60)$/;
+  var L=null;try{L=window.localStorage;L.getItem("x")}catch(e){L=null}
+  if(!L){window.mhqStore={active:"default",blocked:true};return}
+  var P=Storage.prototype,g=P.getItem,s=P.setItem,r=P.removeItem,frozen=false;
+  var raw={get:function(k){try{return g.call(L,k)}catch(e){return null}},set:function(k,v){s.call(L,k,v)},remove:function(k){try{r.call(L,k)}catch(e){}}};
+  var suffix=function(id){return id==="default"?"":"@"+id};
+  var key=function(k,id){return GLOBAL.test(k)?k:k+suffix(id)};
+  function registry(){var x=null;try{x=JSON.parse(raw.get(REG))}catch(e){}if(!x||!Array.isArray(x.list)||!x.list.length)x={active:"default",list:["default"]};if(x.list.indexOf(x.active)<0)x.active=x.list[0];return x}
+  var active=registry().active;
+  P.getItem=function(k){return this===L?g.call(this,key(k,active)):g.call(this,k)};
+  P.setItem=function(k,v){if(this===L){if(frozen)return;return s.call(this,key(k,active),v)}return s.call(this,k,v)};
+  P.removeItem=function(k){if(this===L){if(frozen)return;return r.call(this,key(k,active))}return r.call(this,k)};
+  window.mhqStore={raw:raw,REG:REG,BASE:BASE,active:active,registry:registry,key:key,
+    saveRegistry:function(x){raw.set(REG,JSON.stringify(x))},
+    freeze:function(){frozen=true},
+    keysOf:function(id){return BASE.map(function(k){return key(k,id)})}};
+})();
+</script>
 <script>(function(){var t=null;try{t=localStorage.getItem('medicalHQThemeV57')}catch(e){}if(!t)t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;var m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='dark'?'#0e1511':'#f4f5f1'})()</script>
 <style id="mhq-v58">
 /* Medical HQ v5.8 — single token-driven stylesheet. No !important, no stacked overrides. */
@@ -350,12 +372,35 @@ body.mhq-modal-open{overflow:hidden}
 @media(max-width:480px){.protect-card{flex-direction:column;align-items:stretch}.protect-actions button{flex:1}}
 .update-bar{position:fixed;left:0;right:0;margin:0 auto;bottom:calc(86px + env(safe-area-inset-bottom));width:calc(100% - 20px);max-width:560px;z-index:250;display:flex;align-items:center;gap:10px;padding:10px 10px 10px 16px;border-radius:16px;background:var(--text);color:var(--bg);font-size:13px;font-weight:650;box-shadow:0 8px 28px rgba(0,0,0,.25)}
 .update-bar span{flex:1}.update-bar button{min-height:36px;background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+
+/* Courses */
+button.brand{display:flex;align-items:center;gap:10px;min-width:0;min-height:0;padding:0;border:0;background:none;text-align:left;color:inherit;border-radius:12px}
+.brand-text{display:block;min-width:0}.brand-text b{display:block;font-family:var(--serif);font-size:17px;line-height:1.1;white-space:nowrap}
+.brand-text small{display:block;font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px}
+button.brand .brand-text small::after{content:" ▾";color:var(--accent)}
+.cs-backdrop{position:fixed;inset:0;z-index:600;display:flex;align-items:flex-end;justify-content:center;background:rgba(10,18,13,.5);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.cs-sheet{width:min(560px,100%);max-height:88%;overflow:auto;background:var(--surface);border:1px solid var(--line);border-bottom:0;border-radius:24px 24px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom));animation:sheet .28s cubic-bezier(.2,.8,.2,1)}
+@media(min-width:600px){.cs-backdrop{align-items:center}.cs-sheet{border-radius:24px;border-bottom:1px solid var(--line)}}
+.cs-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.cs-list{display:grid;gap:10px;margin-bottom:14px}
+.cs-item{display:grid;gap:8px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--surface2)}
+.cs-item.active{border-color:var(--accent);background:var(--soft)}
+.cs-main{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;text-align:left;background:none;border:0;padding:0;min-height:0;width:100%;color:inherit;font-weight:400}
+.cs-name{font-family:var(--serif);font-size:17px;font-weight:700;line-height:1.25}.cs-meta{font-size:12.5px;color:var(--muted);margin-top:3px}
+.cs-check{color:var(--accent);font-weight:700;font-size:13px;white-space:nowrap}
+.cs-bar{height:6px;border-radius:99px;background:var(--surface);overflow:hidden}.cs-bar>div{height:100%;background:var(--accent);border-radius:99px}
+.cs-actions{display:flex;gap:6px;flex-wrap:wrap}.cs-actions button{min-height:34px;padding:5px 12px;font-size:12.5px}
+.cs-danger{color:var(--danger);border-color:var(--danger)}
+.cs-foot{display:grid;gap:8px}.cs-foot .primary{min-height:48px}.cs-foot .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cs-confirm p{margin:6px 0 14px;color:var(--muted);font-size:14px}
+.cs-confirm .row{display:grid;gap:8px}.cs-confirm button{min-height:46px}
+.cs-confirm .del{background:var(--danger);border-color:var(--danger);color:#fff}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-  <div class="brand"><span class="brand-mark" aria-hidden="true">⚕</span><div><b>Medical HQ</b><small>GIT campaign · v6.0</small></div></div>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v6.1</small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -648,6 +693,9 @@ body.mhq-modal-open{overflow:hidden}
           <button onclick="mhqOpenCourseSetup(true)">✏️ EDIT COURSE</button>
           <button onclick="mhqExportCourse()">📤 COURSE PACK</button>
           <button onclick="mhqShareBackup()">📨 SHARE BACKUP</button>
+          <button onclick="mhqBackupAll()">🗂️ BACK UP ALL COURSES</button>
+          <button onclick="document.getElementById('restoreAllInput').click()">♻️ RESTORE ALL</button>
+          <input type="file" id="restoreAllInput" accept=".json" hidden onchange="mhqRestoreAll(this)">
           <button id="installBtn" onclick="mhqInstall()" hidden>📲 INSTALL APP</button>
           <button onclick="document.getElementById('backupInput').click()">IMPORT BACKUP</button>
           <button onclick="runHealthCheck()">RUN HEALTH CHECK</button>
@@ -780,21 +828,28 @@ body.mhq-modal-open{overflow:hidden}
     const blob=new Blob([JSON.stringify({format:"medical-hq-course",version:1,...c},null,2)],{type:"application/json"});
     const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="medical-hq-course-"+(c.short||"course").toLowerCase().replace(/[^a-z0-9]+/g,"-")+".json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
   };
+  function commitNew(course,state){
+    const S=window.mhqStore;if(!S||S.blocked){alert("This browser blocked saving.");return}
+    const id="c"+Date.now().toString(36);
+    try{S.raw.set(S.key("mhqCourseV59",id),JSON.stringify(course));if(state)S.raw.set(S.key("medicalHQ",id),JSON.stringify(state))}catch(e){alert("This browser blocked saving.");return}
+    try{save()}catch(e){}
+    const reg=S.registry();reg.list.push(id);reg.active=id;S.saveRegistry(reg);S.freeze();location.reload();
+  }
   window.mhqOpenCourseSetup=function(mode){
     const add=mode==="add",edit=mode===true||mode==="edit";
     if(document.getElementById("courseSetup"))return;
-    const cur=stored();
+    const isNew=mode==="new";const cur=isNew?null:stored();
     const el=document.createElement("div");el.className="setup";el.id="courseSetup";el.setAttribute("role","dialog");el.setAttribute("aria-modal","true");
     el.innerHTML=`<div class="setup-card">
-      <div class="brand"><span class="brand-mark" aria-hidden="true">⚕</span><div><b>Medical HQ</b><small>${add?"Add lectures":edit?"Edit course":"Study tracker"}</small></div></div>
-      <h1>${add?"Add lectures":edit?"Edit your course":"Set up your course"}</h1>
-      <p class="sub">${add?"New lectures are added to the end of your course. Your existing progress is not touched.":edit?"Progress is kept for every lecture that keeps the same title and subject. Removing a lecture removes its progress.":"Your study space is empty. Add the lectures you're studying. Everything stays on this device."}</p>
+      <div class="brand"><span class="brand-mark" aria-hidden="true">⚕</span><div><b>Medical HQ</b><small>${add?"Add lectures":edit?"Edit course":isNew?"New course":"Study tracker"}</small></div></div>
+      <h1>${add?"Add lectures":edit?"Edit your course":isNew?"New course":"Set up your course"}</h1>
+      <p class="sub">${add?"New lectures are added to the end of your course. Your existing progress is not touched.":edit?"Progress is kept for every lecture that keeps the same title and subject. Removing a lecture removes its progress.":isNew?"Your other courses stay exactly as they are. Each course has its own lectures and progress.":"Your study space is empty. Add the lectures you're studying. Everything stays on this device."}</p>
       <div class="setup-row"${add?" hidden":""}><label>Course name<input type="text" id="suName" placeholder="e.g. Cardiovascular System" maxlength="60" autocomplete="off"></label><label>Short name<input type="text" id="suShort" placeholder="e.g. CVS" maxlength="16" autocomplete="off"></label></div>
       <label>${add?"New lectures, one per line":"Lectures, one per line"}<textarea id="suText" spellcheck="false" placeholder="${add?"New lecture title | Subject | Group":"Cardiac cycle | Physiology | Heart&#10;Heart sounds | Physiology | Heart&#10;Atherosclerosis | Pathology | Vessels"}"></textarea></label>${add&&cur?`<div class="setup-hint"><b>Your subjects:</b> ${[...new Set(cur.lectures.map(l=>l.subject||"General"))].slice(0,12).join(", ")}${[...new Set(cur.lectures.map(l=>l.territory).filter(Boolean))].length?`<br><b>Your groups:</b> ${[...new Set(cur.lectures.map(l=>l.territory).filter(Boolean))].slice(0,12).join(", ")}`:""}<br>Use the same names to keep things tidy. Subject and group are optional.</div>`:""}
-      <div class="meta">Format: <b>Title | Subject | Group</b>. Subject and group are optional. Groups become territories on your campaign map; without them the map splits your lectures into parts automatically. You can also paste rows straight from a spreadsheet.</div>
+      <div class="meta">Format: <b>Title | Subject | Group</b>. Subject and group are optional. Groups become territories on your campaign map; without them the map splits your lectures into parts automatically. You can also paste rows straight from a spreadsheet. Import file also accepts a course pack or a backup.</div>
       <div class="setup-count" id="suCount"></div>
       <div class="setup-msg" id="suMsg" hidden></div>
-      <div class="setup-actions"><button type="button" class="primary" id="suSave">${add?"Add to my course":edit?"Save changes":"Create my course"}</button><button type="button" id="suImport">Import file</button>${edit||add?'<button type="button" id="suCancel">Cancel</button>':""}</div>
+      <div class="setup-actions"><button type="button" class="primary" id="suSave">${add?"Add to my course":edit?"Save changes":"Create my course"}</button><button type="button" id="suImport">Import file</button>${edit||add||isNew?'<button type="button" id="suCancel">Cancel</button>':""}</div>
       <input type="file" id="suFile" accept=".json,.csv,.txt,.tsv" hidden>
     </div>`;
     document.body.appendChild(el);document.body.style.overflow="hidden";
@@ -804,6 +859,7 @@ body.mhq-modal-open{overflow:hidden}
     const count=()=>{const l=parseLines($("suText").value);$("suCount").textContent=l.length?`${l.length} lecture${l.length===1?"":"s"} · ${new Set(l.map(x=>x.subject)).size} subject${new Set(l.map(x=>x.subject)).size===1?"":"s"} · ${new Set(l.map(x=>x.territory).filter(Boolean)).size} group${new Set(l.map(x=>x.territory).filter(Boolean)).size===1?"":"s"}`:""};
     $("suText").addEventListener("input",()=>{count();msg("")});count();
     function commit(course){
+      if(isNew){commitNew(course);return}
       try{localStorage.setItem(KEY,JSON.stringify(course))}catch(e){msg("This browser blocked saving. Open the app from its web link instead of a downloaded file.");return}
       location.reload();
     }
@@ -831,9 +887,10 @@ body.mhq-modal-open{overflow:hidden}
           if(/\.json$/i.test(f.name)||t.trim().startsWith("{")){
             if(add)throw new Error("To import a full course file, use Edit course, or start from the setup screen. Here you can add CSV or text lists.");
             const j=JSON.parse(t);
+            if(j.backupType==="medical-hq-all"){if(typeof mhqRestoreAllObject==="function"){mhqRestoreAllObject(j);return}throw new Error("Please try again in a moment.")}
             if(j.backupType==="medical-hq-backup"){
               if(!j.course||!Array.isArray(j.course.lectures))throw new Error("This backup has no course in it. Import your course pack first, then import the backup from Data tools.");
-              const {course,...state}=j;localStorage.setItem(KEY,JSON.stringify(course));localStorage.setItem("medicalHQ",JSON.stringify(state));location.reload();return;
+              const {course,...state}=j;if(isNew){commitNew(course,state);return}localStorage.setItem(KEY,JSON.stringify(course));localStorage.setItem("medicalHQ",JSON.stringify(state));location.reload();return;
             }
             if(!Array.isArray(j.lectures)||!j.lectures.length)throw new Error("This file has no lectures.");
             const lectures=j.lectures.map(l=>({title:clean(l.title,220),subject:clean(l.subject,40)||"General",territory:clean(l.territory,60)})).filter(l=>l.title).slice(0,1000);
@@ -2502,7 +2559,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
     const now=Date.now(),last=Number(get(LAST))||0;let h="";
     if(hasProgress()&&now>(Number(get(SNOOZE))||0)&&(!last||now-last>7*DAY)){
       const m=last?`Last backup was ${Math.floor((now-last)/DAY)} days ago.`:"You haven't backed up yet.";
-      h+=`<div class="protect-card"><div class="protect-text"><b>Back up your progress</b><span>${m} Your data lives only in this browser.</span></div><div class="protect-actions"><button type="button" class="primary" onclick="mhqShareBackup()">Back up</button><button type="button" onclick="mhqSnooze()">Later</button></div></div>`}
+      h+=`<div class="protect-card"><div class="protect-text"><b>Back up your progress</b><span>${m} Your data lives only in this browser.</span></div><div class="protect-actions"><button type="button" class="primary" onclick="mhqBackupSmart()">Back up</button><button type="button" onclick="mhqSnooze()">Later</button></div></div>`}
     if(deferred&&!standalone()&&now>(Number(get(IDISMISS))||0)){
       h+=`<div class="protect-card install"><div class="protect-text"><b>Install Medical HQ</b><span>Works offline and opens like an app.</span></div><div class="protect-actions"><button type="button" class="primary" onclick="mhqInstall()">Install</button><button type="button" onclick="mhqDismissInstall()">Not now</button></div></div>`}
     el.innerHTML=h;
@@ -2552,6 +2609,98 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
     navigator.serviceWorker.addEventListener("message",e=>{if(e.data&&e.data.type==="MHQ_UPDATE")showUpdate()});
     navigator.serviceWorker.register("./sw.js").catch(()=>{});
   }
+})();
+</script>
+<script id="mhq-courses">
+(function(){
+  const S=window.mhqStore;if(!S)return;
+  const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const parse=t=>{try{return JSON.parse(t)}catch(e){return null}};
+  const say=t=>{try{toast(t)}catch(e){}};
+  function info(id){
+    const c=parse(S.raw.get(S.key("mhqCourseV59",id))),st=parse(S.raw.get(S.key("medicalHQ",id)));
+    const n=c&&c.lectures?c.lectures.length:0;
+    const done=st&&Array.isArray(st.data)?st.data.filter(x=>x&&Array.isArray(x.steps)&&x.steps.length&&x.steps.every(Boolean)).length:0;
+    return {id,name:c?c.name:"Untitled course",short:c?c.short:"",n,done,pct:n?Math.round(done/n*100):0,ok:!!c};
+  }
+  function close(){const e=document.getElementById("csRoot");if(e)e.remove();document.body.style.overflow=""}
+  function open(html){close();const d=document.createElement("div");d.id="csRoot";d.className="cs-backdrop";d.innerHTML=`<div class="cs-sheet" role="dialog" aria-modal="true">${html}</div>`;d.addEventListener("click",e=>{if(e.target===d)close()});document.body.appendChild(d);document.body.style.overflow="hidden";return d}
+  window.mhqOpenCourses=function(){
+    try{save()}catch(e){}
+    const reg=S.registry(),items=reg.list.map(info).filter(x=>x.ok||x.id===reg.active);
+    const d=open(`<div class="cs-head"><h2>My courses</h2><button type="button" class="close" style="float:none" aria-label="Close" id="csClose">×</button></div>
+      <div class="cs-list">${items.map(x=>`<div class="cs-item ${x.id===reg.active?"active":""}">
+        <button type="button" class="cs-main" data-act="${x.id===reg.active?"close":"switch"}" data-id="${esc(x.id)}"><span><div class="cs-name">${esc(x.name)}</div><div class="cs-meta">${x.n} lecture${x.n===1?"":"s"} · ${x.pct}% complete</div></span>${x.id===reg.active?'<span class="cs-check">✓ Open</span>':""}</button>
+        <div class="cs-bar"><div style="width:${x.pct}%"></div></div>
+        <div class="cs-actions">${x.id===reg.active?`<button type="button" data-act="edit">Edit</button>`:`<button type="button" class="primary" data-act="switch" data-id="${esc(x.id)}">Open</button>`}<button type="button" class="cs-danger" data-act="delete" data-id="${esc(x.id)}">Delete</button></div></div>`).join("")}</div>
+      <div class="cs-foot"><button type="button" class="primary" data-act="new">＋ New course</button><div class="row"><button type="button" data-act="backupAll">Back up all</button><button type="button" data-act="restoreAll">Restore all</button></div></div>`);
+    d.addEventListener("click",e=>{
+      const b=e.target.closest("[data-act]");if(!b)return;const a=b.dataset.act,id=b.dataset.id;
+      if(a==="close")close();else if(a==="switch")switchTo(id);else if(a==="edit"){close();mhqOpenCourseSetup(true)}
+      else if(a==="new"){close();mhqOpenCourseSetup("new")}else if(a==="delete")confirmDelete(id);
+      else if(a==="backupAll"){mhqBackupAll()}else if(a==="restoreAll"){close();document.getElementById("restoreAllInput").click()}
+    });
+    d.querySelector("#csClose").onclick=close;
+  };
+  function switchTo(id){
+    try{save()}catch(e){}
+    const reg=S.registry();if(reg.list.indexOf(id)<0)return;reg.active=id;S.saveRegistry(reg);S.freeze();location.reload();
+  }
+  function confirmDelete(id){
+    const x=info(id);
+    const d=open(`<div class="cs-confirm"><h2>Delete “${esc(x.name)}”?</h2><p>This removes its ${x.n} lecture${x.n===1?"":"s"} and all of its progress from this device. Your other courses are not affected. This cannot be undone.</p><div class="row"><button type="button" data-act="backup">Download a backup of this course first</button><button type="button" class="del" data-act="del">Delete course</button><button type="button" data-act="cancel">Cancel</button></div></div>`);
+    d.addEventListener("click",e=>{
+      const b=e.target.closest("[data-act]");if(!b)return;
+      if(b.dataset.act==="cancel")mhqOpenCourses();
+      else if(b.dataset.act==="backup"){download(`medical-hq-${(x.short||"course").toLowerCase().replace(/[^a-z0-9]+/g,"-")}-backup.json`,JSON.stringify(dump([id]),null,2));say("💾 Backup downloaded")}
+      else if(b.dataset.act==="del")doDelete(id);
+    });
+  }
+  function doDelete(id){
+    const reg=S.registry();
+    S.keysOf(id).forEach(k=>S.raw.remove(k));
+    reg.list=reg.list.filter(x=>x!==id);
+    if(!reg.list.length){reg.list=["default"];reg.active="default"}
+    else if(reg.active===id)reg.active=reg.list[0];
+    S.saveRegistry(reg);S.freeze();location.reload();
+  }
+  function dump(ids){
+    return {backupType:"medical-hq-all",version:1,exportedAt:new Date().toISOString(),active:S.registry().active,
+      courses:ids.map(id=>{const keys={};S.BASE.forEach(k=>{const v=S.raw.get(S.key(k,id));if(v!=null)keys[k]=v});return {id,keys}})};
+  }
+  function download(name,text){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:"application/json"}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+  window.mhqBackupAll=async function(){
+    try{save()}catch(e){}
+    const text=JSON.stringify(dump(S.registry().list),null,2),name=`medical-hq-all-courses-${(typeof localDateKey==="function"?localDateKey():new Date().toISOString().slice(0,10))}.json`;
+    try{
+      const f=new File([text],name,{type:"application/json"});
+      if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],title:"Medical HQ backup"});try{markBackupDone()}catch(e){}return}catch(err){if(err&&err.name==="AbortError")return}}
+    }catch(e){}
+    download(name,text);try{markBackupDone()}catch(e){}say("💾 All courses backed up");close();
+  };
+  window.mhqBackupSmart=function(){S.registry().list.length>1?mhqBackupAll():mhqShareBackup()};
+  window.mhqRestoreAll=function(input){
+    const f=input.files&&input.files[0];if(!f)return;const r=new FileReader();
+    r.onload=()=>{input.value="";mhqRestoreAllObject(parse(String(r.result)))};
+    r.readAsText(f);
+  };
+  window.mhqRestoreAllObject=function(j){
+    {
+      if(!j||j.backupType!=="medical-hq-all"||!Array.isArray(j.courses)||!j.courses.length){say("That is not an all-courses backup.");return}
+      const names=j.courses.map(c=>{const o=parse(c.keys&&c.keys.mhqCourseV59);return o&&o.name?esc(o.name):"Untitled"});
+      const d=open(`<div class="cs-confirm"><h2>Restore ${j.courses.length} course${j.courses.length===1?"":"s"}?</h2><p>${names.join(", ")}.<br>Courses with the same ID in this app are replaced by the backup. Other courses stay as they are.</p><div class="row"><button type="button" class="primary" data-act="go">Restore</button><button type="button" data-act="cancel">Cancel</button></div></div>`);
+      d.addEventListener("click",e=>{
+        const b=e.target.closest("[data-act]");if(!b)return;
+        if(b.dataset.act==="cancel"){close();return}
+        const reg=S.registry();
+        j.courses.forEach(c=>{if(!c||!/^[a-z0-9_-]{1,30}$/i.test(c.id)||!c.keys)return;
+          S.BASE.forEach(k=>{const kk=S.key(k,c.id);if(typeof c.keys[k]==="string")S.raw.set(kk,c.keys[k]);else S.raw.remove(kk)});
+          if(reg.list.indexOf(c.id)<0)reg.list.push(c.id)});
+        if(j.active&&reg.list.indexOf(j.active)>=0)reg.active=j.active;
+        S.saveRegistry(reg);S.freeze();location.reload();
+      });
+    }
+  };
 })();
 </script>
 </body>
