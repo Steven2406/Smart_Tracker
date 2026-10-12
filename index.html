@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Medical HQ — GIT</title>
 <meta name="color-scheme" content="light dark">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Medical HQ">
 <meta name="theme-color" content="#f4f5f1">
 <script>(function(){var t=null;try{t=localStorage.getItem('medicalHQThemeV57')}catch(e){}if(!t)t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;var m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='dark'?'#0e1511':'#f4f5f1'})()</script>
 <style id="mhq-v58">
@@ -334,12 +340,22 @@ body.mhq-modal-open{overflow:hidden}
 .setup-actions .primary{flex:1 1 180px;min-height:48px}
 .setup-actions button{min-height:48px}
 @media(max-width:480px){.setup-row{grid-template-columns:1fr}}
+
+/* Protection, install and updates */
+#protectCard{display:flex;flex-direction:column;gap:10px}#protectCard:empty{display:none}
+.protect-card{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:var(--r)}
+.protect-card.install{border-left-color:var(--accent)}
+.protect-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;font-size:13px;color:var(--muted)}.protect-text b{font-size:14px;color:var(--text)}
+.protect-actions{display:flex;gap:6px;flex:none}.protect-actions button{min-height:36px;padding:6px 12px}
+@media(max-width:480px){.protect-card{flex-direction:column;align-items:stretch}.protect-actions button{flex:1}}
+.update-bar{position:fixed;left:0;right:0;margin:0 auto;bottom:calc(86px + env(safe-area-inset-bottom));width:calc(100% - 20px);max-width:560px;z-index:250;display:flex;align-items:center;gap:10px;padding:10px 10px 10px 16px;border-radius:16px;background:var(--text);color:var(--bg);font-size:13px;font-weight:650;box-shadow:0 8px 28px rgba(0,0,0,.25)}
+.update-bar span{flex:1}.update-bar button{min-height:36px;background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-  <div class="brand"><span class="brand-mark" aria-hidden="true">⚕</span><div><b>Medical HQ</b><small>GIT campaign · v5.9</small></div></div>
+  <div class="brand"><span class="brand-mark" aria-hidden="true">⚕</span><div><b>Medical HQ</b><small>GIT campaign · v6.0</small></div></div>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -356,6 +372,7 @@ body.mhq-modal-open{overflow:hidden}
     <button type="button" data-view="rpgView" data-section="progress" onclick="showView('rpgView',this)"><span class="ic" aria-hidden="true">🏆</span><span>Progress</span></button>
   </nav>
   <div id="homeView" class="view active">
+  <div id="protectCard"></div>
   <div class="hero">
     <div class="label">CURRENT CAMPAIGN</div>
     <h1>Gastrointestinal Tract</h1>
@@ -630,6 +647,8 @@ body.mhq-modal-open{overflow:hidden}
           <button onclick="exportBackup()">EXPORT BACKUP</button>
           <button onclick="mhqOpenCourseSetup(true)">✏️ EDIT COURSE</button>
           <button onclick="mhqExportCourse()">📤 COURSE PACK</button>
+          <button onclick="mhqShareBackup()">📨 SHARE BACKUP</button>
+          <button id="installBtn" onclick="mhqInstall()" hidden>📲 INSTALL APP</button>
           <button onclick="document.getElementById('backupInput').click()">IMPORT BACKUP</button>
           <button onclick="runHealthCheck()">RUN HEALTH CHECK</button>
           <input id="backupInput" type="file" accept="application/json,.json" style="display:none" onchange="importBackupFile(this)">
@@ -1348,7 +1367,7 @@ function exportBackup(){
   const url=URL.createObjectURL(blob); const a=document.createElement("a");
   a.href=url;a.download=`medical-hq-backup-${localDateKey()}.json`;a.click();
   setTimeout(()=>URL.revokeObjectURL(url),1000);
-  toast("💾 Backup exported");
+  toast("💾 Backup exported");try{markBackupDone()}catch(e){}
 }
 function importBackupFile(input){
   const file=input.files?.[0]; if(!file)return;
@@ -1372,6 +1391,7 @@ function importBackupFile(input){
 
 function render(){
   if(!data.length)return;
+  try{renderProtectCard()}catch(e){}
  const achievementChanged=syncAchievements();
  if(achievementChanged)playSfx("achievement",.88);
  syncXP();
@@ -2463,6 +2483,75 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
   if(m!==mode){mode=m;css.textContent=phone?orig.replace(/@media\(max-width:\d+px\)/g,'@media all').replace(/@media\(min-width:\d+px\)/g,'@media not all'):orig}
  }
  fit();addEventListener('resize',fit);addEventListener('orientationchange',fit);
+})();
+</script>
+<script id="mhq-pwa">
+(function(){
+  const LAST="mhqBackupMetaV60",SNOOZE="mhqProtectSnoozeV60",IDISMISS="mhqInstallDismissV60",DAY=864e5;
+  const get=k=>{try{return localStorage.getItem(k)}catch(e){return null}},set=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+  const standalone=()=>matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  let deferred=null;
+  const say=t=>{try{toast(t)}catch(e){}};
+  window.markBackupDone=function(){set(LAST,String(Date.now()));renderProtectCard();renderStorage()};
+  window.mhqSnooze=function(){set(SNOOZE,String(Date.now()+DAY));renderProtectCard()};
+  window.mhqDismissInstall=function(){set(IDISMISS,String(Date.now()+7*DAY));renderProtectCard()};
+  function hasProgress(){try{return data.some(x=>x.steps.some(Boolean)||x.mcqs.length)||externalTests.length>0}catch(e){return false}}
+  window.renderProtectCard=function(){
+    const el=document.getElementById("protectCard");if(!el)return;
+    const now=Date.now(),last=Number(get(LAST))||0;let h="";
+    if(hasProgress()&&now>(Number(get(SNOOZE))||0)&&(!last||now-last>7*DAY)){
+      const m=last?`Last backup was ${Math.floor((now-last)/DAY)} days ago.`:"You haven't backed up yet.";
+      h+=`<div class="protect-card"><div class="protect-text"><b>Back up your progress</b><span>${m} Your data lives only in this browser.</span></div><div class="protect-actions"><button type="button" class="primary" onclick="mhqShareBackup()">Back up</button><button type="button" onclick="mhqSnooze()">Later</button></div></div>`}
+    if(deferred&&!standalone()&&now>(Number(get(IDISMISS))||0)){
+      h+=`<div class="protect-card install"><div class="protect-text"><b>Install Medical HQ</b><span>Works offline and opens like an app.</span></div><div class="protect-actions"><button type="button" class="primary" onclick="mhqInstall()">Install</button><button type="button" onclick="mhqDismissInstall()">Not now</button></div></div>`}
+    el.innerHTML=h;
+  };
+  window.mhqShareBackup=async function(){
+    try{
+      save();const c={...COURSE};delete c.voice;
+      const payload={...buildPersistedState(),backupType:"medical-hq-backup",exportedAt:new Date().toISOString(),course:c};
+      const file=new File([JSON.stringify(payload,null,2)],`medical-hq-backup-${localDateKey()}.json`,{type:"application/json"});
+      if(navigator.canShare&&navigator.canShare({files:[file]})){
+        try{await navigator.share({files:[file],title:"Medical HQ backup"});markBackupDone();say("💾 Backup shared");return}
+        catch(err){if(err&&err.name==="AbortError")return}
+      }
+      exportBackup();
+    }catch(e){try{exportBackup()}catch(_){}}
+  };
+  window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferred=e;const b=document.getElementById("installBtn");if(b)b.hidden=false;renderProtectCard()});
+  window.mhqInstall=async function(){
+    if(!deferred){say(ios?"Tap Share, then Add to Home Screen":"Use your browser menu: Install app / Add to Home screen");return}
+    deferred.prompt();try{await deferred.userChoice}catch(e){}
+    deferred=null;const b=document.getElementById("installBtn");if(b)b.hidden=true;renderProtectCard();
+  };
+  window.addEventListener("appinstalled",()=>{deferred=null;const b=document.getElementById("installBtn");if(b)b.hidden=true;renderProtectCard();askPersist();say("📲 Installed")});
+  async function askPersist(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}renderStorage()}
+  window.renderStorage=async function(){
+    const el=document.getElementById("storageStatus");if(!el)return;
+    let p=null,used="";
+    try{if(navigator.storage&&navigator.storage.persisted)p=await navigator.storage.persisted()}catch(e){}
+    try{if(navigator.storage&&navigator.storage.estimate){const q=await navigator.storage.estimate();used=" · "+((q.usage||0)/1048576).toFixed(1)+" MB used"}}catch(e){}
+    const last=Number(get(LAST))||0,lb=last?`Last backup: ${new Date(last).toLocaleDateString()}`:"No backup yet";
+    el.innerHTML=(p?"✓ Storage protected from automatic clearing":p===false?"⚠ Storage not guaranteed. Back up regularly"+(standalone()?"":", and install the app to improve this"):"Storage status unavailable")+used+"<br>"+lb+(ios&&!standalone()?"<br>iPhone: tap Share, then Add to Home Screen to install.":"");
+  };
+  function mountUI(){
+    const tools=document.querySelector(".system-tools");
+    if(tools&&!document.getElementById("storageStatus")){const d=document.createElement("div");d.id="storageStatus";d.className="system-health";tools.insertAdjacentElement("afterend",d)}
+    renderStorage();renderProtectCard();
+  }
+  function showUpdate(){
+    if(document.getElementById("updateBar"))return;
+    const b=document.createElement("div");b.id="updateBar";b.className="update-bar";b.setAttribute("role","status");
+    b.innerHTML='<span>A new version is ready.</span><button type="button" id="updateReload">Reload</button><button type="button" id="updateLater" aria-label="Dismiss" style="background:none;border-color:transparent;color:inherit;min-width:36px;padding:0">✕</button>';
+    document.body.appendChild(b);
+    b.querySelector("#updateReload").onclick=()=>location.reload();b.querySelector("#updateLater").onclick=()=>b.remove();
+  }
+  askPersist();mountUI();
+  if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol)){
+    navigator.serviceWorker.addEventListener("message",e=>{if(e.data&&e.data.type==="MHQ_UPDATE")showUpdate()});
+    navigator.serviceWorker.register("./sw.js").catch(()=>{});
+  }
 })();
 </script>
 </body>
