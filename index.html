@@ -420,12 +420,15 @@ button.brand .brand-text small::after{content:" ▾";color:var(--accent)}
 .cloud-note{margin-top:8px;color:var(--danger)}
 .cloud-conflict{margin:0 0 10px;padding:10px 12px;border-radius:12px;background:var(--surface);border:1px solid var(--accent)}
 .cloud-conflict .cloud-row{margin-top:8px}
+.xp-guide summary{cursor:pointer;font-size:15px}
+.xp-list{margin:10px 0 0;padding-left:18px;display:grid;gap:7px;font-size:13.5px;color:var(--muted)}
+.xp-list b{color:var(--text)}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v6.2</small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v6.3</small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -582,6 +585,7 @@ button.brand .brand-text small::after{content:" ▾";color:var(--accent)}
     <div class="section card"><div class="section-head"><h2>🧬 Medical Stats</h2><small>Live from your study data</small></div><div id="rpgStats" class="rpg-stats"></div></div>
     <div class="section"><div class="section-head"><h2>🎖️ Rank Progression</h2><small>Long-term journey</small></div><div id="rpgRanks" class="rpg-grid"></div></div>
     <div class="section card"><div class="section-head"><h2>🔓 Level Milestones</h2><small>Every level matters</small></div><div id="rpgLevels" class="rpg-level-list"></div></div>
+  <details class="card xp-guide" id="xpGuide"></details>
   </div>
 
   <div id="clinicalView" class="view">
@@ -917,6 +921,11 @@ const makeFreshData=()=>raw.map((x,i)=>({id:i+1,title:x[0],subject:x[1],steps:[f
 let data=makeFreshData();
 let activeFilter="All", current=null;
 let appXP=0, appStreak=0, todayXp=0, todaySteps=0, legacyBonusXP=0;
+/* ===== XP rules v2 =====
+   Activity dated on/after xpRulesFrom earns XP under these rules; older activity keeps the XP it had when it was earned,
+   so your total never changes just because the rules did. */
+let xpRulesFrom=null;
+const XP2={step:10,lecture:30,mcqBase:5,mcqCap:100,accMid:.12,accHigh:.25,review:15,comeback:10,seal:20,goalSteps:3,goal:15,focusPerMin:1,focusSession:60,focusDay:120,clinical:8};
 let studySessions=[];
 let achievementIds=[];
 let achievementDates={};
@@ -944,7 +953,11 @@ function normalizeSavedLecture(x){
     score:String(m?.score??""),
     source:String(m?.source??""),
     date:String(m?.date??""),
-    dateKey:typeof m?.dateKey==="string"?m.dateKey:null
+    dateKey:typeof m?.dateKey==="string"?m.dateKey:null,
+    percent:typeof m?.percent==="number"?m.percent:null,
+    confidence:typeof m?.confidence==="number"?m.confidence:null,
+    errorType:typeof m?.errorType==="string"?m.errorType:"",
+    reviewDue:m?.reviewDue===true
   })):[];
   return {
     id:0,
@@ -1122,7 +1135,7 @@ function updateExternalPreview(){
   const total=Number(document.getElementById("externalTotal")?.value||0),correct=Number(document.getElementById("externalCorrect")?.value||0);
   const el=document.getElementById("externalScorePreview"); if(!el)return;
   if(!total||correct<0||correct>total){el.innerHTML='<span>Score</span><b>—</b><span>· XP</span><b>—</b>';return;}
-  const pct=Math.round(correct/total*100),xp=5+correct;
+  const pct=Math.round(correct/total*100),xp=mcqSetXp(correct,total);
   const cls=pct<60?"test-score-low":pct<=85?"test-score-mid":"test-score-high";
   el.innerHTML=`<span>Score</span><b class="${cls}">${pct}%</b><span>· XP</span><b>+${xp}</b>`;
 }
@@ -1148,7 +1161,7 @@ function logExternalTest(){
   if(kg<0||misread<0||clinical<0||kg+misread+clinical>incorrect)return fail(`Error breakdown cannot exceed ${incorrect} incorrect questions.`);
   if(scope==="lecture"&&!lectureId)return fail("Choose the lecture/topic this test covered.");
   if(msg)msg.style.display="none";
-  const percent=Math.round(correct/total*100),xp=5+correct;
+  const percent=Math.round(correct/total*100),xp=mcqSetXp(correct,total);
   const test={id:`ext_${Date.now()}_${Math.random().toString(36).slice(2,7)}`,dateKey:todayKey,date:new Date().toLocaleDateString(),timestamp:new Date().toISOString(),source,scope,scopeLabel:topic,topic,subject,lectureId:lectureId||null,total,correct,percent,xp,confidence,errors:{knowledgeGap:kg,misread,clinicalReasoning:clinical}};
   externalTests.push(test);
   recordActivity("external-test","external",lectureId||null,{testId:test.id,score:`${correct}/${total}`,percent,source,scope,topic,subject,errors:test.errors,confidence});
@@ -1278,12 +1291,12 @@ function answerClinical(id,index,button){
   if(correct && !s.xpAwarded){
     s.xpAwarded=true;
     s.xpDate=todayKey;
-    awardedXp=3;
+    awardedXp=XP2.clinical;
   }
   if(correct){
     playSfx("clinical_correct",.72);setTimeout(()=>playSfx("clinical_resolve",.42),320);
     recordActivity("clinical-case","clinical",null,{caseId:id,correct:true,xpAwarded:awardedXp>0});
-    if(awardedXp>0){recordXP(awardedXp);toast("🩺 Clinical case solved! +3 XP");}
+    if(awardedXp>0){recordXP(awardedXp);toast(`🩺 Clinical case solved! +${awardedXp} XP`);}
     else toast("🩺 Correct! (XP for this case was already earned on a previous attempt.)");
   }else{
     playSfx("mcq_wrong",.38);
@@ -1297,17 +1310,67 @@ function closeClinicalCase(){
   if(panel)panel.style.display="none";
 }
 
+function xpIsNew(k){if(!xpRulesFrom)xpRulesFrom=todayKey;return !!k&&k>=xpRulesFrom}
+function mcqSetDetail(got,total){
+  total=Math.max(0,safeNumber(total,0));got=Math.max(0,Math.min(total,safeNumber(got,0)));
+  const cap=Math.min(total,XP2.mcqCap),scaled=total>cap?got*cap/total:got,acc=total?got/total:0;
+  const bonus=acc>=.85?Math.round(cap*XP2.accHigh):acc>=.70?Math.round(cap*XP2.accMid):0;
+  return {xp:XP2.mcqBase+Math.round(scaled)+bonus,bonus};
+}
+function mcqSetXp(got,total){return mcqSetDetail(got,total).xp}
+/* XP for each MCQ set of a lecture, in the order they were logged. */
+function lectureMcqXp(x){
+  const out=[],before=[],reviewDays=new Set(),comebackDays=new Set();let sealed=false;
+  (x.mcqs||[]).forEach(m=>{
+    const p=parseMCQScore(m.score),got=p?safeNumber(p.got,0):0,max=p?safeNumber(p.max,0):0,frac=max?got/max:0;
+    if(!xpIsNew(m.dateKey)){
+      out.push({m,xp:5+Math.round(got),parts:[]});
+      if(max>=5)before.push(frac);
+      if(max>=20&&frac>=.8)sealed=true;
+      return;
+    }
+    const d=mcqSetDetail(got,max),parts=[];let xp=d.xp;
+    if(d.bonus>0)parts.push(`accuracy +${d.bonus}`);
+    if(m.reviewDue&&max>=10&&!reviewDays.has(m.dateKey)){xp+=XP2.review;reviewDays.add(m.dateKey);parts.push(`due review +${XP2.review}`);}
+    if(max>=10&&frac>=.7&&before.length){
+      const avg=before.reduce((a,b)=>a+b,0)/before.length;
+      if(frac-avg>=.15&&!comebackDays.has(m.dateKey)){comebackDays.add(m.dateKey);xp+=XP2.comeback;parts.push(`comeback +${XP2.comeback}`);}
+    }
+    if(!sealed&&max>=20&&frac>=.8){sealed=true;xp+=XP2.seal;parts.push(`mastery seal +${XP2.seal}`);}
+    if(max>=5)before.push(frac);
+    out.push({m,xp,parts});
+  });
+  return out;
+}
+/* XP for each focus session: old sessions keep their flat 25; new ones scale with minutes, with a per-session and per-day cap. */
+function sessionXpList(){
+  const perDay={};
+  return studySessions.map(s=>{
+    if(!xpIsNew(s.dateKey))return {s,xp:25};
+    const want=Math.min(XP2.focusSession,Math.round(safeNumber(s.minutes,0)*XP2.focusPerMin));
+    const used=perDay[s.dateKey]||0,xp=Math.max(0,Math.min(want,XP2.focusDay-used));
+    perDay[s.dateKey]=used+xp;return {s,xp};
+  });
+}
+/* Days on which at least 3 study steps were completed. */
+function dailyGoalDays(){
+  const c={};
+  data.forEach(x=>x.steps.forEach((done,i)=>{const k=x.stepDates&&x.stepDates[i];if(done&&k&&xpIsNew(k))c[k]=(c[k]||0)+1;}));
+  return Object.keys(c).filter(k=>c[k]>=XP2.goalSteps);
+}
+function clinicalXpFor(cs){return cs&&cs.xpAwarded?(xpIsNew(cs.xpDate)?XP2.clinical:3):0}
 function calculateBaseXP(){
   let total=0;
   data.forEach(x=>{
-    total+=x.steps.filter(Boolean).length*10;
-    if(x.steps.every(Boolean))total+=30;
-    total+=x.mcqs.reduce((n,m)=>n+5+Math.round(parseMCQScore(m.score)?.got||0),0);
+    total+=x.steps.filter(Boolean).length*XP2.step;
+    if(x.steps.every(Boolean))total+=XP2.lecture;
+    total+=lectureMcqXp(x).reduce((n,o)=>n+o.xp,0);
   });
-  total+=studySessions.length*25;
+  total+=sessionXpList().reduce((n,o)=>n+o.xp,0);
+  total+=dailyGoalDays().length*XP2.goal;
   total+=achievementIds.reduce((n,id)=>n+(achievementDefinitions().find(a=>a.id===id)?.xp||0),0);
   total+=Object.values(bossVictories).reduce((n,v)=>n+safeNumber(v?.xp,0),0);
-  total+=clinicalCases.reduce((n,c)=>n+(clinicalState[c.id]?.xpAwarded?3:0),0);
+  total+=clinicalCases.reduce((n,c)=>n+clinicalXpFor(clinicalState[c.id]),0);
   total+=externalTests.reduce((n,t)=>n+safeNumber(t.xp,0),0);
   return total;
 }
@@ -1315,12 +1378,13 @@ function calculateTodayXP(){
   refreshTodayContext();
   let total=0;
   data.forEach(x=>{
-    total+=x.steps.reduce((n,d,i)=>n+(x.steps[i]&&x.stepDates?.[i]===todayKey?10:0),0);
-    if(x.steps.every(Boolean)&&x.completionDate===todayKey)total+=30;
-    total+=x.mcqs.filter(m=>m.dateKey===todayKey).reduce((n,m)=>n+5+Math.round(parseMCQScore(m.score)?.got||0),0);
+    total+=x.steps.reduce((n,d,i)=>n+(x.steps[i]&&x.stepDates?.[i]===todayKey?XP2.step:0),0);
+    if(x.steps.every(Boolean)&&x.completionDate===todayKey)total+=XP2.lecture;
+    total+=lectureMcqXp(x).filter(o=>o.m.dateKey===todayKey).reduce((n,o)=>n+o.xp,0);
   });
-  total+=studySessions.filter(x=>x.dateKey===todayKey).length*25;
-  total+=clinicalCases.reduce((n,c)=>{const cs=clinicalState[c.id];return n+(cs?.xpAwarded&&cs.xpDate===todayKey?3:0);},0);
+  total+=sessionXpList().filter(o=>o.s.dateKey===todayKey).reduce((n,o)=>n+o.xp,0);
+  if(dailyGoalDays().includes(todayKey))total+=XP2.goal;
+  total+=clinicalCases.reduce((n,c)=>{const cs=clinicalState[c.id];return n+(cs?.xpAwarded&&cs.xpDate===todayKey?clinicalXpFor(cs):0);},0);
   total+=Object.values(bossVictories).filter(v=>v?.date===todayKey).reduce((n,v)=>n+safeNumber(v?.xp,0),0);
   total+=externalTests.filter(t=>t.dateKey===todayKey).reduce((n,t)=>n+safeNumber(t.xp,0),0);
   total+=achievementIds.filter(id=>achievementDates[id]===todayKey).reduce((n,id)=>n+(achievementDefinitions().find(a=>a.id===id)?.xp||0),0);
@@ -1344,6 +1408,7 @@ function load(){
           x.mcqs.forEach(m=>{if(!m.dateKey)m.dateKey=todayKey;});
         });
       }
+      xpRulesFrom=(typeof s.xpRulesFrom==="string"&&s.xpRulesFrom)?s.xpRulesFrom:todayKey;
       studySessions=Array.isArray(s.studySessions)?s.studySessions.filter(x=>x&&x.dateKey&&Number(x.minutes)>0):[];
       achievementIds=Array.isArray(s.achievementIds)?s.achievementIds.filter(x=>typeof x==="string"):[];
       achievementDates=(s.achievementDates&&typeof s.achievementDates==="object")?s.achievementDates:{};
@@ -1378,12 +1443,12 @@ function load(){
       return;
     }
   }catch(e){}
-  data=makeFreshData();appXP=0;appStreak=0;todayXp=0;todaySteps=0;lastStudyDate=null;legacyBonusXP=0;studySessions=[];achievementIds=[];achievementDates={};bossVictories={};reviewCards={};activityLedger=[];xpLedger=[];externalTests=[];externalReviewCards={};rpgLastSeenLevel=null;clinicalState={};audioSettings={enabled:true,volume:.68};
+  data=makeFreshData();appXP=0;appStreak=0;todayXp=0;todaySteps=0;lastStudyDate=null;legacyBonusXP=0;xpRulesFrom=null;studySessions=[];achievementIds=[];achievementDates={};bossVictories={};reviewCards={};activityLedger=[];xpLedger=[];externalTests=[];externalReviewCards={};rpgLastSeenLevel=null;clinicalState={};audioSettings={enabled:true,volume:.68};
   syncXP();
   save();
 }
 function buildPersistedState(){
-  return {schemaVersion:SCHEMA_VERSION,savedAt:new Date().toISOString(),data,xp:appXP,streak:appStreak,todayXp,todaySteps,todayKey,lastStudyDate,legacyBonusXP,studySessions,achievementIds,achievementDates,bossVictories,reviewCards,rpgLastSeenLevel,clinicalState,activityLedger,xpLedger,externalTests,externalReviewCards,audioSettings};
+  return {schemaVersion:SCHEMA_VERSION,savedAt:new Date().toISOString(),data,xp:appXP,streak:appStreak,todayXp,todaySteps,todayKey,lastStudyDate,legacyBonusXP,xpRulesFrom,studySessions,achievementIds,achievementDates,bossVictories,reviewCards,rpgLastSeenLevel,clinicalState,activityLedger,xpLedger,externalTests,externalReviewCards,audioSettings};
 }
 function save(){
   refreshTodayContext();
@@ -1672,7 +1737,7 @@ function updateStudyTarget(){
 function updateStudyUI(){
   const clock=document.getElementById("studyClock"),state=document.getElementById("studyState"),btn=document.getElementById("studyStartBtn");
   if(clock)clock.textContent=formatClock(studyRemaining); if(state)state.textContent=studyRunning?"Focus mode active — stay with the session.":(studyRemaining===0?"Session complete. Nice work.":"Ready when you are."); if(btn)btn.textContent=studyRunning?"PAUSE":"START SESSION";
-  const count=document.getElementById("sessionCount"),xp=document.getElementById("sessionXp"),mins=document.getElementById("sessionMinutes"); if(count)count.textContent=studySessions.length; if(xp)xp.textContent=studySessions.length*25; if(mins)mins.textContent=studySessions.reduce((n,s)=>n+Number(s.minutes||0),0)+" min";
+  const count=document.getElementById("sessionCount"),xp=document.getElementById("sessionXp"),mins=document.getElementById("sessionMinutes"); if(count)count.textContent=studySessions.length; if(xp)xp.textContent=sessionXpList().reduce((n,o)=>n+o.xp,0); if(mins)mins.textContent=studySessions.reduce((n,s)=>n+Number(s.minutes||0),0)+" min";
   renderStudyHistory(); updateStudyTarget();
 }
 function setStudyPreset(minutes,button){if(studyRunning)return;studySelectedMinutes=minutes;studyTotal=minutes*60;studyRemaining=studyTotal;document.querySelectorAll("#studyPresets .preset").forEach(b=>b.classList.remove("active"));if(button)button.classList.add("active");hideSessionReview();updateStudyUI();}
@@ -1810,12 +1875,16 @@ function weekStats(){
   data.forEach(x=>{
     x.steps.forEach((done,i)=>{if(done&&x.stepDates?.[i]&&map[x.stepDates[i]]){map[x.stepDates[i]].steps++;map[x.stepDates[i]].xp+=10;}});
     if(x.completionDate&&map[x.completionDate])map[x.completionDate].xp+=30;
-    x.mcqs.forEach(m=>{if(m.dateKey&&map[m.dateKey]){const q=parseMCQScore(m.score);if(q){map[m.dateKey].mcqs++;map[m.dateKey].correct+=q.got;map[m.dateKey].questions+=q.max;map[m.dateKey].xp+=5+q.got;}}});
+    x.mcqs.forEach(m=>{if(m.dateKey&&map[m.dateKey]){const q=parseMCQScore(m.score);if(q){map[m.dateKey].mcqs++;map[m.dateKey].correct+=q.got;map[m.dateKey].questions+=q.max;}}});
   });
-  studySessions.forEach(x=>{if(map[x.dateKey]){map[x.dateKey].focus+=Number(x.minutes)||0;map[x.dateKey].xp+=25;}});
+  studySessions.forEach(x=>{if(map[x.dateKey]){map[x.dateKey].focus+=Number(x.minutes)||0;}});
+  data.forEach(x=>lectureMcqXp(x).forEach(o=>{if(o.m.dateKey&&map[o.m.dateKey])map[o.m.dateKey].xp+=o.xp;}));
+  sessionXpList().forEach(o=>{if(map[o.s.dateKey])map[o.s.dateKey].xp+=o.xp;});
+  dailyGoalDays().forEach(k=>{if(map[k])map[k].xp+=XP2.goal;});
+  externalTests.forEach(t=>{if(t.dateKey&&map[t.dateKey])map[t.dateKey].xp+=safeNumber(t.xp,0);});
   Object.values(bossVictories).forEach(v=>{if(v?.date&&map[v.date])map[v.date].xp+=safeNumber(v.xp,0);});
   achievementIds.forEach(id=>{const d=achievementDates[id];if(d&&map[d])map[d].xp+=(achievementDefinitions().find(a=>a.id===id)?.xp||0);});
-  clinicalCases.forEach(c=>{const cs=clinicalState[c.id];if(cs?.xpAwarded&&cs.xpDate&&map[cs.xpDate])map[cs.xpDate].xp+=3;});
+  clinicalCases.forEach(c=>{const cs=clinicalState[c.id];if(cs?.xpAwarded&&cs.xpDate&&map[cs.xpDate])map[cs.xpDate].xp+=clinicalXpFor(cs);});
   return days.map(k=>map[k]);
 }
 function renderStats(){
@@ -2223,7 +2292,8 @@ function addMcq(){
  const errorType=document.getElementById("mcqError").value||"";
  const parsed=parseMCQScore(score);
  if(!parsed){toast("Enter a valid score, e.g. 7/10");return;}
- current.mcqs.push({score,source,date:new Date().toLocaleDateString(),dateKey:todayKey,percent:parsed.percent,confidence,errorType});
+ const wasDue=(()=>{try{return reviewStatus(current).state==="due"}catch(e){return false}})();
+ current.mcqs.push({score,source,date:new Date().toLocaleDateString(),dateKey:todayKey,percent:parsed.percent,confidence,errorType,reviewDue:wasDue});
  if(parsed.percent<55){
    // Your real voice recording becomes the low-score "chief complaint" alert.
    playSfx("mcq_low_voice",.86);
@@ -2238,10 +2308,11 @@ function addMcq(){
    playSfx("mcq_perfect",.82);
  }
  recordActivity("mcq","lecture",current.id,{score,percent:parsed.percent,got:parsed.got,max:parsed.max,source,confidence,errorType});
- recordXP(5+Math.round(parsed.got));
+ const gain=lectureMcqXp(current).slice(-1)[0]||{xp:5,parts:[]};
+ recordXP(gain.xp);
  current.mastery=inferredMastery(current);
  scheduleReview(current);
- toast(`+${5+Math.round(parsed.got)} XP — MCQ logged! Next review: ${formatReviewDate(reviewCards[current.id].nextDate)}.`);
+ toast(`+${gain.xp} XP${gain.parts.length?" ("+gain.parts.join(", ")+")":""} — MCQ logged! Next review: ${formatReviewDate(reviewCards[current.id].nextDate)}.`);
  ["mcqScore","mcqSource","mcqConfidence","mcqError"].forEach(id=>document.getElementById(id).value="");
  save();render();openLecture(current.id);
 }
@@ -2703,6 +2774,19 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
     }
   };
 })();
+</script>
+<script id="mhq-xp-guide">
+(function(){const el=document.getElementById('xpGuide');if(!el||typeof XP2==='undefined')return;const p=n=>Math.round(n*100);
+el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
+<li><b>Study steps</b>: ${XP2.step} XP each, +${XP2.lecture} when all four are done (${XP2.step*4+XP2.lecture} per lecture).</li>
+<li><b>Daily goal</b>: +${XP2.goal} on any day you complete ${XP2.goalSteps}+ steps.</li>
+<li><b>MCQs and tests</b>: ${XP2.mcqBase} + 1 per correct answer (counted up to ${XP2.mcqCap} questions per set), plus an accuracy bonus of ${p(XP2.accMid)}% of the questions at 70%+ or ${p(XP2.accHigh)}% at 85%+.</li>
+<li><b>Due review</b>: +${XP2.review} when you log a set of 10+ questions on a lecture whose review was due.</li>
+<li><b>Comeback</b>: +${XP2.comeback} for a set (10+ questions, 70%+) that beats your earlier average on that lecture by 15 points or more.</li>
+<li><b>Mastery seal</b>: +${XP2.seal} once per lecture for a set of 20+ questions at 80%+.</li>
+<li><b>Focus sessions</b>: ${XP2.focusPerMin} XP per minute (max ${XP2.focusSession} per session, ${XP2.focusDay} per day).</li>
+<li><b>Clinical cases</b>: ${XP2.clinical} XP the first time you solve one.</li>
+<li>Bosses and achievements keep their own rewards. Anything earned before this update keeps the XP it had.</li></ul>`;})();
 </script>
 <script id="mhq-cloud">
 /* Cloud backup: keeps a private GitHub Gist in sync with this device's data. The token never leaves this device and is not part of backups. */
