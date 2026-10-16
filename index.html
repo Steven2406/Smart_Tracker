@@ -428,7 +428,7 @@ button.brand .brand-text small::after{content:" ▾";color:var(--accent)}
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v6.3</small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v6.4</small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -787,6 +787,23 @@ button.brand .brand-text small::after{content:" ▾";color:var(--accent)}
     </div>
     <div class="mcq-list" id="mcqHistory"></div>
   </div>
+
+  <div class="card" style="padding:13px;margin-top:14px">
+    <div class="label">🃏 Flashcard Review</div>
+    <div class="meta" style="margin-top:4px">Log a deck session from Anki or any other app. Recall counts as lighter evidence than MCQs.</div>
+    <div class="mcq" style="margin-top:8px">
+      <input id="cardReviewed" type="number" inputmode="numeric" min="1" placeholder="Cards reviewed">
+      <input id="cardRecalled" type="number" inputmode="numeric" min="0" placeholder="Recalled (Good / Easy)">
+      <input id="cardSource" placeholder="Deck / source (optional)">
+      <button class="primary" type="button" onclick="addCards()">LOG FLASHCARDS</button>
+    </div>
+    <div class="mini-grid" style="margin-top:12px">
+      <div class="card"><div class="label">Sessions</div><b id="mCardSessions">0</b></div>
+      <div class="card"><div class="label">Recall</div><b id="mCardRecall">—</b></div>
+      <div class="card"><div class="label">Cards</div><b id="mCardTotal">0</b></div>
+    </div>
+    <div class="mcq-list" id="cardHistory"></div>
+  </div>
 </div></div>
 <div class="toast" id="toast"></div>
 
@@ -917,7 +934,7 @@ const raw=COURSE.lectures.map(l=>[String(l.title),String(l.subject||"General")])
   document.title="Medical HQ — "+COURSE.short;
 })();
 const SCHEMA_VERSION="5.0.0";
-const makeFreshData=()=>raw.map((x,i)=>({id:i+1,title:x[0],subject:x[1],steps:[false,false,false,false],stepDates:[null,null,null,null],completionDate:null,mastery:0,importance:"B",masteryProfile:{knowledge:0,retention:0,coverage:0,application:null,confidence:null,recency:0},mcqs:[]}));
+const makeFreshData=()=>raw.map((x,i)=>({id:i+1,title:x[0],subject:x[1],steps:[false,false,false,false],stepDates:[null,null,null,null],completionDate:null,mastery:0,importance:"B",masteryProfile:{knowledge:0,retention:0,coverage:0,application:null,confidence:null,recency:0},mcqs:[],cards:[]}));
 let data=makeFreshData();
 let activeFilter="All", current=null;
 let appXP=0, appStreak=0, todayXp=0, todaySteps=0, legacyBonusXP=0;
@@ -925,7 +942,8 @@ let appXP=0, appStreak=0, todayXp=0, todaySteps=0, legacyBonusXP=0;
    Activity dated on/after xpRulesFrom earns XP under these rules; older activity keeps the XP it had when it was earned,
    so your total never changes just because the rules did. */
 let xpRulesFrom=null;
-const XP2={step:10,lecture:30,mcqBase:5,mcqCap:100,accMid:.12,accHigh:.25,review:15,comeback:10,seal:20,goalSteps:3,goal:15,focusPerMin:1,focusSession:60,focusDay:120,clinical:8};
+const XP2={step:10,lecture:30,mcqBase:5,mcqCap:100,accMid:.12,accHigh:.25,review:15,comeback:10,seal:20,goalSteps:3,goal:15,focusPerMin:1,focusSession:60,focusDay:120,clinical:8,cardBase:3,cardPer:.4,cardCap:100,cardDay:200,cardReview:10,cardReviewMin:15};
+const CARD_WEIGHT=.5; /* flashcard recall counts half as much as MCQ accuracy as evidence of mastery */
 let studySessions=[];
 let achievementIds=[];
 let achievementDates={};
@@ -959,6 +977,15 @@ function normalizeSavedLecture(x){
     errorType:typeof m?.errorType==="string"?m.errorType:"",
     reviewDue:m?.reviewDue===true
   })):[];
+  const cards=Array.isArray(x?.cards)?x.cards.map(c=>({
+    reviewed:Math.max(0,Math.floor(safeNumber(c?.reviewed,0))),
+    recalled:Math.max(0,Math.floor(safeNumber(c?.recalled,0))),
+    source:String(c?.source??""),
+    date:String(c?.date??""),
+    dateKey:typeof c?.dateKey==="string"?c.dateKey:null,
+    ts:typeof c?.ts==="string"?c.ts:"",
+    reviewDue:c?.reviewDue===true
+  })).filter(c=>c.reviewed>0&&c.recalled<=c.reviewed):[];
   return {
     id:0,
     title:String(x?.title??""),
@@ -967,7 +994,9 @@ function normalizeSavedLecture(x){
     stepDates,
     completionDate:typeof x?.completionDate==="string"?x.completionDate:null,
     mastery:Math.max(0,Math.min(100,safeNumber(x?.mastery,0))),
-    mcqs
+    importance:["A","B","C"].includes(x?.importance)?x.importance:"B",
+    mcqs,
+    cards
   };
 }
 function migrateData(saved){
@@ -984,7 +1013,7 @@ function migrateData(saved){
     const key=item.title+"\u0000"+item.subject;
     const old=buckets.get(key)?.shift();
     if(!old)return item;
-    const migrated={...item,steps:old.steps,stepDates:old.stepDates,completionDate:old.completionDate,mastery:old.mastery,mcqs:old.mcqs};
+    const migrated={...item,steps:old.steps,stepDates:old.stepDates,completionDate:old.completionDate,mastery:old.mastery,mcqs:old.mcqs,cards:old.cards,importance:old.importance};
     // V1.3 had no per-action dates. If its saved session was from today,
     // attach today's date to the already-completed actions so they can be undone correctly.
     return migrated;
@@ -1358,6 +1387,30 @@ function dailyGoalDays(){
   data.forEach(x=>x.steps.forEach((done,i)=>{const k=x.stepDates&&x.stepDates[i];if(done&&k&&xpIsNew(k))c[k]=(c[k]||0)+1;}));
   return Object.keys(c).filter(k=>c[k]>=XP2.goalSteps);
 }
+function lectureCardStats(lecture){
+  const cs=(lecture&&lecture.cards)||[];
+  const reviewed=cs.reduce((n,c)=>n+safeNumber(c.reviewed,0),0),recalled=cs.reduce((n,c)=>n+safeNumber(c.recalled,0),0);
+  const last=cs.map(c=>c.dateKey).filter(Boolean).sort().at(-1)||null;
+  return {sessions:cs.length,reviewed,recalled,recall:reviewed?Math.round(recalled/reviewed*100):null,lastDate:last};
+}
+/* XP for each flashcard session across all lectures, in the order they were logged.
+   Counts at most 100 cards per session and 200 cards per day (self-graded, so capped). */
+function cardXpList(){
+  const all=[];
+  data.forEach(l=>(l.cards||[]).forEach((c,i)=>all.push({l,c,i})));
+  all.sort((a,b)=>String(a.c.ts||a.c.dateKey||"").localeCompare(String(b.c.ts||b.c.dateKey||""))||a.l.id-b.l.id||a.i-b.i);
+  const perDay={},reviewKeys=new Set();
+  return all.map(o=>{
+    const c=o.c,room=Math.max(0,XP2.cardDay-(perDay[c.dateKey]||0)),counted=Math.min(c.reviewed,XP2.cardCap,room),parts=[];
+    perDay[c.dateKey]=(perDay[c.dateKey]||0)+counted;
+    const recalled=c.reviewed?c.recalled*counted/c.reviewed:0;
+    let xp=counted>0?XP2.cardBase+Math.round(recalled*XP2.cardPer):0;
+    if(counted<c.reviewed&&c.reviewed<=XP2.cardCap)parts.push("daily cap reached");
+    const k=o.l.id+"|"+c.dateKey;
+    if(c.reviewDue&&counted>=XP2.cardReviewMin&&!reviewKeys.has(k)){reviewKeys.add(k);xp+=XP2.cardReview;parts.push(`due review +${XP2.cardReview}`);}
+    return {l:o.l,c,xp,parts};
+  });
+}
 function clinicalXpFor(cs){return cs&&cs.xpAwarded?(xpIsNew(cs.xpDate)?XP2.clinical:3):0}
 function calculateBaseXP(){
   let total=0;
@@ -1367,6 +1420,7 @@ function calculateBaseXP(){
     total+=lectureMcqXp(x).reduce((n,o)=>n+o.xp,0);
   });
   total+=sessionXpList().reduce((n,o)=>n+o.xp,0);
+  total+=cardXpList().reduce((n,o)=>n+o.xp,0);
   total+=dailyGoalDays().length*XP2.goal;
   total+=achievementIds.reduce((n,id)=>n+(achievementDefinitions().find(a=>a.id===id)?.xp||0),0);
   total+=Object.values(bossVictories).reduce((n,v)=>n+safeNumber(v?.xp,0),0);
@@ -1383,6 +1437,7 @@ function calculateTodayXP(){
     total+=lectureMcqXp(x).filter(o=>o.m.dateKey===todayKey).reduce((n,o)=>n+o.xp,0);
   });
   total+=sessionXpList().filter(o=>o.s.dateKey===todayKey).reduce((n,o)=>n+o.xp,0);
+  total+=cardXpList().filter(o=>o.c.dateKey===todayKey).reduce((n,o)=>n+o.xp,0);
   if(dailyGoalDays().includes(todayKey))total+=XP2.goal;
   total+=clinicalCases.reduce((n,c)=>{const cs=clinicalState[c.id];return n+(cs?.xpAwarded&&cs.xpDate===todayKey?clinicalXpFor(cs):0);},0);
   total+=Object.values(bossVictories).filter(v=>v?.date===todayKey).reduce((n,v)=>n+safeNumber(v?.xp,0),0);
@@ -1881,6 +1936,7 @@ function weekStats(){
   data.forEach(x=>lectureMcqXp(x).forEach(o=>{if(o.m.dateKey&&map[o.m.dateKey])map[o.m.dateKey].xp+=o.xp;}));
   sessionXpList().forEach(o=>{if(map[o.s.dateKey])map[o.s.dateKey].xp+=o.xp;});
   dailyGoalDays().forEach(k=>{if(map[k])map[k].xp+=XP2.goal;});
+  cardXpList().forEach(o=>{if(map[o.c.dateKey])map[o.c.dateKey].xp+=o.xp;});
   externalTests.forEach(t=>{if(t.dateKey&&map[t.dateKey])map[t.dateKey].xp+=safeNumber(t.xp,0);});
   Object.values(bossVictories).forEach(v=>{if(v?.date&&map[v.date])map[v.date].xp+=safeNumber(v.xp,0);});
   achievementIds.forEach(id=>{const d=achievementDates[id];if(d&&map[d])map[d].xp+=(achievementDefinitions().find(a=>a.id===id)?.xp||0);});
@@ -2141,6 +2197,7 @@ function normalizeLearningEvidence(){
     if(!["A","B","C"].includes(l.importance))l.importance="B";
     if(!l.masteryProfile||typeof l.masteryProfile!=="object")l.masteryProfile={knowledge:0,retention:0,coverage:0,application:null,confidence:null,recency:0};
     if(!Array.isArray(l.mcqs))l.mcqs=[];
+    if(!Array.isArray(l.cards))l.cards=[];
     l.mcqs.forEach(m=>{
       if(m.confidence!=null)m.confidence=Math.max(1,Math.min(5,Number(m.confidence)||3));
       if(!m.errorType)m.errorType="";
@@ -2155,8 +2212,9 @@ function learningProfile(lecture){
   const ext=typeof externalStatsForLecture==='function'?externalStatsForLecture(lecture.id):{sessions:0,average:null,correct:0,questions:0,confidence:null,lastDate:null};
   const coverage=Math.round((lecture.steps||[]).filter(Boolean).length/4*100);
   const attempts=(lecture.mcqs||[]).map(m=>parseMCQScore(m.score)).filter(Boolean);
-  const totalQuestions=stats.questions+ext.questions;
-  const avg=totalQuestions?Math.round((stats.correct+ext.correct)/totalQuestions*100):null;
+  const cst=lectureCardStats(lecture);
+  const totalQuestions=stats.questions+ext.questions+cst.reviewed*CARD_WEIGHT;
+  const avg=totalQuestions?Math.round((stats.correct+ext.correct+cst.recalled*CARD_WEIGHT)/totalQuestions*100):null;
   const internalLatest=latestMCQ(lecture);
   const internalLatestDate=internalLatest?.dateKey||null;
   const latestExternal=externalTestsForLecture(lecture.id).slice().sort((a,b)=>String(a.dateKey).localeCompare(String(b.dateKey))).at(-1);
@@ -2165,7 +2223,7 @@ function learningProfile(lecture){
   const confidenceValues=(lecture.mcqs||[]).map(m=>Number(m.confidence)).filter(n=>n>=1&&n<=5);
   if(ext.confidence!=null)confidenceValues.push(ext.confidence/20);
   const confidence=confidenceValues.length?Math.round(confidenceValues.reduce((a,b)=>a+b,0)/confidenceValues.length*100):null;
-  const lastDate=[internalLatestDate,ext.lastDate,lecture.completionDate].filter(Boolean).sort().at(-1)||null;
+  const lastDate=[internalLatestDate,ext.lastDate,cst.lastDate,lecture.completionDate].filter(Boolean).sort().at(-1)||null;
   const daysSince=lastDate?Math.max(0,Math.round((new Date(todayKey+'T00:00:00')-new Date(lastDate+'T00:00:00'))/86400000)):999;
   const recency=lastDate?Math.max(0,Math.round(100*Math.exp(-daysSince/21))):0;
   const retention=avg==null?0:Math.round((latestPct==null?avg:latestPct)*0.55+recency*0.45);
@@ -2175,7 +2233,7 @@ function learningProfile(lecture){
   let total=0,weight=0;
   Object.entries(weights).forEach(([k,w])=>{const v=available[k];if(v!=null){total+=v*w;weight+=w;}});
   const mastery=weight?Math.round(total/weight):0;
-  return {...available,mastery,attempts:attempts.length+ext.sessions,externalSessions:ext.sessions,daysSince};
+  return {...available,mastery,attempts:attempts.length+ext.sessions+cst.sessions,externalSessions:ext.sessions,daysSince};
 }
 function clinicalApplicationForLecture(lecture){
   if(typeof clinicalCases==='undefined'||!Array.isArray(clinicalCases))return null;
@@ -2230,14 +2288,25 @@ function openLecture(id){
  document.getElementById("mMCQAttempts").textContent=stats.attempts;
  document.getElementById("mMCQAvg").textContent=stats.average===null?"—":stats.average+"%";
 
+ const mcqXpRows=lectureMcqXp(current);
  const mcqBox=document.getElementById("mcqHistory");
  mcqBox.innerHTML=current.mcqs.length
-   ? `<div class="label" style="margin-top:14px">Attempt history</div>` + current.mcqs.slice().reverse().map(m=>{
+   ? `<div class="label" style="margin-top:14px">Attempt history</div>` + current.mcqs.slice().reverse().map((m,ri)=>{
        const parsed=parseMCQScore(m.score);
-       const xp=5+(parsed?.got||0);
+       const xp=(mcqXpRows[current.mcqs.length-1-ri]||{xp:5}).xp;
        return `<div class="mcq-item"><div><div class="score">${m.score} · ${m.percent??parsed?.percent??"—"}%</div><div class="meta">${escapeHtml(m.date)}${m.source?" · "+escapeHtml(m.source):""}${m.confidence?` · confidence ${m.confidence}/5`:''}${m.errorType?` · ${escapeHtml(m.errorType)}`:''}</div></div><b>+${xp} XP</b></div>`;
      }).join("")
    : '<div class="empty">No MCQ attempts yet. Your attempts will appear here.</div>';
+
+ const cst=lectureCardStats(current),setText=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+ setText("mCardSessions",cst.sessions);setText("mCardRecall",cst.recall===null?"—":cst.recall+"%");setText("mCardTotal",cst.reviewed);
+ const cardBox=document.getElementById("cardHistory");
+ if(cardBox){
+   const rows=cardXpList().filter(o=>o.l.id===current.id).reverse();
+   cardBox.innerHTML=rows.length
+     ? `<div class="label" style="margin-top:14px">Flashcard history</div>`+rows.map(o=>`<div class="mcq-item"><div><div class="score">${o.c.recalled}/${o.c.reviewed} recalled · ${Math.round(o.c.recalled/o.c.reviewed*100)}%</div><div class="meta">${escapeHtml(o.c.date)}${o.c.source?" · "+escapeHtml(o.c.source):""}</div></div><b>+${o.xp} XP</b></div>`).join("")
+     : '<div class="empty">No flashcard sessions yet. Log one after you review a deck.</div>';
+ }
 }
 function closeModal(){
  const modal=document.getElementById("modal");
@@ -2284,6 +2353,29 @@ function toggleStep(i,v){
 function updateMastery(v){current.mastery=Number(v);document.getElementById("masteryValue").textContent=v;save()}
 function setLectureImportance(value){
  if(!current)return; current.importance=["A","B","C"].includes(value)?value:"B"; save(); render(); openLecture(current.id);
+}
+function addCards(){
+ if(!current)return;
+ if(!Array.isArray(current.cards))current.cards=[];
+ const reviewed=Math.floor(Number(document.getElementById("cardReviewed").value)||0);
+ const recalledRaw=document.getElementById("cardRecalled").value;
+ const recalled=Math.floor(Number(recalledRaw));
+ const source=document.getElementById("cardSource").value.trim();
+ if(reviewed<1){toast("Enter how many cards you reviewed");return;}
+ if(recalledRaw===""||!Number.isFinite(recalled)||recalled<0||recalled>reviewed){toast("Recalled must be between 0 and "+reviewed);return;}
+ const wasDue=(()=>{try{return reviewStatus(current).state==="due"}catch(e){return false}})();
+ const entry={reviewed,recalled,source,date:new Date().toLocaleDateString(),dateKey:todayKey,ts:new Date().toISOString(),reviewDue:wasDue};
+ current.cards.push(entry);
+ const pct=Math.round(recalled/reviewed*100);
+ playSfx(pct>=85?"mcq_correct":pct>=60?"study_step":"mcq_recovery",.62);
+ recordActivity("flashcards","lecture",current.id,{reviewed,recalled,percent:pct,source});
+ const gain=cardXpList().find(o=>o.c===entry)||{xp:0,parts:[]};
+ recordXP(gain.xp);
+ current.mastery=inferredMastery(current);
+ scheduleReview(current);
+ toast(`+${gain.xp} XP${gain.parts.length?" ("+gain.parts.join(", ")+")":""} — flashcards logged! Next review: ${formatReviewDate(reviewCards[current.id].nextDate)}.`);
+ ["cardReviewed","cardRecalled","cardSource"].forEach(id=>document.getElementById(id).value="");
+ save();render();openLecture(current.id);
 }
 function addMcq(){
  const score=document.getElementById("mcqScore").value.trim();
@@ -2785,6 +2877,7 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
 <li><b>Comeback</b>: +${XP2.comeback} for a set (10+ questions, 70%+) that beats your earlier average on that lecture by 15 points or more.</li>
 <li><b>Mastery seal</b>: +${XP2.seal} once per lecture for a set of 20+ questions at 80%+.</li>
 <li><b>Focus sessions</b>: ${XP2.focusPerMin} XP per minute (max ${XP2.focusSession} per session, ${XP2.focusDay} per day).</li>
+<li><b>Flashcards</b>: ${XP2.cardBase} + ${XP2.cardPer} XP per card recalled (up to ${XP2.cardCap} cards per session and ${XP2.cardDay} per day), +${XP2.cardReview} when it is a due review of ${XP2.cardReviewMin}+ cards.</li>
 <li><b>Clinical cases</b>: ${XP2.clinical} XP the first time you solve one.</li>
 <li>Bosses and achievements keep their own rewards. Anything earned before this update keeps the XP it had.</li></ul>`;})();
 </script>
