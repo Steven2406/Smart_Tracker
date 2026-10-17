@@ -428,7 +428,7 @@ button.brand .brand-text small::after{content:" ▾";color:var(--accent)}
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v6.4</small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v6.5</small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -698,7 +698,8 @@ button.brand .brand-text small::after{content:" ▾";color:var(--accent)}
             <button onclick="previewSfx('study_step')">✨ Study Step</button>
             <button onclick="previewSfx('lecture_clear')">🏆 Majestic Clear</button>
             <button onclick="previewSfx('mcq_low_voice')">🗣️ Low-score alert</button>
-            <button onclick="previewSfx('mcq_deep_womp')">😂 Womp of Shame</button>
+            <button onclick="previewSfx('mcq_deep_womp')">🎺 Sad Trombone</button>
+            <button onclick="previewSfx('mcq_laugh')">😂 Crowd Laugh</button>
             <button onclick="previewSfx('mcq_recovery')">🩹 Recovery Chime</button>
             <button onclick="previewSfx('mcq_perfect')">🌟 Perfect Score</button>
             <button onclick="previewSfx('level_up')">👑 Level Up</button>
@@ -1196,7 +1197,7 @@ function logExternalTest(){
   recordActivity("external-test","external",lectureId||null,{testId:test.id,score:`${correct}/${total}`,percent,source,scope,topic,subject,errors:test.errors,confidence});
   recordXP(xp);
   scheduleExternalReview(test);
-  if(percent<60){playSfx("mcq_low_voice",.72);if(COURSE.voice)setTimeout(()=>playSfx("mcq_deep_womp",.42),4950);}else if(percent<=85)playSfx("mcq_recovery",.58);else playSfx("mcq_perfect",.72);
+  if(percent<60){playSfx("mcq_low_voice",.72);if(COURSE.voice)setTimeout(()=>playSfx(percent<30?"mcq_laugh":"mcq_deep_womp",.42),4950);else if(percent<30)setTimeout(()=>playSfx("mcq_laugh",.42),1500);}else if(percent<=85)playSfx("mcq_recovery",.58);else playSfx("mcq_perfect",.72);
   save();render();renderExtraViews();
   ["externalTotal","externalCorrect","externalCustomSource","externalKnowledgeGap","externalMisread","externalClinicalError"].forEach(id=>{const el=document.getElementById(id);if(el)el.value=id.includes("Knowledge")||id.includes("Misread")||id.includes("Clinical")?0:"";});
   document.getElementById("externalConfidence").value="3";
@@ -2389,7 +2390,7 @@ function addMcq(){
  if(parsed.percent<55){
    // Your real voice recording becomes the low-score "chief complaint" alert.
    playSfx("mcq_low_voice",.86);
-   setTimeout(()=>playSfx("mcq_deep_womp",.5),4950);
+   setTimeout(()=>playSfx(parsed.percent<30?"mcq_laugh":"mcq_deep_womp",parsed.percent<30?.6:.5),4950);
  }else if(parsed.percent<70){
    playSfx("mcq_recovery",.6);
  }else if(parsed.percent<80){
@@ -2422,8 +2423,8 @@ function startMission(){
 }
 /* Sound effects are separate files in the sfx/ folder (one mp3 per sound).
    To swap in a better sound: replace the file with the same name, then raise SFX_VERSION so every device re-downloads it. */
-const SFX_VERSION="1";
-const SFX_NAMES=["ui_click", "nav_whoosh", "study_step", "lecture_clear", "mcq_correct", "mcq_wrong", "review_due", "mission_start", "focus_start", "focus_complete", "clinical_correct", "achievement", "level_up", "boss_warning", "boss_defeat", "egyptian_momentum", "mcq_deep_womp", "mcq_recovery", "mcq_perfect", "mission_lock", "review_alert", "streak_flame", "focus_checkpoint", "boss_incoming", "clinical_resolve", "egyptian_hero", "reverent_glow", "quest_complete"];
+const SFX_VERSION="2";
+const SFX_NAMES=["ui_click", "nav_whoosh", "study_step", "lecture_clear", "mcq_correct", "mcq_wrong", "review_due", "mission_start", "focus_start", "focus_complete", "clinical_correct", "achievement", "level_up", "boss_warning", "boss_defeat", "egyptian_momentum", "mcq_deep_womp", "mcq_recovery", "mcq_perfect", "mission_lock", "review_alert", "streak_flame", "focus_checkpoint", "boss_incoming", "clinical_resolve", "egyptian_hero", "reverent_glow", "quest_complete", "mcq_laugh"];
 const SFX_LIBRARY={};
 SFX_NAMES.forEach(n=>{SFX_LIBRARY[n]="sfx/"+n+".mp3?v="+SFX_VERSION;});
 SFX_LIBRARY.mcq_low_voice=COURSE.voice||SFX_LIBRARY.mcq_wrong;
