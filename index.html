@@ -423,12 +423,14 @@ button.brand .brand-text small::after{content:" ▾";color:var(--accent)}
 .xp-guide summary{cursor:pointer;font-size:15px}
 .xp-list{margin:10px 0 0;padding-left:18px;display:grid;gap:7px;font-size:13.5px;color:var(--muted)}
 .xp-list b{color:var(--text)}
+.row-del{margin-top:4px;min-height:34px;padding:4px 10px;border:0;border-radius:9px;background:transparent;color:var(--muted);font-size:12px;font-weight:600}
+.row-del:active,.row-del:hover{color:var(--danger);background:var(--surface2)}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v6.5</small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v6.6</small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -1212,7 +1214,7 @@ function renderExternalTests(){
   const dueEl=document.getElementById("externalDueReviews");
   if(dueEl){const dueRows=externalDueItems();dueEl.innerHTML=dueRows.length?dueRows.map(o=>`<div class="external-due-row"><div><b>${o.kind==="lecture"?"📚":"🧪"} ${escapeHtml(o.label)}</b><div class="meta">${escapeHtml(o.meta)} · ${o.percent}% evidence</div></div>${o.kind==="lecture"?`<button class="primary" onclick="openLecture(${o.lecture.id})">REVIEW</button>`:`<button onclick="showView('externalTestsView')">VIEW TESTS</button>`}</div>`).join(""):'<div class="empty">Nothing from external testing is due today.</div>';}
   const hist=document.getElementById("externalTestHistory"),count=document.getElementById("externalHistoryCount"); if(count)count.textContent=externalTests.length+` session${externalTests.length===1?"":"s"}`;
-  if(hist){const rows=externalTests.slice().reverse().slice(0,20);hist.innerHTML=rows.length?rows.map(t=>{const cls=t.percent<60?"test-score-low":t.percent<=85?"test-score-mid":"test-score-high";const err=Number(t.errors?.knowledgeGap||0)+Number(t.errors?.misread||0)+Number(t.errors?.clinicalReasoning||0);return `<div class="test-history-row"><div><b>${escapeHtml(t.topic||t.scopeLabel||"External test")}</b><div class="meta">${escapeHtml(t.date)} · ${escapeHtml(t.source)} · ${t.total} questions${t.confidence?` · confidence ${t.confidence}/5`:''}</div><div style="margin-top:6px"><span class="test-pill">🧠 ${t.errors?.knowledgeGap||0} gap</span> <span class="test-pill">👀 ${t.errors?.misread||0} misread</span> <span class="test-pill">🩺 ${t.errors?.clinicalReasoning||0} reasoning</span>${err< t.total-t.correct?` <span class="test-pill">${t.total-t.correct-err} unclassified</span>`:""}</div></div><div style="text-align:right"><div class="test-history-score ${cls}">${t.percent}%</div><div class="meta">+${t.xp} XP</div></div></div>`}).join(""):'<div class="empty">No external test sessions yet. Your first test can become the first piece of adaptive evidence.</div>';}
+  if(hist){const rows=externalTests.slice().reverse().slice(0,20);hist.innerHTML=rows.length?rows.map(t=>{const cls=t.percent<60?"test-score-low":t.percent<=85?"test-score-mid":"test-score-high";const err=Number(t.errors?.knowledgeGap||0)+Number(t.errors?.misread||0)+Number(t.errors?.clinicalReasoning||0);return `<div class="test-history-row"><div><b>${escapeHtml(t.topic||t.scopeLabel||"External test")}</b><div class="meta">${escapeHtml(t.date)} · ${escapeHtml(t.source)} · ${t.total} questions${t.confidence?` · confidence ${t.confidence}/5`:''}</div><div style="margin-top:6px"><span class="test-pill">🧠 ${t.errors?.knowledgeGap||0} gap</span> <span class="test-pill">👀 ${t.errors?.misread||0} misread</span> <span class="test-pill">🩺 ${t.errors?.clinicalReasoning||0} reasoning</span>${err< t.total-t.correct?` <span class="test-pill">${t.total-t.correct-err} unclassified</span>`:""}</div></div><div style="text-align:right"><div class="test-history-score ${cls}">${t.percent}%</div><div class="meta">+${t.xp} XP</div><button type="button" class="row-del" aria-label="Delete this test" onclick="deleteExternalTest('${t.id}')">🗑 Delete</button></div></div>`}).join(""):'<div class="empty">No external test sessions yet. Your first test can become the first piece of adaptive evidence.</div>';}
 }
 
 function renderReviewQueue(){
@@ -2295,7 +2297,7 @@ function openLecture(id){
    ? `<div class="label" style="margin-top:14px">Attempt history</div>` + current.mcqs.slice().reverse().map((m,ri)=>{
        const parsed=parseMCQScore(m.score);
        const xp=(mcqXpRows[current.mcqs.length-1-ri]||{xp:5}).xp;
-       return `<div class="mcq-item"><div><div class="score">${m.score} · ${m.percent??parsed?.percent??"—"}%</div><div class="meta">${escapeHtml(m.date)}${m.source?" · "+escapeHtml(m.source):""}${m.confidence?` · confidence ${m.confidence}/5`:''}${m.errorType?` · ${escapeHtml(m.errorType)}`:''}</div></div><b>+${xp} XP</b></div>`;
+       return `<div class="mcq-item"><div><div class="score">${m.score} · ${m.percent??parsed?.percent??"—"}%</div><div class="meta">${escapeHtml(m.date)}${m.source?" · "+escapeHtml(m.source):""}${m.confidence?` · confidence ${m.confidence}/5`:''}${m.errorType?` · ${escapeHtml(m.errorType)}`:''}</div></div><div style="text-align:right"><b>+${xp} XP</b><br><button type="button" class="row-del" aria-label="Delete this MCQ set" onclick="deleteMcq(${current.mcqs.length-1-ri})">🗑 Delete</button></div></div>`;
      }).join("")
    : '<div class="empty">No MCQ attempts yet. Your attempts will appear here.</div>';
 
@@ -2305,7 +2307,7 @@ function openLecture(id){
  if(cardBox){
    const rows=cardXpList().filter(o=>o.l.id===current.id).reverse();
    cardBox.innerHTML=rows.length
-     ? `<div class="label" style="margin-top:14px">Flashcard history</div>`+rows.map(o=>`<div class="mcq-item"><div><div class="score">${o.c.recalled}/${o.c.reviewed} recalled · ${Math.round(o.c.recalled/o.c.reviewed*100)}%</div><div class="meta">${escapeHtml(o.c.date)}${o.c.source?" · "+escapeHtml(o.c.source):""}</div></div><b>+${o.xp} XP</b></div>`).join("")
+     ? `<div class="label" style="margin-top:14px">Flashcard history</div>`+rows.map(o=>`<div class="mcq-item"><div><div class="score">${o.c.recalled}/${o.c.reviewed} recalled · ${Math.round(o.c.recalled/o.c.reviewed*100)}%</div><div class="meta">${escapeHtml(o.c.date)}${o.c.source?" · "+escapeHtml(o.c.source):""}</div></div><div style="text-align:right"><b>+${o.xp} XP</b><br><button type="button" class="row-del" aria-label="Delete this flashcard session" onclick="deleteCards(${current.cards.indexOf(o.c)})">🗑 Delete</button></div></div>`).join("")
      : '<div class="empty">No flashcard sessions yet. Log one after you review a deck.</div>';
  }
 }
@@ -2354,6 +2356,66 @@ function toggleStep(i,v){
 function updateMastery(v){current.mastery=Number(v);document.getElementById("masteryValue").textContent=v;save()}
 function setLectureImportance(value){
  if(!current)return; current.importance=["A","B","C"].includes(value)?value:"B"; save(); render(); openLecture(current.id);
+}
+/* ---- Deleting logged entries: everything derived (XP, mastery, reviews) is recalculated afterwards ---- */
+function confirmDelete(title,message){
+  if(window.mhqConfirmDialog)return mhqConfirmDialog({icon:"🗑",title,message,confirmText:"Delete"});
+  return Promise.resolve(confirm(title+"\n\n"+message));
+}
+function removeLedgerEntry(match){
+  for(let i=activityLedger.length-1;i>=0;i--){if(match(activityLedger[i])){activityLedger.splice(i,1);return true;}}
+  return false;
+}
+function lastEvidenceDate(lecture){
+  const ds=[...(lecture.mcqs||[]).map(m=>m.dateKey),...(lecture.cards||[]).map(c=>c.dateKey),...externalTestsForLecture(lecture.id).map(t=>t.dateKey)].filter(Boolean).sort();
+  return ds.length?ds[ds.length-1]:null;
+}
+function rebuildLectureReview(lecture){
+  const interval=reviewIntervalFor(lecture);
+  if(interval===null){delete reviewCards[lecture.id];return;}
+  const last=lastEvidenceDate(lecture)||todayKey;
+  reviewCards[lecture.id]={nextDate:addDaysToDate(last,interval),interval,lastReview:last};
+}
+function rebuildExternalReviews(){
+  externalReviewCards={};
+  externalTests.slice().sort((a,b)=>String(a.timestamp||a.dateKey).localeCompare(String(b.timestamp||b.dateKey))).forEach(test=>{
+    const key=test.scope==="subject"?`subject:${test.subject}`:test.scope==="module"?"module:GIT":null;
+    if(!key)return;
+    const interval=externalReviewInterval(test.percent,test.confidence),next=addDaysToDate(test.dateKey,interval),existing=externalReviewCards[key];
+    externalReviewCards[key]={nextDate:(!existing?.nextDate||next<existing.nextDate||test.percent<60)?next:existing.nextDate,interval,lastReview:test.dateKey,percent:test.percent,subject:test.subject||COURSE.short,source:"external-test"};
+  });
+}
+function afterEvidenceChange(lecture){
+  lecture.mastery=inferredMastery(lecture);
+  rebuildLectureReview(lecture);
+  save();render();
+  if(document.getElementById("modal")?.classList.contains("show")||current)openLecture(lecture.id);
+  toast("🗑 Deleted. XP, mastery and reviews updated.");
+}
+async function deleteMcq(i){
+  if(!current)return;const m=current.mcqs[i];if(!m)return;
+  if(!(await confirmDelete(`Delete this MCQ set (${m.score}${m.date?", "+m.date:""})?`,"XP, mastery and the next review date will be recalculated. This cannot be undone.")))return;
+  current.mcqs.splice(i,1);
+  removeLedgerEntry(e=>e.type==="mcq"&&e.lectureId===current.id&&e.dateKey===m.dateKey&&String(e.details?.score)===String(m.score));
+  afterEvidenceChange(current);
+}
+async function deleteCards(i){
+  if(!current)return;const c=(current.cards||[])[i];if(!c)return;
+  if(!(await confirmDelete(`Delete this flashcard session (${c.recalled}/${c.reviewed}${c.date?", "+c.date:""})?`,"XP, mastery and the next review date will be recalculated. This cannot be undone.")))return;
+  current.cards.splice(i,1);
+  removeLedgerEntry(e=>e.type==="flashcards"&&e.lectureId===current.id&&e.dateKey===c.dateKey&&Number(e.details?.reviewed)===c.reviewed&&Number(e.details?.recalled)===c.recalled);
+  afterEvidenceChange(current);
+}
+async function deleteExternalTest(id){
+  const idx=externalTests.findIndex(t=>t.id===id);if(idx<0)return;const t=externalTests[idx];
+  if(!(await confirmDelete(`Delete this test (${t.correct}/${t.total}, ${t.topic||t.scopeLabel||"external test"})?`,"XP, mastery and review dates will be recalculated. This cannot be undone.")))return;
+  externalTests.splice(idx,1);
+  removeLedgerEntry(e=>e.type==="external-test"&&e.details?.testId===id);
+  rebuildExternalReviews();
+  const l=t.lectureId?data.find(x=>x.id===Number(t.lectureId)):null;
+  if(l){l.mastery=inferredMastery(l);rebuildLectureReview(l);}
+  save();render();renderExternalTests();
+  toast("🗑 Deleted. XP, mastery and reviews updated.");
 }
 function addCards(){
  if(!current)return;
@@ -2429,6 +2491,28 @@ const SFX_LIBRARY={};
 SFX_NAMES.forEach(n=>{SFX_LIBRARY[n]="sfx/"+n+".mp3?v="+SFX_VERSION;});
 SFX_LIBRARY.mcq_low_voice=COURSE.voice||SFX_LIBRARY.mcq_wrong;
 const SFX_CACHE="mhq-sfx-v"+SFX_VERSION;
+/* Loudness. The volume slider used to top out at the raw file level, and most calls play at 40-80% of that, so even 100% was quiet.
+   Now every sound is lifted by SFX_BOOST, but never beyond SFX_CEIL times its own peak (already-hot sounds can't get much louder without distortion),
+   and a soft clipper on the master output rounds off any peaks, including overlapping sounds. Raise SFX_BOOST for louder, lower for softer. */
+const SFX_BOOST=2.4, SFX_CEIL=1.2;
+const sfxPeaks={};
+let sfxBus=null;
+function bufferPeak(buf){let m=0;for(let c=0;c<buf.numberOfChannels;c++){const d=buf.getChannelData(c);for(let i=0;i<d.length;i++){const v=Math.abs(d[i]);if(v>m)m=v;}}return m||1;}
+function sfxGain(name,gain){
+  const base=audioSettings.volume*gain;
+  const ceiling=SFX_CEIL/(sfxPeaks[name]||1);
+  return Math.max(0,Math.min(3,Math.max(Math.min(base,1),Math.min(base*SFX_BOOST,ceiling))));
+}
+function getSfxBus(ctx){
+  if(sfxBus&&sfxBus.ctx===ctx)return sfxBus.input;
+  /* Soft clipper: untouched below 0.7, then rounds peaks off smoothly so loud or overlapping sounds never hard-clip. */
+  const shaper=ctx.createWaveShaper(),n=2048,curve=new Float32Array(n);
+  for(let i=0;i<n;i++){const x=i/(n-1)*2-1,a=Math.abs(x);curve[i]=Math.sign(x)*(a<=.7?a:.7+.3*Math.tanh((a-.7)/.3));}
+  shaper.curve=curve;shaper.oversample="2x";
+  const out=ctx.createGain();out.gain.value=.97;
+  shaper.connect(out);out.connect(ctx.destination);
+  sfxBus={ctx,input:shaper};return shaper;
+}
 async function sfxBytes(url){
   if(/^(data|blob):/.test(url)){const r=await fetch(url);return r.arrayBuffer();}
   try{
@@ -2506,7 +2590,7 @@ async function loadSfx(name){
   try{
     const arrayBuffer=await sfxBytes(SFX_LIBRARY[name]);
     const buffer=await audioCtx.decodeAudioData(arrayBuffer);
-    sfxBuffers[name]=buffer;
+    sfxBuffers[name]=buffer;sfxPeaks[name]=bufferPeak(buffer);
     return buffer;
   }catch(e){return null;}
 }
@@ -2518,8 +2602,8 @@ async function playSfx(name,gain=1){
   try{
     const source=audioCtx.createBufferSource();
     const g=audioCtx.createGain();
-    g.gain.value=Math.max(0,Math.min(1,audioSettings.volume*gain));
-    source.buffer=buffer;source.connect(g);g.connect(audioCtx.destination);source.start(0);
+    g.gain.value=sfxGain(name,gain);
+    source.buffer=buffer;source.connect(g);g.connect(getSfxBus(audioCtx));source.start(0);
   }catch(e){}
 }
 function previewSfx(name){playSfx(name,.95);}
