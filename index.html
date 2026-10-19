@@ -430,7 +430,7 @@ button.brand .brand-text small::after{content:" ▾";color:var(--accent)}
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v6.6</small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v6.7</small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -538,7 +538,7 @@ button.brand .brand-text small::after{content:" ▾";color:var(--accent)}
       <div class="card" style="text-align:left;margin-top:12px"><div class="session-stat"><span>Completed sessions</span><b id="sessionCount">0</b></div><div class="session-stat"><span>Focus time</span><b id="sessionMinutes">0 min</b></div><div class="session-stat"><span>Study-mode XP</span><b id="sessionXp">0</b></div></div>
     </div>
     <div class="section card"><div class="section-head"><h2>Focus History</h2><small>This week</small></div><div id="studyWeekStats" class="mini-grid"></div><div id="studyHistory" class="study-history"></div></div>
-    <div class="section card"><div class="section-head"><h2>Session Rules</h2><small>Keep it honest</small></div><div class="meta">XP is awarded only when you finish the timer. Resetting or leaving the session early gives no session XP.</div><div class="meta" style="margin-top:7px">Every completed session = <b>+25 XP</b>. Afterward, log only the study tasks you actually accomplished.</div></div>
+    <div class="section card"><div class="section-head"><h2>Session Rules</h2><small>Keep it honest</small></div><div class="meta">XP is awarded only when you finish the timer. Resetting or leaving the session early gives no session XP.</div><div class="meta" style="margin-top:7px">Every completed session earns <b>1 XP per minute</b> (up to 60 per session and 120 per day). Afterward, log only the study tasks you actually accomplished.</div></div>
   </div>
 
   <div id="weaknessView" class="view">
@@ -945,6 +945,7 @@ let appXP=0, appStreak=0, todayXp=0, todaySteps=0, legacyBonusXP=0;
    Activity dated on/after xpRulesFrom earns XP under these rules; older activity keeps the XP it had when it was earned,
    so your total never changes just because the rules did. */
 let xpRulesFrom=null;
+let reviewRepairDone=false;
 const XP2={step:10,lecture:30,mcqBase:5,mcqCap:100,accMid:.12,accHigh:.25,review:15,comeback:10,seal:20,goalSteps:3,goal:15,focusPerMin:1,focusSession:60,focusDay:120,clinical:8,cardBase:3,cardPer:.4,cardCap:100,cardDay:200,cardReview:10,cardReviewMin:15};
 const CARD_WEIGHT=.5; /* flashcard recall counts half as much as MCQ accuracy as evidence of mastery */
 let studySessions=[];
@@ -1467,6 +1468,7 @@ function load(){
         });
       }
       xpRulesFrom=(typeof s.xpRulesFrom==="string"&&s.xpRulesFrom)?s.xpRulesFrom:todayKey;
+      reviewRepairDone=s.reviewRepairDone===true;
       studySessions=Array.isArray(s.studySessions)?s.studySessions.filter(x=>x&&x.dateKey&&Number(x.minutes)>0):[];
       achievementIds=Array.isArray(s.achievementIds)?s.achievementIds.filter(x=>typeof x==="string"):[];
       achievementDates=(s.achievementDates&&typeof s.achievementDates==="object")?s.achievementDates:{};
@@ -1501,12 +1503,12 @@ function load(){
       return;
     }
   }catch(e){}
-  data=makeFreshData();appXP=0;appStreak=0;todayXp=0;todaySteps=0;lastStudyDate=null;legacyBonusXP=0;xpRulesFrom=null;studySessions=[];achievementIds=[];achievementDates={};bossVictories={};reviewCards={};activityLedger=[];xpLedger=[];externalTests=[];externalReviewCards={};rpgLastSeenLevel=null;clinicalState={};audioSettings={enabled:true,volume:.68};
+  data=makeFreshData();appXP=0;appStreak=0;todayXp=0;todaySteps=0;lastStudyDate=null;legacyBonusXP=0;xpRulesFrom=null;reviewRepairDone=true;studySessions=[];achievementIds=[];achievementDates={};bossVictories={};reviewCards={};activityLedger=[];xpLedger=[];externalTests=[];externalReviewCards={};rpgLastSeenLevel=null;clinicalState={};audioSettings={enabled:true,volume:.68};
   syncXP();
   save();
 }
 function buildPersistedState(){
-  return {schemaVersion:SCHEMA_VERSION,savedAt:new Date().toISOString(),data,xp:appXP,streak:appStreak,todayXp,todaySteps,todayKey,lastStudyDate,legacyBonusXP,xpRulesFrom,studySessions,achievementIds,achievementDates,bossVictories,reviewCards,rpgLastSeenLevel,clinicalState,activityLedger,xpLedger,externalTests,externalReviewCards,audioSettings};
+  return {schemaVersion:SCHEMA_VERSION,savedAt:new Date().toISOString(),data,xp:appXP,streak:appStreak,todayXp,todaySteps,todayKey,lastStudyDate,legacyBonusXP,xpRulesFrom,reviewRepairDone,studySessions,achievementIds,achievementDates,bossVictories,reviewCards,rpgLastSeenLevel,clinicalState,activityLedger,xpLedger,externalTests,externalReviewCards,audioSettings};
 }
 function save(){
   refreshTodayContext();
@@ -1673,7 +1675,7 @@ function renderRpg(){
   const hf=document.getElementById('homeRpgXpFill');if(hf)hf.style.width=info.pct+'%';
   set('rpgLevelBig',info.level);set('rpgRankBig',info.rank.name);set('rpgRankSub',info.rank.desc);set('rpgXpLabel',`${info.within} / 100 XP`);set('rpgNextLabel',`${info.levelEnd-appXP} XP to next level`);
   const rf=document.getElementById('rpgXpFill');if(rf)rf.style.width=info.pct+'%';
-  const stats=[['📚','Study Power',st.steps,'completed study steps'],['🎯','Recall',st.accuracy+'%',st.mcqs?`${st.mcqs} tested question sets`:'Log your first MCQ'],['⏱️','Focus',st.focus+' min','completed focus time'],['🔥','Consistency',appStreak+' days','current study streak'],['🐉','Bosses',st.bosses+'/6','victories'],['🏆','Achievements',st.achievements,'unlocked']];
+  const stats=[['📚','Study Power',st.steps,'completed study steps'],['🎯','Recall',st.accuracy+'%',st.mcqs?`${st.mcqs} tested question sets`:'Log your first MCQ'],['⏱️','Focus',st.focus+' min','completed focus time'],['🔥','Consistency',appStreak+' days','current study streak'],['🐉','Bosses',st.bosses+'/'+bossDefinitions.length,'victories'],['🏆','Achievements',st.achievements,'unlocked']];
   const box=document.getElementById('rpgStats');if(box)box.innerHTML=stats.map(x=>`<div class="rpg-stat"><div class="label">${x[0]} ${x[1]}</div><div class="big">${x[2]}</div><div class="meta">${x[3]}</div></div>`).join('');
   const rb=document.getElementById('rpgRanks');if(rb)rb.innerHTML=info.ranks.map(r=>{const active=info.level>=r.min&&info.level<=r.max;const reached=info.level>=r.min;return `<div class="card rpg-rank-card ${active?'current':''}"><div class="rpg-rank-icon">${r.icon}</div><h3 style="margin:7px 0 4px">${r.name}</h3><div class="meta">Levels ${r.min}${r.max<999?'–'+r.max:'+'}</div><div class="meta" style="margin-top:7px">${r.desc}</div><div style="margin-top:10px" class="${reached?'rpg-unlock':'meta'}">${active?'CURRENT RANK':reached?'UNLOCKED':'LOCKED'}</div></div>`}).join('');
   const levels=document.getElementById('rpgLevels');if(levels){const maxShow=Math.max(6,Math.min(15,Math.max(info.level+2,6)));levels.innerHTML=Array.from({length:maxShow},(_,i)=>i+1).map(l=>{const current=l===info.level,done=l<info.level;const unlock=l%3===0?'New rank tier':l===5?'Major curriculum milestone':l===10?'Advanced consistency milestone':'Progress milestone';return `<div class="rpg-level-row ${current?'current':''}"><b>Lv ${l}</b><div><b>${done?'✓ ':''}${l===1?'Medical Student':l===3?'Clinical Learner':l===6?'Clinician in Training':l===9?'Ward Warrior':l===12?'Future Physician':l>=15?'Consultant Mode':'Medical Level'}</b><div class="rpg-mini-bar"><div style="width:${current?info.pct:done?100:0}%"></div></div></div><span class="${done||current?'rpg-unlock':'meta'}">${current?'YOU ARE HERE':done?'UNLOCKED':unlock}</span></div>`}).join('');}
@@ -1741,20 +1743,24 @@ function todayActions(){
   data.forEach(x=>{
     x.steps.forEach((done,i)=>{
       if(done&&x.stepDates?.[i]===todayKey){
-        actions.push({type:"step",detail:["Watched / listened","Read","Solved questions","Revision"][i],meta:`${x.subject} · Lecture ${x.id}`,xp:10});
+        actions.push({type:"step",detail:["Watched / listened","Read","Solved questions","Revision"][i],meta:`${x.subject} · Lecture ${x.id}`,xp:XP2.step});
       }
     });
-    x.mcqs.filter(m=>m.dateKey===todayKey).forEach(m=>{
-      actions.push({type:"mcq",detail:`MCQ ${m.score}${m.source?" · "+escapeHtml(m.source):""}`,meta:`${x.subject} · Lecture ${x.id}`,xp:5+(parseMCQScore(m.score)?.got||0)});
+    lectureMcqXp(x).filter(o=>o.m.dateKey===todayKey).forEach(o=>{
+      actions.push({type:"mcq",detail:`MCQ ${o.m.score}${o.m.source?" · "+escapeHtml(o.m.source):""}`,meta:`${x.subject} · Lecture ${x.id}`,xp:o.xp});
     });
     if(x.completionDate===todayKey&&x.steps.every(Boolean)){
-      actions.push({type:"completion",detail:"Lecture cleared",meta:`${x.subject} · Lecture ${x.id}`,xp:30});
+      actions.push({type:"completion",detail:"Lecture cleared",meta:`${x.subject} · Lecture ${x.id}`,xp:XP2.lecture});
     }
   });
-  studySessions.filter(x=>x.dateKey===todayKey).forEach(x=>{
-    const lecture=data.find(l=>l.id===Number(x.lectureId));
-    actions.push({type:"session",detail:`Focus session · ${x.minutes} min`,meta:lecture?`${lecture.subject} · Lecture ${lecture.id}`:"Study Mode",xp:25});
+  sessionXpList().filter(o=>o.s.dateKey===todayKey).forEach(o=>{
+    const x=o.s,lecture=data.find(l=>l.id===Number(x.lectureId));
+    actions.push({type:"session",detail:`Focus session · ${x.minutes} min`,meta:lecture?`${lecture.subject} · Lecture ${lecture.id}`:"Study Mode",xp:o.xp});
   });
+  cardXpList().filter(o=>o.c.dateKey===todayKey).forEach(o=>{
+    actions.push({type:"flashcards",detail:`Flashcards ${o.c.recalled}/${o.c.reviewed}${o.c.source?" · "+escapeHtml(o.c.source):""}`,meta:`${o.l.subject} · Lecture ${o.l.id}`,xp:o.xp});
+  });
+  if(dailyGoalDays().includes(todayKey))actions.push({type:"goal",detail:"Daily goal reached",meta:`${XP2.goalSteps}+ study steps today`,xp:XP2.goal});
   Object.entries(bossVictories).forEach(([id,v])=>{
     if(v?.date===todayKey){
       const b=bossDefinitions.find(x=>x.id===id);
@@ -1773,7 +1779,7 @@ function todayActions(){
   clinicalCases.forEach(c=>{
     const cs=clinicalState[c.id];
     if(cs?.xpAwarded&&cs.xpDate===todayKey){
-      actions.push({type:"clinical",detail:`Clinical case solved: ${c.title}`,meta:"Clinical Case",xp:3});
+      actions.push({type:"clinical",detail:`Clinical case solved: ${c.title}`,meta:"Clinical Case",xp:clinicalXpFor(cs)});
     }
   });
   return actions;
@@ -1808,18 +1814,30 @@ function hideSessionReview(){const box=document.getElementById("sessionReview");
 function applySessionTask(lectureId,stepIndex,checked){const l=data.find(x=>x.id===Number(lectureId));if(!l)return;if(l.steps[stepIndex]===checked)return;const old=current;current=l;toggleStep(stepIndex,checked);current=old||null;}
 function finishStudySession(){
   if(studyTimer){clearInterval(studyTimer);studyTimer=null;}studyRunning=false;playSfx("focus_complete",.78);setTimeout(()=>playSfx("focus_checkpoint",.45),420);const lectureId=Number(document.getElementById("studyLecture")?.value||0);
-  studySessions.push({dateKey:todayKey,minutes:studySelectedMinutes,lectureId,finishedAt:new Date().toISOString()});recordActivity("focus-session","focus",lectureId,{minutes:studySelectedMinutes});markStudyActivity();syncXP();save();render();toast(`🎯 Session complete — +25 XP`);showSessionReview(lectureId,studySelectedMinutes);updateStudyUI();
+  studySessions.push({dateKey:todayKey,minutes:studySelectedMinutes,lectureId,finishedAt:new Date().toISOString()});recordActivity("focus-session","focus",lectureId,{minutes:studySelectedMinutes});markStudyActivity();syncXP();save();render();toast(`🎯 Session complete — +${(sessionXpList().slice(-1)[0]||{xp:0}).xp} XP`);showSessionReview(lectureId,studySelectedMinutes);updateStudyUI();
+}
+let studyEndAt=0;
+/* The timer is based on the clock, not on counting ticks, so it stays correct when the phone locks or the tab is in the background. */
+function tickStudyTimer(){
+  if(!studyRunning)return;
+  studyRemaining=Math.max(0,Math.ceil((studyEndAt-Date.now())/1000));
+  updateStudyUI();
+  if(studyRemaining===0)finishStudySession();
 }
 function toggleStudyTimer(){
-  if(studyRunning){clearInterval(studyTimer);studyTimer=null;studyRunning=false;playSfx("ui_click",.35);updateStudyUI();return;} if(studyRemaining<=0)resetStudyTimer(); hideSessionReview(); ensureAudioContext(); playSfx("focus_start",.62); studyRunning=true;updateStudyUI();
-  studyTimer=setInterval(()=>{studyRemaining=Math.max(0,studyRemaining-1);updateStudyUI();if(studyRemaining===0)finishStudySession();},1000);
+  if(studyRunning){tickStudyTimer();if(!studyRunning)return;clearInterval(studyTimer);studyTimer=null;studyRunning=false;playSfx("ui_click",.35);updateStudyUI();return;}
+  if(studyRemaining<=0)resetStudyTimer(); hideSessionReview(); ensureAudioContext(); playSfx("focus_start",.62);
+  studyRunning=true;studyEndAt=Date.now()+studyRemaining*1000;updateStudyUI();
+  studyTimer=setInterval(tickStudyTimer,500);
 }
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")tickStudyTimer();});
+window.addEventListener("pageshow",tickStudyTimer);
 function renderStudyHistory(){
   const week=document.getElementById("studyWeekStats"),history=document.getElementById("studyHistory");if(!week||!history)return;
   const now=new Date(),keys=[];for(let i=0;i<7;i++){const d=new Date(now);d.setHours(0,0,0,0);d.setDate(d.getDate()-i);keys.push(localDateKey(d));}
   const recent=studySessions.filter(s=>keys.includes(s.dateKey)),minutes=recent.reduce((n,s)=>n+Number(s.minutes||0),0),sessions=recent.length,lectures=new Set(recent.map(s=>Number(s.lectureId)).filter(Boolean)).size;
   week.innerHTML=`<div class="card"><div class="label">Focus time</div><div class="big-number">${minutes}m</div></div><div class="card"><div class="label">Sessions</div><div class="big-number">${sessions}</div></div><div class="card"><div class="label">Lectures touched</div><div class="big-number">${lectures}</div></div>`;
-  const ordered=studySessions.slice().reverse().slice(0,8);history.innerHTML=ordered.length?ordered.map(s=>{const l=data.find(x=>x.id===Number(s.lectureId));return `<div class="study-history-item"><div><b>${l?`Lecture ${l.id}: ${l.title}`:"General focus"}</b><div class="meta">${s.minutes} min · ${s.dateKey}</div></div><b>+25 XP</b></div>`}).join(""): '<div class="empty">No completed focus sessions yet. Your history will appear here.</div>';
+  const xpOf=new Map(sessionXpList().map(o=>[o.s,o.xp])),ordered=studySessions.slice().reverse().slice(0,8);history.innerHTML=ordered.length?ordered.map(s=>{const l=data.find(x=>x.id===Number(s.lectureId));return `<div class="study-history-item"><div><b>${l?`Lecture ${l.id}: ${l.title}`:"General focus"}</b><div class="meta">${s.minutes} min · ${s.dateKey}</div></div><div style="text-align:right"><b>+${xpOf.get(s)??0} XP</b><br><button type="button" class="row-del" aria-label="Delete this focus session" onclick="deleteStudySession(${studySessions.indexOf(s)})">🗑 Delete</button></div></div>`}).join(""): '<div class="empty">No completed focus sessions yet. Your history will appear here.</div>';
 }
 
 function lectureStatus(lecture){
@@ -2147,8 +2165,8 @@ function renderCampaignMap(){
   };
   box.innerHTML=territories.map(b=>node(b)).join('')+node(all,true);
   const p=document.getElementById('campaignMapProgress'); if(p)p.textContent=overall+'%';
-  const t=document.getElementById('campaignTerritories'); if(t)t.textContent=defeatedTerritories+'/5';
-  const bb=document.getElementById('campaignBosses'); if(bb)bb.textContent=defeatedBosses+'/6';
+  const t=document.getElementById('campaignTerritories'); if(t)t.textContent=defeatedTerritories+'/'+territories.length;
+  const bb=document.getElementById('campaignBosses'); if(bb)bb.textContent=defeatedBosses+'/'+bossDefinitions.length;
 }
 function openCampaignTerritory(id){
   const b=bossDefinitions.find(x=>x.id===id); if(!b)return;
@@ -2157,6 +2175,7 @@ function openCampaignTerritory(id){
   else { showView('bossView',document.querySelector('[data-view="bossView"]')); setTimeout(()=>{const el=document.getElementById('bossScore-'+id); if(el)el.scrollIntoView({behavior:'smooth',block:'center'});},80); }
 }
 function renderExtraViews(){
+  if(window.mhqMotivationRender)window.mhqMotivationRender();
   populateStudyLectures();
   renderCampaignMap();
   renderRpg();
@@ -2222,20 +2241,25 @@ function learningProfile(lecture){
   const internalLatestDate=internalLatest?.dateKey||null;
   const latestExternal=externalTestsForLecture(lecture.id).slice().sort((a,b)=>String(a.dateKey).localeCompare(String(b.dateKey))).at(-1);
   const latestPct=latestExternal?latestExternal.percent:(internalLatest?parseMCQScore(internalLatest.score)?.percent:null);
-  const weightedKnowledge=avg==null?coverage:Math.round((latestPct==null?avg:latestPct)*0.6+avg*0.4);
-  const confidenceValues=(lecture.mcqs||[]).map(m=>Number(m.confidence)).filter(n=>n>=1&&n<=5);
-  if(ext.confidence!=null)confidenceValues.push(ext.confidence/20);
-  const confidence=confidenceValues.length?Math.round(confidenceValues.reduce((a,b)=>a+b,0)/confidenceValues.length*100):null;
+  const hasEvidence=avg!=null;
+  const weightedKnowledge=hasEvidence?Math.round((latestPct==null?avg:latestPct)*0.6+avg*0.4):null;
+  /* confidence is on a 0-100 scale everywhere: MCQ ratings are 1-5 (x20), external-test confidence is already 0-100 */
+  const confidenceValues=(lecture.mcqs||[]).map(m=>Number(m.confidence)).filter(n=>n>=1&&n<=5).map(n=>n*20);
+  if(ext.confidence!=null)confidenceValues.push(ext.confidence);
+  const confidence=confidenceValues.length?Math.round(confidenceValues.reduce((a,b)=>a+b,0)/confidenceValues.length):null;
   const lastDate=[internalLatestDate,ext.lastDate,cst.lastDate,lecture.completionDate].filter(Boolean).sort().at(-1)||null;
   const daysSince=lastDate?Math.max(0,Math.round((new Date(todayKey+'T00:00:00')-new Date(lastDate+'T00:00:00'))/86400000)):999;
   const recency=lastDate?Math.max(0,Math.round(100*Math.exp(-daysSince/21))):0;
-  const retention=avg==null?0:Math.round((latestPct==null?avg:latestPct)*0.55+recency*0.45);
+  const retention=avg==null?null:Math.round((latestPct==null?avg:latestPct)*0.55+recency*0.45);
   const application=clinicalApplicationForLecture(lecture);
   const available={knowledge:weightedKnowledge,retention,coverage,application,confidence,recency};
   const weights={knowledge:.35,retention:.2,coverage:.2,application:.15,confidence:.1};
   let total=0,weight=0;
   Object.entries(weights).forEach(([k,w])=>{const v=available[k];if(v!=null){total+=v*w;weight+=w;}});
-  const mastery=weight?Math.round(total/weight):0;
+  let mastery=weight?Math.round(total/weight):0;
+  /* Passive study alone is not mastery: until an MCQ, flashcard session or test is logged, mastery is capped at 35% */
+  if(!hasEvidence)mastery=Math.min(35,Math.round(coverage*0.35));
+  mastery=Math.max(0,Math.min(100,mastery));
   return {...available,mastery,attempts:attempts.length+ext.sessions+cst.sessions,externalSessions:ext.sessions,daysSince};
 }
 function clinicalApplicationForLecture(lecture){
@@ -2384,6 +2408,28 @@ function rebuildExternalReviews(){
     const interval=externalReviewInterval(test.percent,test.confidence),next=addDaysToDate(test.dateKey,interval),existing=externalReviewCards[key];
     externalReviewCards[key]={nextDate:(!existing?.nextDate||next<existing.nextDate||test.percent<60)?next:existing.nextDate,interval,lastReview:test.dateKey,percent:test.percent,subject:test.subject||COURSE.short,source:"external-test"};
   });
+}
+/* One-time repair: the old confidence bug could push a review weeks out after a bad score. Recompute every schedule and only ever move a review EARLIER. */
+function repairReviewSchedulesOnce(){
+  if(reviewRepairDone||!data.length)return;
+  reviewRepairDone=true;
+  let changed=0;
+  data.forEach(l=>{
+    const card=reviewCards[l.id];if(!card||!card.nextDate)return;
+    const iv=reviewIntervalFor(l);if(iv===null)return;
+    const last=card.lastReview||lastEvidenceDate(l)||todayKey,next=addDaysToDate(last,iv);
+    if(next<card.nextDate){card.nextDate=next;card.interval=iv;changed++;}
+  });
+  save();
+  if(changed)setTimeout(()=>toast(`🔧 Fixed review dates for ${changed} lecture${changed===1?"":"s"}`),1200);
+}
+async function deleteStudySession(i){
+  const s=studySessions[i];if(!s)return;
+  if(!(await confirmDelete(`Delete this focus session (${s.minutes} min, ${s.dateKey})?`,"XP and your focus totals will be recalculated. This cannot be undone.")))return;
+  studySessions.splice(i,1);
+  removeLedgerEntry(e=>e.type==="focus-session"&&e.dateKey===s.dateKey&&Number(e.lectureId)===Number(s.lectureId)&&Number(e.details?.minutes)===Number(s.minutes));
+  save();render();updateStudyUI();
+  toast("🗑 Deleted. XP and focus totals updated.");
 }
 function afterEvidenceChange(lecture){
   lecture.mastery=inferredMastery(lecture);
@@ -2621,6 +2667,7 @@ function testSound(){
 }
 function toast(t){const el=document.getElementById("toast");el.textContent=t;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),1800)}
 load();
+repairReviewSchedulesOnce();
 render();
 renderExtraViews();
 updateAudioUI();
@@ -2682,7 +2729,8 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
  }
  function rewardCardHTML(r){const c=credits(),can=c>=r.cost;return `<div class="reward-card"><div class="reward-icon">${r.icon}</div><h4>${r.name}</h4><p>${r.desc}</p><div class="reward-cost"><span class="reward-chip">${r.cost} 💠</span><span class="reward-balance">${can?'Available':'Need '+(r.cost-c)+' more'}</span></div><button class="reward-buy" ${can?'':'disabled'} onclick="window.mhqOpenReward('${r.id}')">${can?'🎁 Redeem':'🔒 Locked'}</button></div>`}
  function collectionHTML(){const c=credits();return collections.map(col=>`<div class="reward-card collection-card"><div class="collection-banner"><div style="font-size:1.9rem">${col.icon}</div><span class="reward-chip">${col.items.filter(i=>owned(i[0])).length}/${col.items.length}</span></div><h4>${col.name}</h4><p>${col.desc}</p><div class="collection-items">${col.items.map(i=>{const own=owned(i[0]),can=c>=i[2];return `<div class="collection-item"><div class="collection-item-top"><span>${i[3]} ${i[1]}</span><span class="collection-state">${own?'OWNED':i[2]+' 💠'}</span></div>${own?'<div class="collection-state" style="margin-top:7px;color:var(--good)">✓ Added to collection</div>':`<button class="reward-buy" ${can?'':'disabled'} onclick="window.mhqOpenCollection('${i[0]}')">${can?'Unlock':'🔒 Locked'}</button>`}</div>`}).join('')}</div></div>`).join('')}
- function render(){const el=document.getElementById('motivationPanel');if(!el)return;const d=studyActions(),w=weeklyActions(),x=xp(),c=credits(),dp=pct(d,M.dailyTarget),wp=pct(w,M.weeklyTarget),ownedCount=allCollectionItems().filter(i=>owned(i.id)).length;el.innerHTML=`
+ function render(){const el=document.getElementById('motivationPanel');if(!el)return;const openIds=[...el.querySelectorAll('details[id]')].filter(d=>d.open).map(d=>d.id);paint();openIds.forEach(id=>{const d=document.getElementById(id);if(d)d.open=true;});}
+ function paint(){const el=document.getElementById('motivationPanel');if(!el)return;const d=studyActions(),w=weeklyActions(),x=xp(),c=credits(),dp=pct(d,M.dailyTarget),wp=pct(w,M.weeklyTarget),ownedCount=allCollectionItems().filter(i=>owned(i.id)).length;el.innerHTML=`
  <div class="card motivation-hero"><div class="motivation-shell"><div class="motivation-head"><div><div class="eyebrow">⚡ MOTIVATION CORE</div><h2>Your study progress should unlock real rewards.</h2><p style="opacity:.7;max-width:650px">XP is permanent medical progression. Credits are the spendable currency you earn from studying.</p></div><div class="wallet-hero"><small>REWARD WALLET</small><div class="wallet-number">${c} 💠</div><small>${M.rewardCreditsEarned} earned · ${M.rewardCreditsSpent} spent</small></div></div>
  <div class="goal-grid"><div class="goal-card"><div class="goal-icon">🎯</div><div class="goal-label">Today's mission</div><div class="goal-value">${d}/${M.dailyTarget}</div><div class="motivation-bar"><div class="motivation-fill" style="width:${dp}%"></div></div><div class="goal-foot">${dp>=100?'MISSION CLEARED 🔥':`${Math.max(0,M.dailyTarget-d)} more action${M.dailyTarget-d===1?'':'s'} to clear it`}</div></div>
  <div class="goal-card"><div class="goal-icon">📆</div><div class="goal-label">7-day mission</div><div class="goal-value">${w}/${M.weeklyTarget}</div><div class="motivation-bar"><div class="motivation-fill" style="width:${wp}%"></div></div><div class="goal-foot">${wp>=100?'WEEKLY TARGET CLEARED 🏆':`${Math.max(0,M.weeklyTarget-w)} actions remaining`}</div></div>
@@ -2694,7 +2742,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
  window.mhqSetGoal=function(){document.getElementById('mhqGoalModal')?.remove();const b=document.createElement('div');b.className='shop-modal-backdrop';b.id='mhqGoalModal';b.innerHTML=`<form class="shop-modal" id="mhqGoalForm"><div class="shop-modal-head"><div><div class="shop-modal-icon">🎯</div><h3>Your study goals</h3><p>Set targets that encourage you without overwhelming you.</p></div><button type="button" class="shop-close" id="mhqGoalClose">✕</button></div><label class="goal-label" for="mhqDailyGoal">Daily study actions</label><input id="mhqDailyGoal" type="number" min="1" max="20" value="${M.dailyTarget}" required style="width:100%;margin:7px 0 14px"><label class="goal-label" for="mhqWeeklyGoal">Weekly study actions</label><input id="mhqWeeklyGoal" type="number" min="1" max="100" value="${M.weeklyTarget}" required style="width:100%;margin:7px 0 14px"><label class="goal-label" for="mhqCampaignGoal">Current campaign goal</label><input id="mhqCampaignGoal" maxlength="80" value="${String(M.campaignGoal).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}" required style="width:100%;margin:7px 0 0"><div class="shop-modal-actions"><button type="button" id="mhqGoalCancel">Cancel</button><button type="submit" class="primary">Save goals</button></div></form>`;document.body.appendChild(b);b.addEventListener('click',e=>{if(e.target===b)b.remove()});document.getElementById('mhqGoalClose').onclick=()=>b.remove();document.getElementById('mhqGoalCancel').onclick=()=>b.remove();document.getElementById('mhqGoalForm').onsubmit=e=>{e.preventDefault();const d=Number(document.getElementById('mhqDailyGoal').value),w=Number(document.getElementById('mhqWeeklyGoal').value),g=document.getElementById('mhqCampaignGoal').value.trim();if(!Number.isFinite(d)||d<1||d>20||!Number.isFinite(w)||w<1||w>100||!g)return;M.dailyTarget=Math.round(d);M.weeklyTarget=Math.round(w);M.campaignGoal=g.slice(0,80);saveM();b.remove();render();toast('✓ Study goals updated')};}
  window.mhqCollectionShop=function(){(()=>{const d=document.getElementById('collectionDetails');if(d)d.open=true;d?.scrollIntoView({behavior:'smooth',block:'start'})})()}
  window.mhqRewardState=function(){reconcileWallet();return {earned:M.rewardCreditsEarned,spent:M.rewardCreditsSpent,balance:credits(),ownedItems:M.ownedItems.slice(),redeemed:M.redeemed.slice()}}
- window.addEventListener('storage',render);document.addEventListener('DOMContentLoaded',()=>{reconcileWallet();render()});setInterval(()=>{reconcileWallet();render()},5000);
+ window.addEventListener('storage',render);document.addEventListener('DOMContentLoaded',()=>{reconcileWallet();render()});window.mhqMotivationRender=()=>{reconcileWallet();render()};
 })();
 </script>
 <script id="mhq-v55-interaction-polish">
