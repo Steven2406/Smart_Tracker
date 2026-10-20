@@ -448,12 +448,51 @@ button.brand .brand-text small::after{content:" ▾";color:var(--accent)}
 .exam-lec{display:flex;gap:9px;align-items:flex-start;padding:8px 0;font-size:13.5px;border-bottom:1px solid var(--line)}
 .exam-lec input,.exam-subj input{width:20px;height:20px;min-height:0;flex:none;margin:0}
 .exam-editor-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}.exam-editor-actions button{min-height:44px}
+.float-xp{position:fixed;z-index:10040;transform:translate(-50%,-100%);pointer-events:none;text-align:center;font-weight:800;color:var(--accent);text-shadow:0 1px 0 var(--bg),0 2px 12px rgba(0,0,0,.28);animation:floatXp 1.35s ease-out forwards}
+.float-xp b{display:block;font-size:20px;font-variant-numeric:tabular-nums}
+.float-xp.big b{font-size:27px}
+.float-xp span{display:block;font-size:11px;letter-spacing:.09em;margin-top:2px}
+@keyframes floatXp{0%{opacity:0;transform:translate(-50%,-70%) scale(.7)}15%{opacity:1;transform:translate(-50%,-100%) scale(1.12)}100%{opacity:0;transform:translate(-50%,-270%) scale(1)}}
+.xp-pulse{animation:xpPulse .85s ease-out}
+@keyframes xpPulse{0%{box-shadow:0 0 0 0 rgba(63,150,100,.6)}60%{box-shadow:0 0 0 12px rgba(63,150,100,0)}100%{box-shadow:0 0 0 0 rgba(63,150,100,0)}}
+.celebrate{position:fixed;inset:0;z-index:10050;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(circle at 50% 40%,rgba(0,0,0,.45),rgba(0,0,0,.8));animation:celIn .25s ease-out;transition:opacity .3s}
+.celebrate.out{opacity:0}
+.cel-card{position:relative;z-index:2;width:min(340px,92vw);margin-top:44px;text-align:center;padding:0 20px 18px;border-radius:24px;background:var(--surface);border:1px solid var(--line);box-shadow:0 24px 70px rgba(0,0,0,.5);animation:celPop .5s cubic-bezier(.2,1.4,.4,1)}
+.cel-badge{width:96px;height:96px;margin:-48px auto 10px;border-radius:50%;display:grid;place-items:center;font-size:46px;background:var(--surface);border:3px solid var(--cel,var(--accent));box-shadow:0 0 0 6px color-mix(in srgb,var(--cel,var(--accent)) 25%,transparent),0 0 38px color-mix(in srgb,var(--cel,var(--accent)) 60%,transparent);animation:celBadge .9s ease-out}
+.cel-kicker{font-size:11px;font-weight:800;letter-spacing:.18em;color:color-mix(in srgb,var(--cel,var(--accent)) 62%,var(--text))}
+.cel-title{margin:6px 0 2px;font-size:25px;font-weight:800;letter-spacing:-.02em;line-height:1.15}
+.cel-sub{color:var(--muted);font-size:13.5px}
+.cel-lines{list-style:none;margin:14px 0 6px;padding:0;display:grid;gap:6px}
+.cel-lines li{display:flex;justify-content:space-between;gap:10px;padding:8px 12px;border-radius:10px;background:var(--surface2);font-size:13.5px;animation:celLine .4s ease-out backwards}
+.cel-lines li b{font-variant-numeric:tabular-nums;color:color-mix(in srgb,var(--cel,var(--accent)) 62%,var(--text))}
+.cel-total{margin-top:8px;font-size:34px;font-weight:800;font-variant-numeric:tabular-nums;color:color-mix(in srgb,var(--cel,var(--accent)) 62%,var(--text))}
+.cel-hint{margin-top:10px;font-size:11px;color:var(--muted)}
+.cel-confetti{position:absolute;left:50%;top:40%;width:0;height:0;z-index:3;pointer-events:none}
+.cel-confetti i{position:absolute;width:8px;height:14px;border-radius:2px;background:var(--c);opacity:0;animation:celConf 1.9s ease-out var(--dl) forwards}
+@keyframes celIn{from{opacity:0}to{opacity:1}}
+@keyframes celPop{0%{opacity:0;transform:scale(.7) translateY(30px)}100%{opacity:1;transform:none}}
+@keyframes celBadge{0%{transform:scale(.4) rotate(-25deg)}60%{transform:scale(1.15) rotate(6deg)}100%{transform:none}}
+@keyframes celLine{from{opacity:0;transform:translateY(10px)}}
+@keyframes celConf{0%{opacity:1;transform:translate(0,0) rotate(0)}100%{opacity:0;transform:translate(var(--x),var(--y)) rotate(var(--r))}}
+.focus-ring-wrap{position:relative;width:min(78vw,300px);aspect-ratio:1;margin:10px auto 6px;display:grid;place-items:center}
+.focus-ring{position:absolute;inset:0;width:100%;height:100%}
+.ring-bg{fill:none;stroke:var(--line);stroke-width:9}
+.ring-fg{fill:none;stroke:var(--accent);stroke-width:9;stroke-linecap:round;transition:stroke-dashoffset .6s linear,stroke .4s;filter:drop-shadow(0 0 7px color-mix(in srgb,var(--accent) 60%,transparent))}
+.focus-ring-wrap.stage-half .ring-fg{stroke:#e6a23c}
+.focus-ring-wrap.stage-final .ring-fg{stroke:var(--danger)}
+.focus-ring-wrap .study-clock{position:relative;margin:0;font-size:clamp(46px,15vw,70px)}
+.focus-aura{position:absolute;inset:-8%;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--accent) 30%,transparent),transparent 66%);opacity:0;transition:opacity .6s}
+.focus-ring-wrap.running .focus-aura{opacity:1;animation:auraBreathe 4.5s ease-in-out infinite}
+@keyframes auraBreathe{0%,100%{transform:scale(.92);opacity:.5}50%{transform:scale(1.06);opacity:1}}
+.study-state{font-weight:700;font-size:14px}
+.study-state.stage-pop{animation:stagePop .7s ease-out}
+@keyframes stagePop{0%{transform:scale(.9);opacity:.2}40%{transform:scale(1.08);opacity:1}100%{transform:scale(1)}}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v6.8</small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v6.9</small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -557,7 +596,7 @@ button.brand .brand-text small::after{content:" ▾";color:var(--accent)}
         <div id="studyTarget" class="study-target"></div>
       </div>
       <div style="margin-top:14px"><div class="label">SESSION LENGTH</div><div class="study-controls" id="studyPresets"><button class="preset active" onclick="setStudyPreset(5,this)">5 min</button><button class="preset" onclick="setStudyPreset(25,this)">25 min</button><button class="preset" onclick="setStudyPreset(50,this)">50 min</button></div></div>
-      <div id="studyClock" class="study-clock">05:00</div><div id="studyState" class="study-state">Ready when you are.</div>
+      <div class="focus-ring-wrap" id="focusRingWrap"><div class="focus-aura"></div><svg class="focus-ring" viewBox="0 0 200 200" aria-hidden="true"><circle class="ring-bg" cx="100" cy="100" r="88"/><circle class="ring-fg" id="focusRingFg" cx="100" cy="100" r="88" transform="rotate(-90 100 100)"/></svg><div id="studyClock" class="study-clock">05:00</div></div><div id="studyState" class="study-state">Ready when you are.</div>
       <div class="study-controls"><button id="studyStartBtn" class="primary" onclick="toggleStudyTimer()">START SESSION</button><button onclick="resetStudyTimer()">RESET</button></div>
       <div id="sessionReview" class="session-review" style="display:none"></div>
       <div class="card" style="text-align:left;margin-top:12px"><div class="session-stat"><span>Completed sessions</span><b id="sessionCount">0</b></div><div class="session-stat"><span>Focus time</span><b id="sessionMinutes">0 min</b></div><div class="session-stat"><span>Study-mode XP</span><b id="sessionXp">0</b></div></div>
@@ -1678,6 +1717,7 @@ function render(){
  renderLectureList();
  save();
  renderExtraViews();
+ runFeedbackEffects();
 }
 
 function filter(s){activeFilter=s;render()}
@@ -1762,7 +1802,12 @@ function renderRpg(){
 function checkRpgLevelUp(){
   const level=rpgInfo().level;
   if(rpgLastSeenLevel===null){rpgLastSeenLevel=level;return;}
-  if(level>rpgLastSeenLevel){const gained=level-rpgLastSeenLevel;rpgLastSeenLevel=level;playSfx("level_up",.95);toast(`🆙 LEVEL UP! You reached Level ${level}${gained>1?' (+'+gained+' levels)':''}!`);}
+  if(level>rpgLastSeenLevel){
+    const gained=level-rpgLastSeenLevel,from=rpgLastSeenLevel;rpgLastSeenLevel=level;playSfx("level_up",.95);
+    const info=rpgInfo(),oldRank=info.ranks.find(r=>from>=r.min&&from<=r.max),newRank=info.rank;
+    celebrate({kind:"level",icon:newRank.icon,kicker:"LEVEL UP",title:`Level ${level}`,sub:gained>1?`+${gained} levels at once`:newRank.name,
+      lines:[...(oldRank&&oldRank.name!==newRank.name?[["New rank",`${newRank.icon} ${newRank.name}`]]:[]),["Next level",`${info.needed} XP away`]],color:"#e6b422"});
+  }
   else if(level<rpgLastSeenLevel){rpgLastSeenLevel=level;}
 }
 
@@ -1785,7 +1830,7 @@ function showView(id,button){
   syncTopNav(id);
   if(id!==window.MHQ_LAST_VIEW){playSfx("nav_whoosh",.26);window.MHQ_LAST_VIEW=id;}
   if(button?.closest?.(".nav"))button.classList.add("active");
-  if(id==="todayView"||id==="studyView"||id==="achievementsView"||id==="weaknessView"||id==="statsView"||id==="bossView"||id==="campaignView"||id==="rpgView"||id==="reviewView"||id==="clinicalView"||id==="externalTestsView")renderExtraViews();
+  if(id==="todayView"||id==="studyView"||id==="achievementsView"||id==="weaknessView"||id==="statsView"||id==="bossView"||id==="campaignView"||id==="rpgView"||id==="reviewView"||id==="clinicalView"||id==="externalTestsView"||id==="examsView")renderExtraViews();
   window.scrollTo({top:0,behavior:"smooth"});
 }
 function openDataTools(){
@@ -1879,9 +1924,9 @@ function updateStudyTarget(){
 }
 function updateStudyUI(){
   const clock=document.getElementById("studyClock"),state=document.getElementById("studyState"),btn=document.getElementById("studyStartBtn");
-  if(clock)clock.textContent=formatClock(studyRemaining); if(state)state.textContent=studyRunning?"Focus mode active — stay with the session.":(studyRemaining===0?"Session complete. Nice work.":"Ready when you are."); if(btn)btn.textContent=studyRunning?"PAUSE":"START SESSION";
+  if(clock)clock.textContent=formatClock(studyRemaining); if(state)state.textContent=studyStateText(); if(btn)btn.textContent=studyRunning?"PAUSE":"START SESSION";
   const count=document.getElementById("sessionCount"),xp=document.getElementById("sessionXp"),mins=document.getElementById("sessionMinutes"); if(count)count.textContent=studySessions.length; if(xp)xp.textContent=sessionXpList().reduce((n,o)=>n+o.xp,0); if(mins)mins.textContent=studySessions.reduce((n,s)=>n+Number(s.minutes||0),0)+" min";
-  renderStudyHistory(); updateStudyTarget();
+  renderStudyHistory(); updateStudyTarget(); updateFocusRing();
 }
 function setStudyPreset(minutes,button){if(studyRunning)return;studySelectedMinutes=minutes;studyTotal=minutes*60;studyRemaining=studyTotal;document.querySelectorAll("#studyPresets .preset").forEach(b=>b.classList.remove("active"));if(button)button.classList.add("active");hideSessionReview();updateStudyUI();}
 function resetStudyTimer(){if(studyTimer){clearInterval(studyTimer);studyTimer=null;}studyRunning=false;studyTotal=studySelectedMinutes*60;studyRemaining=studyTotal;hideSessionReview();updateStudyUI();}
@@ -1895,7 +1940,29 @@ function finishStudySession(){
   if(studyTimer){clearInterval(studyTimer);studyTimer=null;}studyRunning=false;playSfx("focus_complete",.78);setTimeout(()=>playSfx("focus_checkpoint",.45),420);const lectureId=Number(document.getElementById("studyLecture")?.value||0);
   studySessions.push({dateKey:todayKey,minutes:studySelectedMinutes,lectureId,finishedAt:new Date().toISOString()});recordActivity("focus-session","focus",lectureId,{minutes:studySelectedMinutes});markStudyActivity();syncXP();save();render();toast(`🎯 Session complete — +${(sessionXpList().slice(-1)[0]||{xp:0}).xp} XP`);showSessionReview(lectureId,studySelectedMinutes);updateStudyUI();
 }
-let studyEndAt=0;
+let studyEndAt=0,studyStageShown=null;
+const FOCUS_C=2*Math.PI*88,STAGE_TEXT={start:"🏕️ Entering Deep Focus",half:"🔥 Halfway Campfire Reached",final:"⚔️ Final Sprint"};
+function studyStage(){const p=studyTotal?1-studyRemaining/studyTotal:0;return p>=.8?"final":p>=.5?"half":"start";}
+function studyStateText(){
+  if(studyRunning)return STAGE_TEXT[studyStage()];
+  if(studyRemaining===0)return "Session complete. Nice work.";
+  if(studyRemaining<studyTotal)return "⏸ Paused — resume when you are ready.";
+  return "Ready when you are.";
+}
+function updateFocusRing(){
+  const wrap=document.getElementById("focusRingWrap"),fg=document.getElementById("focusRingFg"),state=document.getElementById("studyState");
+  if(!wrap||!fg)return;
+  const frac=studyTotal?Math.max(0,Math.min(1,studyRemaining/studyTotal)):1;
+  fg.style.strokeDasharray=FOCUS_C.toFixed(2);fg.style.strokeDashoffset=(FOCUS_C*(1-frac)).toFixed(2);
+  const stage=studyRunning?studyStage():null;
+  wrap.classList.toggle("running",!!studyRunning);
+  ["start","half","final"].forEach(s=>wrap.classList.toggle("stage-"+s,stage===s));
+  if(stage!==studyStageShown){
+    const prev=studyStageShown;studyStageShown=stage;
+    if(stage&&state){state.classList.remove("stage-pop");void state.offsetWidth;state.classList.add("stage-pop");}
+    if(stage==="half"&&prev==="start")playSfx("focus_checkpoint",.4);
+  }
+}
 /* The timer is based on the clock, not on counting ticks, so it stays correct when the phone locks or the tab is in the background. */
 function tickStudyTimer(){
   if(!studyRunning)return;
@@ -2517,7 +2584,7 @@ function afterEvidenceChange(lecture){
   lecture.mastery=inferredMastery(lecture);
   rebuildLectureReview(lecture);
   save();render();
-  if(document.getElementById("modal")?.classList.contains("show")||current)openLecture(lecture.id);
+  if(document.getElementById("modal")?.classList.contains("open")||current)openLecture(lecture.id);
   toast("🗑 Deleted. XP, mastery and reviews updated.");
 }
 async function deleteMcq(i){
@@ -2649,6 +2716,66 @@ function renderHomeExam(){
     <div class="meta" style="margin-top:8px">${s.cleared}/${s.total} cleared · readiness ${s.mastery}%</div>
     <div style="margin-top:8px">${examPaceHtml(s)}</div>
     <button type="button" style="width:100%;margin-top:12px" onclick="showView('examsView')">OPEN EXAMS${more?` (+${more} more)`:""}</button></div>`;
+}
+/* ===== Feedback effects: floating +XP, header pulse and celebration screens =====
+   Everything is driven by what changed between two renders, so it works for every way of earning XP. */
+const fx={ready:false,xp:0,cleared:new Set(),bosses:new Set(),goal:false,ach:0,queue:[],active:false,pointer:null,celebrated:new Set()};
+const FX_COLORS=["#e6b422","#3f6b54","#d4543a","#2f80ed","#9b59b6","#f2994a"];
+document.addEventListener("pointerdown",e=>{fx.pointer={x:e.clientX,y:e.clientY,t:Date.now()};},true);
+function fxAnchor(){const p=fx.pointer;return (p&&Date.now()-p.t<2500)?{x:p.x,y:p.y}:{x:innerWidth/2,y:Math.min(innerHeight*.35,260)};}
+function pulseXpCounters(){
+  document.querySelectorAll(".top .level,#progressFill,#missionFill").forEach(n=>{n.classList.remove("xp-pulse");void n.offsetWidth;n.classList.add("xp-pulse");setTimeout(()=>n.classList.remove("xp-pulse"),850);});
+}
+function spawnFloatingXP(amount,label,anchor){
+  const a=anchor&&anchor.getBoundingClientRect?(()=>{const r=anchor.getBoundingClientRect();return {x:r.left+r.width/2,y:r.top};})():(anchor||fxAnchor());
+  const el=document.createElement("div");el.className="float-xp"+(label?" big":"");
+  el.innerHTML=`<b>+${amount} XP</b>${label?`<span>${escapeHtml(label)}</span>`:""}`;
+  el.style.left=Math.max(70,Math.min(innerWidth-70,a.x))+"px";el.style.top=Math.max(90,a.y-12)+"px";
+  document.body.appendChild(el);setTimeout(()=>el.remove(),1500);
+  pulseXpCounters();
+}
+function celebrate(c){
+  if(fx.queue.length>=3)fx.queue=fx.queue.filter(x=>x.kind!=="lecture").slice(-2);
+  fx.queue.push(c);
+  if(!fx.active){fx.active=true;setTimeout(showNextCelebration,350);}
+}
+function showNextCelebration(){
+  const c=fx.queue.shift();
+  if(!c){fx.active=false;return;}
+  fx.active=true;
+  const el=document.createElement("div");el.className="celebrate";el.setAttribute("role","dialog");el.setAttribute("aria-label",c.title);
+  el.style.setProperty("--cel",c.color||"var(--accent)");
+  const reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const confetti=reduce?"":`<div class="cel-confetti">${Array.from({length:42},(_,i)=>{const a=Math.random()*Math.PI*2,d=140+Math.random()*190;return `<i style="--x:${Math.round(Math.cos(a)*d)}px;--y:${Math.round(Math.sin(a)*d-70)}px;--r:${Math.round(Math.random()*720-360)}deg;--dl:${(Math.random()*.25).toFixed(2)}s;--c:${FX_COLORS[i%FX_COLORS.length]}"></i>`;}).join("")}</div>`;
+  el.innerHTML=confetti+`<div class="cel-card"><div class="cel-badge">${c.icon}</div><div class="cel-kicker">${escapeHtml(c.kicker)}</div><h2 class="cel-title">${escapeHtml(c.title)}</h2><div class="cel-sub">${escapeHtml(c.sub||"")}</div>${c.lines&&c.lines.length?`<ul class="cel-lines">${c.lines.map((l,i)=>`<li style="animation-delay:${(.35+i*.12).toFixed(2)}s"><span>${escapeHtml(l[0])}</span><b>${escapeHtml(l[1])}</b></li>`).join("")}</ul>`:""}${c.total?`<div class="cel-total">${escapeHtml(c.total)}</div>`:""}<div class="cel-hint">Tap to continue</div></div>`;
+  document.body.appendChild(el);
+  let done=false,timer=null;
+  const close=()=>{if(done)return;done=true;clearTimeout(timer);el.classList.add("out");setTimeout(()=>{el.remove();fx.active=false;if(fx.queue.length){fx.active=true;setTimeout(showNextCelebration,250);}},300);};
+  timer=setTimeout(close,2600);
+  el.addEventListener("click",close);
+}
+function runFeedbackEffects(){
+  const cleared=new Set(data.filter(l=>l.steps.every(Boolean)).map(l=>l.id)),bosses=new Set(Object.keys(bossVictories));
+  const goal=dailyGoalDays().includes(todayKey),ach=achievementIds.length;
+  if(!fx.ready){Object.assign(fx,{ready:true,xp:appXP,cleared,bosses,goal,ach});return;}
+  const delta=appXP-fx.xp,newClears=[...cleared].filter(id=>!fx.cleared.has(id)),newBosses=[...bosses].filter(k=>!fx.bosses.has(k)),goalNow=goal&&!fx.goal,achNow=ach>fx.ach;
+  Object.assign(fx,{xp:appXP,cleared,bosses,goal,ach});
+  let celebrated=false;
+  newBosses.forEach(key=>{
+    const def=bossDefinitions.find(b=>b.id===key),v=bossVictories[key]||{};celebrated=true;
+    celebrate({kind:"boss",icon:def?.icon||"⚔️",kicker:"BOSS DEFEATED",title:def?.name||"Boss",sub:`Final trial ${v.score||""}${v.percent!=null?" · "+v.percent+"%":""}`,
+      lines:[["Victory reward",`+${safeNumber(v.xp,0)} XP`],...(delta-safeNumber(v.xp,0)>0?[["Achievements & bonuses",`+${delta-safeNumber(v.xp,0)} XP`]]:[])],total:delta>0?`+${delta} XP`:"",color:"#d4543a"});
+  });
+  newClears.forEach(id=>{
+    const k=todayKey+":"+id;if(fx.celebrated.has(k))return;fx.celebrated.add(k);
+    const l=data.find(x=>x.id===id);if(!l)return;celebrated=true;
+    celebrate({kind:"lecture",icon:"📚",kicker:"LECTURE CLEARED",title:l.title,sub:`${l.subject} · Lecture ${l.id}`,
+      lines:[["Final study step",`+${XP2.step}`],["Lecture cleared",`+${XP2.lecture}`],...(goalNow?[["Daily goal reached",`+${XP2.goal}`]]:[]),...(delta-(XP2.step+XP2.lecture+(goalNow?XP2.goal:0))>0?[["Achievements & bonuses",`+${delta-(XP2.step+XP2.lecture+(goalNow?XP2.goal:0))}`]]:[])],total:delta>0?`+${delta} XP`:"",color:"var(--accent)"});
+  });
+  if(delta>0){
+    if(celebrated||fx.queue.length||fx.active)pulseXpCounters();
+    else spawnFloatingXP(delta,goalNow?"DAILY GOAL!":achNow?"ACHIEVEMENT!":newClears.length?"LECTURE CLEAR!":"");
+  }
 }
 function addCards(){
  if(!current)return;
@@ -2912,7 +3039,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
    if(kind==='collection'){M.ownedItems=Array.isArray(M.ownedItems)?M.ownedItems:[];M.ownedItems.push(item.id)}
    M.redeemed=Array.isArray(M.redeemed)?M.redeemed:[];M.redeemed.push({date:dayKey(),reward:item.id,cost:item.cost,type:kind,remainingCredits:Math.max(0,M.rewardCreditsEarned-M.rewardCreditsSpent)});
    saveM();document.getElementById('mhqShopModal')?.remove();render();
-   if(typeof playSound==='function'){try{playSound(kind==='collection'?'achievement':'reward')}catch(e){}}
+   playSfx(kind==='collection'?'achievement':'lecture_clear',.85);
    toast(`${kind==='collection'?'🔓 Unlocked':'🎁 Redeemed'} ${item.name} · ${credits()} Credit${credits()===1?'':'s'} left`)
  }
  function rewardCardHTML(r){const c=credits(),can=c>=r.cost;return `<div class="reward-card"><div class="reward-icon">${r.icon}</div><h4>${r.name}</h4><p>${r.desc}</p><div class="reward-cost"><span class="reward-chip">${r.cost} 💠</span><span class="reward-balance">${can?'Available':'Need '+(r.cost-c)+' more'}</span></div><button class="reward-buy" ${can?'':'disabled'} onclick="window.mhqOpenReward('${r.id}')">${can?'🎁 Redeem':'🔒 Locked'}</button></div>`}
