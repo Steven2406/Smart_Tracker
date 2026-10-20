@@ -425,12 +425,35 @@ button.brand .brand-text small::after{content:" ▾";color:var(--accent)}
 .xp-list b{color:var(--text)}
 .row-del{margin-top:4px;min-height:34px;padding:4px 10px;border:0;border-radius:9px;background:transparent;color:var(--muted);font-size:12px;font-weight:600}
 .row-del:active,.row-del:hover{color:var(--danger);background:var(--surface2)}
+.exam-card,.exam-home{border-left:4px solid var(--accent)}
+.exam-card.soon,.exam-home.soon{border-left-color:#c98a1b}
+.exam-card.urgent,.exam-home.urgent{border-left-color:var(--danger)}
+.exam-card-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.exam-name{font-family:var(--serif);font-size:19px;font-weight:700;margin-top:3px}
+.exam-days{font-family:var(--serif);font-size:22px;font-weight:700;white-space:nowrap;text-align:right}
+.exam-chip{display:inline-block;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700;background:var(--surface2)}
+.exam-chip.warn{color:var(--danger)}.exam-chip.ok{color:var(--accent)}
+.exam-weak{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:13.5px}
+.exam-weak button{min-height:34px;padding:0 12px;font-size:12px}
+.exam-card-actions{display:flex;gap:8px;margin-top:14px}.exam-card-actions button{flex:1;min-height:42px}
+.exam-past{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+.exam-empty{width:100%;padding:14px;border:1.5px dashed var(--line);border-radius:16px;background:transparent;color:var(--muted);font-weight:650;text-align:left}
+.exam-editor{margin-top:12px}
+.exam-editor input[type=text],.exam-editor input:not([type]),.exam-editor input[type=date]{width:100%}
+.exam-pick-head{display:flex;justify-content:space-between;align-items:center;margin:14px 0 8px;gap:8px}
+.exam-pick-actions{display:flex;gap:6px}.exam-pick-actions button{min-height:34px;padding:0 12px;font-size:12px}
+.exam-range{display:flex;gap:8px;align-items:center;margin-bottom:10px}.exam-range input{width:70px;min-height:38px}.exam-range button{min-height:38px;padding:0 12px;font-size:12px;margin-left:auto}
+.exam-lecs{max-height:46vh;overflow:auto;border:1px solid var(--line);border-radius:12px;padding:4px 10px}
+.exam-subj{position:sticky;top:0;background:var(--surface);padding:8px 0 4px;z-index:1;border-bottom:1px solid var(--line)}
+.exam-lec{display:flex;gap:9px;align-items:flex-start;padding:8px 0;font-size:13.5px;border-bottom:1px solid var(--line)}
+.exam-lec input,.exam-subj input{width:20px;height:20px;min-height:0;flex:none;margin:0}
+.exam-editor-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}.exam-editor-actions button{min-height:44px}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v6.7</small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v6.8</small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -468,6 +491,8 @@ button.brand .brand-text small::after{content:" ▾";color:var(--accent)}
       <button type="button" onclick="showView('externalTestsView')">🧪 Log a test</button>
     </div>
   </div>
+
+  <div id="homeExamCard"></div>
 
   <div class="section card adaptive-review-card">
     <div class="section-head"><h2>🧠 Reviews due</h2><small id="hqDueCount"></small></div>
@@ -673,6 +698,13 @@ button.brand .brand-text small::after{content:" ▾";color:var(--accent)}
     </div>
   </div>
 
+  <div id="examsView" class="view">
+    <div class="hero hero-slim"><div class="label">EXAMS</div><h1>📅 Exams & Countdown</h1><div class="sub" style="margin-top:6px">Add each exam date and choose the lectures it covers. Priorities and review dates adjust automatically as it gets closer.</div></div>
+    <button type="button" class="primary" onclick="openExamEditor()" style="width:100%;min-height:48px">＋ ADD EXAM</button>
+    <div id="examEditor" class="card exam-editor" style="display:none"></div>
+    <div id="examList"></div>
+  </div>
+
   <div id="dataView" class="view">
     <details class="system-details" id="dataToolsDetails" open>
       <summary><span>🧰 Data &amp; System Tools</span><span class="meta">Backups · migration · health checks</span></summary>
@@ -766,6 +798,7 @@ button.brand .brand-text small::after{content:" ▾";color:var(--accent)}
   <div class="mastery-wrap">
     <div class="mastery-head"><span>Learning Mastery</span><b id="mMastery">0%</b></div>
     <div class="mastery-bar"><div class="mastery-fill" id="mMasteryBar" style="width:0%"></div></div>
+    <div id="mExamNote" class="meta" style="margin-top:10px"></div>
     <div id="mMasteryProfile" class="mini-grid" style="margin-top:12px"></div>
     <div class="meta" style="margin-top:6px">Evidence is separated into knowledge, retention, coverage, application, confidence and recency.</div>
   </div>
@@ -946,6 +979,7 @@ let appXP=0, appStreak=0, todayXp=0, todaySteps=0, legacyBonusXP=0;
    so your total never changes just because the rules did. */
 let xpRulesFrom=null;
 let reviewRepairDone=false;
+let exams=[];
 const XP2={step:10,lecture:30,mcqBase:5,mcqCap:100,accMid:.12,accHigh:.25,review:15,comeback:10,seal:20,goalSteps:3,goal:15,focusPerMin:1,focusSession:60,focusDay:120,clinical:8,cardBase:3,cardPer:.4,cardCap:100,cardDay:200,cardReview:10,cardReviewMin:15};
 const CARD_WEIGHT=.5; /* flashcard recall counts half as much as MCQ accuracy as evidence of mastery */
 let studySessions=[];
@@ -1060,6 +1094,48 @@ function recordXP(amount){
   // XP is still derived from reversible state in V4.1; the ledger audits the resulting total.
   markStudyActivity();
 }
+/* ===== Exams: each has a name, a date and the lectures it covers ===== */
+function normalizeExam(e){
+  if(!e||typeof e!=="object")return null;
+  const date=String(e.date||"");
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||isNaN(new Date(date+"T12:00:00")))return null;
+  const ids=[...new Set((Array.isArray(e.lectureIds)?e.lectureIds:[]).map(Number).filter(n=>Number.isInteger(n)&&n>0))].sort((a,b)=>a-b);
+  return {id:String(e.id||("exam_"+Date.now()+"_"+Math.random().toString(36).slice(2,6))),name:String(e.name||"Exam").trim().slice(0,60)||"Exam",date,lectureIds:ids};
+}
+function examDaysLeft(e){return Math.round((new Date(e.date+"T12:00:00")-new Date(todayKey+"T12:00:00"))/86400000);}
+function examDaysLabel(n){return n<0?"Passed":n===0?"Today":n===1?"Tomorrow":n+" days";}
+function fmtExamDate(d){return new Date(d+"T12:00:00").toLocaleDateString(undefined,{weekday:"short",year:"numeric",month:"short",day:"numeric"});}
+function examLectureIds(e){const valid=new Set(data.map(l=>l.id));return (e.lectureIds||[]).filter(id=>valid.has(id));}
+function upcomingExams(){return exams.filter(e=>examDaysLeft(e)>=0).sort((a,b)=>a.date.localeCompare(b.date)||a.name.localeCompare(b.name));}
+function nearestExamFor(lectureId){return upcomingExams().find(e=>examLectureIds(e).includes(lectureId))||null;}
+/* Lectures in a close exam rise in "Do this next" */
+function examPriorityBonus(lecture){
+  const ex=nearestExamFor(lecture.id);if(!ex)return 0;
+  const d=examDaysLeft(ex);
+  return d<=3?30:d<=7?24:d<=14?16:d<=30?9:4;
+}
+function examStats(e){
+  const ls=examLectureIds(e).map(id=>data.find(l=>l.id===id)).filter(Boolean);
+  const cleared=ls.filter(l=>l.steps.every(Boolean)).length;
+  const tested=ls.filter(l=>learningProfile(l).attempts>0).length;
+  const mastery=ls.length?Math.round(ls.reduce((n,l)=>n+inferredMastery(l),0)/ls.length):0;
+  const days=examDaysLeft(e),remaining=ls.length-cleared;
+  const needed=days<0?0:Math.round(remaining/Math.max(1,days)*10)/10;
+  const since=dateKeyOffset(-6);
+  const pace=Math.round(data.filter(l=>l.completionDate&&l.completionDate>=since&&l.steps.every(Boolean)).length/7*10)/10;
+  return {ls,total:ls.length,cleared,tested,mastery,days,remaining,needed,pace,weakest:ls.slice().sort((a,b)=>inferredMastery(a)-inferredMastery(b)).slice(0,3)};
+}
+/* Reviews for exam lectures move earlier so every topic gets rehearsed before exam day. Never moves a review later. */
+function tightenReviewsForExams(){
+  let moved=0;
+  data.forEach(l=>{
+    const card=reviewCards[l.id];if(!card||!card.nextDate||!nearestExamFor(l.id))return;
+    const iv=reviewIntervalFor(l);if(iv===null)return;
+    const last=card.lastReview||lastEvidenceDate(l)||todayKey,next=addDaysToDate(last,iv);
+    if(next<card.nextDate){card.nextDate=next<todayKey?todayKey:next;card.interval=iv;moved++;}
+  });
+  return moved;
+}
 function reviewIntervalFor(lecture){
   const p=learningProfile(lecture);
   if(p.attempts===0)return null;
@@ -1067,6 +1143,8 @@ function reviewIntervalFor(lecture){
   if(p.mastery>=90)interval=30;else if(p.mastery>=82)interval=21;else if(p.mastery>=74)interval=14;else if(p.mastery>=65)interval=7;else if(p.mastery>=55)interval=4;else if(p.mastery>=45)interval=2;
   if(p.confidence!=null&&p.confidence<50)interval=Math.max(1,Math.round(interval*.65));
   if(p.recency<35)interval=Math.max(1,Math.round(interval*.7));
+  const ex=nearestExamFor(lecture.id);
+  if(ex)interval=Math.max(1,Math.min(interval,Math.ceil(examDaysLeft(ex)/3)));
   return interval;
 }
 function addDaysToDate(dateKey,days){
@@ -1469,6 +1547,7 @@ function load(){
       }
       xpRulesFrom=(typeof s.xpRulesFrom==="string"&&s.xpRulesFrom)?s.xpRulesFrom:todayKey;
       reviewRepairDone=s.reviewRepairDone===true;
+      exams=Array.isArray(s.exams)?s.exams.map(normalizeExam).filter(Boolean):[];
       studySessions=Array.isArray(s.studySessions)?s.studySessions.filter(x=>x&&x.dateKey&&Number(x.minutes)>0):[];
       achievementIds=Array.isArray(s.achievementIds)?s.achievementIds.filter(x=>typeof x==="string"):[];
       achievementDates=(s.achievementDates&&typeof s.achievementDates==="object")?s.achievementDates:{};
@@ -1503,12 +1582,12 @@ function load(){
       return;
     }
   }catch(e){}
-  data=makeFreshData();appXP=0;appStreak=0;todayXp=0;todaySteps=0;lastStudyDate=null;legacyBonusXP=0;xpRulesFrom=null;reviewRepairDone=true;studySessions=[];achievementIds=[];achievementDates={};bossVictories={};reviewCards={};activityLedger=[];xpLedger=[];externalTests=[];externalReviewCards={};rpgLastSeenLevel=null;clinicalState={};audioSettings={enabled:true,volume:.68};
+  data=makeFreshData();appXP=0;appStreak=0;todayXp=0;todaySteps=0;lastStudyDate=null;legacyBonusXP=0;xpRulesFrom=null;reviewRepairDone=true;exams=[];studySessions=[];achievementIds=[];achievementDates={};bossVictories={};reviewCards={};activityLedger=[];xpLedger=[];externalTests=[];externalReviewCards={};rpgLastSeenLevel=null;clinicalState={};audioSettings={enabled:true,volume:.68};
   syncXP();
   save();
 }
 function buildPersistedState(){
-  return {schemaVersion:SCHEMA_VERSION,savedAt:new Date().toISOString(),data,xp:appXP,streak:appStreak,todayXp,todaySteps,todayKey,lastStudyDate,legacyBonusXP,xpRulesFrom,reviewRepairDone,studySessions,achievementIds,achievementDates,bossVictories,reviewCards,rpgLastSeenLevel,clinicalState,activityLedger,xpLedger,externalTests,externalReviewCards,audioSettings};
+  return {schemaVersion:SCHEMA_VERSION,savedAt:new Date().toISOString(),data,xp:appXP,streak:appStreak,todayXp,todaySteps,todayKey,lastStudyDate,legacyBonusXP,xpRulesFrom,reviewRepairDone,exams,studySessions,achievementIds,achievementDates,bossVictories,reviewCards,rpgLastSeenLevel,clinicalState,activityLedger,xpLedger,externalTests,externalReviewCards,audioSettings};
 }
 function save(){
   refreshTodayContext();
@@ -1689,7 +1768,7 @@ function checkRpgLevelUp(){
 
 const VIEW_SECTIONS={
   homeView:"home",
-  curriculumView:"study",todayView:"study",weaknessView:"study",reviewView:"study",
+  curriculumView:"study",todayView:"study",weaknessView:"study",reviewView:"study",examsView:"study",
   clinicalView:"testing",externalTestsView:"testing",
   campaignView:"campaign",bossView:"campaign",
   studyView:"focus",
@@ -1855,7 +1934,7 @@ function getWeaknesses(){
 }
 function lecturePriority(lecture){
   const p=learningProfile(lecture), r=reviewStatus(lecture);
-  const importanceBonus=lecture.importance==="A"?18:lecture.importance==="C"?-8:0;
+  const importanceBonus=(lecture.importance==="A"?18:lecture.importance==="C"?-8:0)+examPriorityBonus(lecture);
   const weakness=Math.max(0,100-p.mastery)*0.55;
   const overdue=r.state==="due"?(20+Math.min(25,(r.overdueDays||0)*2)):0;
   const uncertainty=p.confidence==null?10:Math.max(0,70-p.confidence)*0.12;
@@ -2176,6 +2255,7 @@ function openCampaignTerritory(id){
 }
 function renderExtraViews(){
   if(window.mhqMotivationRender)window.mhqMotivationRender();
+  renderExams();renderHomeExam();
   populateStudyLectures();
   renderCampaignMap();
   renderRpg();
@@ -2309,6 +2389,8 @@ function openLecture(id){
  const profile=learningProfile(current);
  const profileEl=document.getElementById("mMasteryProfile");
  if(profileEl)profileEl.innerHTML=[["Knowledge",profile.knowledge],["Retention",profile.retention],["Coverage",profile.coverage],["Application",profile.application],["Confidence",profile.confidence],["Recency",profile.recency]].map(([k,v])=>`<div class="card"><div class="label">${k}</div><b>${v==null?'—':v+'%'}</b></div>`).join("");
+ const exNote=document.getElementById("mExamNote");
+ if(exNote){const ex=nearestExamFor(current.id);exNote.textContent=ex?`📅 ${ex.name} · ${examDaysLabel(examDaysLeft(ex))}`:"";}
  const masteryBar=document.getElementById("mMasteryBar");
  if(masteryBar)masteryBar.style.width=current.mastery+"%";
  document.getElementById("mMCQCorrect").textContent=stats.correct;
@@ -2462,6 +2544,111 @@ async function deleteExternalTest(id){
   if(l){l.mastery=inferredMastery(l);rebuildLectureReview(l);}
   save();render();renderExternalTests();
   toast("🗑 Deleted. XP, mastery and reviews updated.");
+}
+/* ---- Exams page ---- */
+let examDraft=null;
+function openExamEditor(id){
+  const ex=id?exams.find(e=>e.id===id):null;
+  examDraft=ex?{id:ex.id,name:ex.name,date:ex.date,ids:new Set(examLectureIds(ex))}:{id:null,name:"",date:"",ids:new Set()};
+  renderExamEditor();
+  const box=document.getElementById("examEditor");
+  if(box){box.style.display="block";box.scrollIntoView({behavior:"smooth",block:"start"});}
+}
+function closeExamEditor(){examDraft=null;const box=document.getElementById("examEditor");if(box){box.style.display="none";box.innerHTML="";}}
+function renderExamEditor(){
+  const box=document.getElementById("examEditor");if(!box||!examDraft)return;
+  const groups=[];
+  data.forEach(l=>{let g=groups.find(x=>x.s===l.subject);if(!g){g={s:l.subject,items:[]};groups.push(g);}g.items.push(l);});
+  box.innerHTML=`<div class="section-head"><h2>${examDraft.id?"Edit exam":"New exam"}</h2></div>
+  <input id="examName" placeholder="Exam name, e.g. GIT Midterm" maxlength="60" value="${escapeHtml(examDraft.name)}" oninput="examDraft.name=this.value">
+  <input id="examDate" type="date" value="${examDraft.date}" onchange="examDraft.date=this.value" style="margin-top:8px">
+  <div class="exam-pick-head"><b id="examPickCount"></b><span class="exam-pick-actions"><button type="button" data-exam-act="all">All</button><button type="button" data-exam-act="none">None</button></span></div>
+  <div class="exam-range"><span class="meta">Lectures</span><input id="examFrom" type="number" min="1" inputmode="numeric" placeholder="from"><span class="meta">to</span><input id="examTo" type="number" min="1" inputmode="numeric" placeholder="to"><button type="button" data-exam-act="range">Add range</button></div>
+  <div class="exam-lecs">${groups.map(g=>`<div class="exam-subj"><label><input type="checkbox" data-exam-subj="${escapeHtml(g.s)}"> <b>${escapeHtml(g.s)}</b> <span class="meta">(${g.items.length})</span></label></div>${g.items.map(l=>`<label class="exam-lec"><input type="checkbox" data-exam-lec="${l.id}"> <span>L${l.id} · ${escapeHtml(l.title)}</span></label>`).join("")}`).join("")}</div>
+  <div class="exam-editor-actions"><button type="button" class="primary" onclick="saveExam()">SAVE EXAM</button><button type="button" onclick="closeExamEditor()">CANCEL</button>${examDraft.id?`<button type="button" class="row-del" onclick="deleteExam('${examDraft.id}')">🗑 Delete</button>`:""}</div>`;
+  syncExamChecks();
+}
+function syncExamChecks(){
+  const box=document.getElementById("examEditor");if(!box||!examDraft)return;
+  box.querySelectorAll("[data-exam-lec]").forEach(c=>{c.checked=examDraft.ids.has(Number(c.dataset.examLec));});
+  box.querySelectorAll("[data-exam-subj]").forEach(c=>{
+    const ids=data.filter(l=>l.subject===c.dataset.examSubj).map(l=>l.id),n=ids.filter(id=>examDraft.ids.has(id)).length;
+    c.checked=n===ids.length&&n>0;c.indeterminate=n>0&&n<ids.length;
+  });
+  const cnt=document.getElementById("examPickCount");if(cnt)cnt.textContent=`${examDraft.ids.size} of ${data.length} lectures selected`;
+}
+document.addEventListener("change",e=>{
+  if(!examDraft)return;const t=e.target;if(!t||!t.dataset)return;
+  if(t.dataset.examLec!==undefined){const id=Number(t.dataset.examLec);if(t.checked)examDraft.ids.add(id);else examDraft.ids.delete(id);syncExamChecks();}
+  else if(t.dataset.examSubj!==undefined){data.filter(l=>l.subject===t.dataset.examSubj).forEach(l=>{if(t.checked)examDraft.ids.add(l.id);else examDraft.ids.delete(l.id);});syncExamChecks();}
+});
+document.addEventListener("click",e=>{
+  if(!examDraft)return;const b=e.target.closest&&e.target.closest("[data-exam-act]");if(!b)return;
+  const a=b.dataset.examAct;
+  if(a==="all")data.forEach(l=>examDraft.ids.add(l.id));
+  else if(a==="none")examDraft.ids.clear();
+  else if(a==="range"){
+    let from=Math.floor(Number(document.getElementById("examFrom").value)),to=Math.floor(Number(document.getElementById("examTo").value));
+    if(!from||!to){toast("Enter both lecture numbers");return;}
+    if(from>to)[from,to]=[to,from];
+    const hit=data.filter(l=>l.id>=from&&l.id<=to);
+    if(!hit.length){toast("No lectures in that range");return;}
+    hit.forEach(l=>examDraft.ids.add(l.id));
+  }
+  syncExamChecks();
+});
+function saveExam(){
+  if(!examDraft)return;
+  const name=examDraft.name.trim();
+  if(!name){toast("Give the exam a name");return;}
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(examDraft.date||"")){toast("Pick the exam date");return;}
+  if(!examDraft.ids.size){toast("Choose at least one lecture");return;}
+  const rec=normalizeExam({id:examDraft.id||undefined,name,date:examDraft.date,lectureIds:[...examDraft.ids]});
+  const i=examDraft.id?exams.findIndex(x=>x.id===examDraft.id):-1;
+  if(i>=0)exams[i]=rec;else exams.push(rec);
+  const moved=tightenReviewsForExams();
+  closeExamEditor();save();render();
+  toast(moved?`📅 Exam saved · ${moved} review${moved===1?"":"s"} moved earlier`:"📅 Exam saved");
+}
+async function deleteExam(id){
+  const e=exams.find(x=>x.id===id);if(!e)return;
+  if(!(await confirmDelete(`Delete "${e.name}" (${fmtExamDate(e.date)})?`,"Its countdown disappears and its lectures stop getting exam priority. Your progress is not affected.")))return;
+  exams=exams.filter(x=>x.id!==id);
+  if(examDraft&&examDraft.id===id)closeExamEditor();
+  save();render();toast("🗑 Exam deleted");
+}
+function examPaceHtml(s){
+  if(!s.total)return "";
+  if(s.remaining===0)return `<span class="exam-chip ok">✅ All lectures cleared</span>`;
+  const behind=s.pace<s.needed;
+  return `<span class="exam-chip ${behind?"warn":"ok"}">${behind?"⚠ Behind pace":"✅ On pace"}</span> <span class="meta">${s.remaining} to clear · need ${s.needed}/day · you did ${s.pace}/day this week</span>`;
+}
+function renderExams(){
+  const list=document.getElementById("examList");if(!list)return;
+  const up=upcomingExams(),past=exams.filter(e=>examDaysLeft(e)<0).sort((a,b)=>b.date.localeCompare(a.date));
+  const card=e=>{
+    const s=examStats(e),cls=s.days<=3?"urgent":s.days<=7?"soon":"";
+    const pick=s.ls.slice().sort((a,b)=>lecturePriority(b)-lecturePriority(a))[0];
+    return `<div class="card exam-card ${cls}"><div class="exam-card-head"><div><div class="exam-name">${escapeHtml(e.name)}</div><div class="meta">${fmtExamDate(e.date)} · ${s.total} lecture${s.total===1?"":"s"}</div></div><div class="exam-days">${examDaysLabel(s.days)}</div></div>
+      <div class="progress" style="margin-top:12px"><div class="fill" style="width:${s.total?Math.round(s.cleared/s.total*100):0}%"></div></div>
+      <div class="mini-grid" style="margin-top:12px"><div class="card"><div class="label">Cleared</div><b>${s.cleared}/${s.total}</b></div><div class="card"><div class="label">Tested</div><b>${s.tested}/${s.total}</b></div><div class="card"><div class="label">Readiness</div><b>${s.mastery}%</b></div></div>
+      <div style="margin-top:10px">${examPaceHtml(s)}</div>
+      ${s.weakest.length?`<div class="label" style="margin-top:14px">Focus on</div>${s.weakest.map(l=>`<div class="exam-weak"><span>L${l.id} · ${escapeHtml(l.title)} <span class="meta">${inferredMastery(l)}%</span></span><button type="button" onclick="openLecture(${l.id})">OPEN</button></div>`).join("")}`:""}
+      <div class="exam-card-actions">${pick?`<button type="button" class="primary" onclick="openLecture(${pick.id})">STUDY NEXT</button>`:""}<button type="button" onclick="openExamEditor('${e.id}')">EDIT</button></div></div>`;
+  };
+  list.innerHTML=(up.length?up.map(card).join(""):`<div class="empty">No upcoming exams. Tap ADD EXAM to set a date and choose the lectures it covers.</div>`)
+    +(past.length?`<div class="label" style="margin:18px 0 8px">Past exams</div>${past.map(e=>`<div class="card exam-past"><div><b>${escapeHtml(e.name)}</b><div class="meta">${fmtExamDate(e.date)} · ${examLectureIds(e).length} lectures</div></div><button type="button" class="row-del" onclick="deleteExam('${e.id}')">🗑 Delete</button></div>`).join("")}`:"");
+}
+function renderHomeExam(){
+  const el=document.getElementById("homeExamCard");if(!el)return;
+  const up=upcomingExams();
+  if(!up.length){el.innerHTML=`<button type="button" class="exam-empty" onclick="showView('examsView')">📅 Add your exam date for a countdown and a smarter plan →</button>`;return;}
+  const e=up[0],s=examStats(e),more=up.length-1,cls=s.days<=3?"urgent":s.days<=7?"soon":"";
+  el.innerHTML=`<div class="section card exam-home ${cls}"><div class="exam-card-head"><div><div class="label">NEXT EXAM</div><div class="exam-name">${escapeHtml(e.name)}</div><div class="meta">${fmtExamDate(e.date)} · ${s.total} lecture${s.total===1?"":"s"}</div></div><div class="exam-days">${examDaysLabel(s.days)}</div></div>
+    <div class="progress" style="margin-top:12px"><div class="fill" style="width:${s.total?Math.round(s.cleared/s.total*100):0}%"></div></div>
+    <div class="meta" style="margin-top:8px">${s.cleared}/${s.total} cleared · readiness ${s.mastery}%</div>
+    <div style="margin-top:8px">${examPaceHtml(s)}</div>
+    <button type="button" style="width:100%;margin-top:12px" onclick="showView('examsView')">OPEN EXAMS${more?` (+${more} more)`:""}</button></div>`;
 }
 function addCards(){
  if(!current)return;
@@ -2668,6 +2855,7 @@ function testSound(){
 function toast(t){const el=document.getElementById("toast");el.textContent=t;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),1800)}
 load();
 repairReviewSchedulesOnce();
+tightenReviewsForExams();
 render();
 renderExtraViews();
 updateAudioUI();
@@ -2765,7 +2953,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
  observer.observe(document.body,{childList:true,subtree:true});
  // Keep navigation state accurate when inner routes are opened by quick actions.
  const originalShow=window.showView;
- if(typeof originalShow==='function')window.showView=function(id,button){originalShow(id,button);document.querySelectorAll('.nav button').forEach(b=>{const sec=({homeView:'home',curriculumView:'study',todayView:'study',weaknessView:'study',reviewView:'study',clinicalView:'testing',externalTestsView:'testing',campaignView:'campaign',bossView:'campaign',studyView:'focus',rpgView:'progress',achievementsView:'progress',statsView:'progress',dataView:'progress'})[id]||'home';b.classList.toggle('active',b.dataset.section===sec)});};
+ if(typeof originalShow==='function')window.showView=function(id,button){originalShow(id,button);document.querySelectorAll('.nav button').forEach(b=>{const sec=({homeView:'home',curriculumView:'study',todayView:'study',weaknessView:'study',reviewView:'study',examsView:'study',clinicalView:'testing',externalTestsView:'testing',campaignView:'campaign',bossView:'campaign',studyView:'focus',rpgView:'progress',achievementsView:'progress',statsView:'progress',dataView:'progress'})[id]||'home';b.classList.toggle('active',b.dataset.section===sec)});};
 })();
 </script>
 <script>
@@ -2773,7 +2961,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
 /* V5.6 canonical section switchers: each secondary destination lives in one place only. */
 (function(){
  const groups={
-  curriculumView:[['curriculumView','📚 Curriculum'],['weaknessView','🎯 Weak Topics'],['reviewView','🧠 Reviews'],['todayView','⚡ Today']],
+  curriculumView:[['curriculumView','📚 Curriculum'],['weaknessView','🎯 Weak Topics'],['reviewView','🧠 Reviews'],['todayView','⚡ Today'],['examsView','📅 Exams']],
   clinicalView:[['clinicalView','🩺 Clinical Cases'],['externalTestsView','🧪 External Tests']],
   campaignView:[['campaignView','🗺️ Campaign Map'],['bossView','🐉 Boss Battles']],
   rpgView:[['rpgView','🏆 RPG Profile'],['achievementsView','🏅 Achievements'],['statsView','📊 Weekly Stats'],['dataView','⚙️ Data & Backup']]
@@ -2809,7 +2997,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
  window.mhqToggleTheme=function(){applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark',{animate:true,save:true})};
  let saved=null;try{saved=localStorage.getItem(THEME_KEY)}catch(e){}applyTheme(saved||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
  const original=window.showView;const historyStack=[];let restoring=false;
- const labels={homeView:'HQ',curriculumView:'Study',todayView:'Today',weaknessView:'Weak Topics',reviewView:'Reviews',clinicalView:'Testing',externalTestsView:'External Tests',campaignView:'Campaign',bossView:'Boss Battles',studyView:'Focus',rpgView:'Progress',achievementsView:'Achievements',statsView:'Weekly Stats',dataView:'Data & Backup'};
+ const labels={homeView:'HQ',curriculumView:'Study',todayView:'Today',weaknessView:'Weak Topics',reviewView:'Reviews',examsView:'Exams',clinicalView:'Testing',externalTestsView:'External Tests',campaignView:'Campaign',bossView:'Boss Battles',studyView:'Focus',rpgView:'Progress',achievementsView:'Achievements',statsView:'Weekly Stats',dataView:'Data & Backup'};
  function activeId(){return document.querySelector('.view.active')?.id||'homeView'}
  function syncBack(){const id=activeId();document.querySelectorAll('.mhq-back-row').forEach(row=>{const b=row.querySelector('button');const hint=row.querySelector('.mhq-back-hint');const prev=historyStack.length>1?historyStack[historyStack.length-2]:'';row.hidden=id==='homeView';if(b)b.disabled=!prev;if(hint)hint.textContent=prev?'Back to '+(labels[prev]||'previous page'):'You are at the start'});}
  window.mhqGoBack=function(){if(historyStack.length>1){historyStack.pop();const prev=historyStack[historyStack.length-1];restoring=true;original?.(prev);restoring=false;syncBack()}else if(activeId()!=='homeView'){restoring=true;original?.('homeView');restoring=false;historyStack.splice(0,historyStack.length,'homeView');syncBack()}};
