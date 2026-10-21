@@ -35,10 +35,11 @@
 })();
 </script>
 <script>(function(){var t=null;try{t=localStorage.getItem('medicalHQThemeV57')}catch(e){}if(!t)t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;var m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='dark'?'#0e1511':'#f4f5f1'})()</script>
+<script>(function(){try{var m=JSON.parse(localStorage.getItem('mhqMotivationV52')||'null'),e=m&&m.equipped,r=document.documentElement,ok={sage:1,egypt:1,ninja:1,elite:1};if(e){if(e.skin&&ok[e.skin])r.dataset.skin=e.skin;if(e.frame)r.dataset.frame=e.frame;if(e.emblem)r.dataset.emblem=e.emblem;if(e.banner)r.dataset.banner=e.banner}}catch(x){}})()</script>
 <style id="mhq-v58">
 /* Medical HQ v5.8 — single token-driven stylesheet. No !important, no stacked overrides. */
-:root{color-scheme:light;--bg:#f4f5f1;--surface:#fff;--surface2:#eef1ec;--line:#dde3da;--text:#1e2a23;--muted:#5e6c62;--accent:#3d6b50;--accent-ink:#fff;--soft:#e2ece4;--gold:#966b1f;--good:#2f7449;--danger:#b4443d;--shadow:0 1px 2px rgba(25,40,30,.05),0 6px 18px rgba(25,40,30,.05);--r:16px;--serif:ui-serif,Georgia,"Noto Serif",serif;--panel:var(--surface);--panel2:var(--surface2);--accent2:var(--accent);--glow:transparent}
-html[data-theme=dark]{color-scheme:dark;--bg:#0e1511;--surface:#161f19;--surface2:#1e2a22;--line:#2b392f;--text:#e8efe7;--muted:#9caa9f;--accent:#8cc79b;--accent-ink:#0e1a12;--soft:#203126;--gold:#e0bd78;--good:#8fd6a0;--danger:#f0988f;--shadow:0 1px 2px rgba(0,0,0,.35)}
+:root{color-scheme:light;--bg:#f2f7f6;--surface:#ffffff;--surface2:#e8f1ef;--line:#d3e3df;--text:#10201c;--muted:#4b605a;--accent:#06704f;--accent-ink:#ffffff;--soft:#dcf0ea;--gold:#86600f;--good:#17703f;--danger:#b0352d;--shadow:0 1px 2px rgba(10,40,32,.06),0 8px 24px rgba(10,40,32,.07);--r:16px;--serif:system-ui,-apple-system,"Inter","Plus Jakarta Sans","Segoe UI",Roboto,sans-serif;--panel:var(--surface);--panel2:var(--surface2);--accent2:#0a7f9c;--glow:rgba(6,112,79,.22);--sheen:rgba(6,112,79,.09);--topline:var(--line);--num-font:var(--serif);--accent-grad:var(--accent)}
+html[data-theme=dark]{color-scheme:dark;--bg:#07100e;--surface:#0e1916;--surface2:#14231f;--line:#20362f;--text:#e5f3ee;--muted:#94ada5;--accent:#38d9a9;--accent-ink:#04140e;--soft:#11302a;--gold:#e6c36c;--good:#6fe3a6;--danger:#ff9188;--shadow:0 1px 2px rgba(0,0,0,.5),0 10px 30px rgba(0,0,0,.35);--accent2:#4fd3ee;--glow:rgba(56,217,169,.28);--sheen:rgba(56,217,169,.10);--topline:rgba(255,255,255,.13)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{background:var(--bg);scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 html.theming *{transition:background-color .25s,color .25s,border-color .25s}
@@ -487,12 +488,70 @@ button.brand .brand-text small::after{content:" ▾";color:var(--accent)}
 .study-state{font-weight:700;font-size:14px}
 .study-state.stage-pop{animation:stagePop .7s ease-out}
 @keyframes stagePop{0%{transform:scale(.9);opacity:.2}40%{transform:scale(1.08);opacity:1}100%{transform:scale(1)}}
+html[data-skin=sage]{--bg:#f4f5f1;--surface:#ffffff;--surface2:#eef1ec;--line:#dde3da;--text:#1e2a23;--muted:#5e6c62;--accent:#3d6b50;--accent-ink:#ffffff;--soft:#e2ece4;--gold:#80591a;--good:#2f7449;--danger:#b4443d;--shadow:0 1px 2px rgba(25,40,30,.05),0 6px 18px rgba(25,40,30,.05);--accent2:#3d6b50;--glow:transparent;--sheen:transparent;--topline:var(--line);--serif:ui-serif,Georgia,"Noto Serif",serif;}
+html[data-skin=sage][data-theme=dark]{--bg:#0e1511;--surface:#161f19;--surface2:#1e2a22;--line:#2b392f;--text:#e8efe7;--muted:#9caa9f;--accent:#8cc79b;--accent-ink:#0e1a12;--soft:#203126;--gold:#e0bd78;--good:#8fd6a0;--danger:#f0988f;--shadow:0 1px 2px rgba(0,0,0,.35);--accent2:#8cc79b;--glow:transparent;--sheen:transparent;--topline:var(--line);}
+html[data-skin=egypt]{--bg:#f1e8d3;--surface:#fbf6e8;--surface2:#efe4c8;--line:#d9c9a0;--text:#2b2113;--muted:#65563b;--accent:#1c4f94;--accent-ink:#ffffff;--soft:#e6d9b3;--gold:#745405;--good:#36662b;--danger:#a3352a;--serif:ui-serif,Georgia,"Noto Serif",serif;--r:14px;--accent2:#8a6a0a;--glow:rgba(212,175,55,.38);--sheen:rgba(212,175,55,.16);--shadow:0 1px 2px rgba(60,40,10,.10),0 8px 22px rgba(90,60,10,.12);}
+html[data-skin=egypt][data-theme=dark]{--bg:#0c0a07;--surface:#16120c;--surface2:#201a10;--line:#3a2f19;--text:#f4ead2;--muted:#b7a785;--accent:#d4af37;--accent-ink:#1a1405;--soft:#2a2210;--gold:#e9c65c;--good:#93d68a;--danger:#f29b8d;--accent2:#6c9be0;--glow:rgba(212,175,55,.32);--sheen:rgba(212,175,55,.12);--topline:rgba(212,175,55,.38);--shadow:0 1px 2px rgba(0,0,0,.6),0 10px 30px rgba(0,0,0,.45);}
+html[data-skin=ninja]{--bg:#edf0f8;--surface:#ffffff;--surface2:#e2e7f4;--line:#c8d0e6;--text:#0e1424;--muted:#4a5878;--accent:#c4122b;--accent-ink:#ffffff;--soft:#e4e9f8;--gold:#7f5b00;--good:#17703f;--danger:#a8281f;--r:9px;--accent2:#3b3fd6;--accent-grad:linear-gradient(135deg,#d3132c,#6d35e3);--glow:rgba(196,18,43,.30);--sheen:rgba(109,53,227,.10);--shadow:0 1px 2px rgba(14,20,36,.10),0 8px 22px rgba(60,20,90,.12);}
+html[data-skin=ninja][data-theme=dark]{--bg:#0a0e18;--surface:#111726;--surface2:#19213a;--line:#2a3556;--text:#eaf0ff;--muted:#9eb0d4;--accent:#ff5a6a;--accent-ink:#14040a;--soft:#1e2442;--gold:#ffd34d;--good:#46e08a;--danger:#ff8f7a;--accent2:#7aa2ff;--accent-grad:linear-gradient(135deg,#e11d38,#7c3aed);--glow:rgba(255,70,90,.36);--sheen:rgba(124,58,237,.16);--topline:rgba(255,90,106,.45);--shadow:0 1px 2px rgba(0,0,0,.6),0 10px 32px rgba(0,0,0,.5);}
+html[data-skin=elite]{--bg:#eaf4f5;--surface:#ffffff;--surface2:#dfeef0;--line:#c3dade;--text:#0a1d21;--muted:#42616a;--accent:#00756c;--accent-ink:#ffffff;--soft:#d7eeed;--gold:#7a5c00;--good:#12703f;--danger:#b3261e;--r:12px;--accent2:#0b6e99;--num-font:ui-monospace,"SF Mono",Menlo,Consolas,monospace;--glow:rgba(0,117,108,.26);--sheen:rgba(0,117,108,.10);--shadow:0 1px 2px rgba(10,40,45,.08),0 8px 24px rgba(10,60,70,.10);}
+html[data-skin=elite][data-theme=dark]{--bg:#02090b;--surface:#07151a;--surface2:#0c2028;--line:#16343f;--text:#e6fbff;--muted:#86b2be;--accent:#1be3d0;--accent-ink:#021412;--soft:#0a2a30;--gold:#f5c542;--good:#43e08a;--danger:#ff7a78;--accent2:#4bb8ff;--num-font:ui-monospace,"SF Mono",Menlo,Consolas,monospace;--glow:rgba(27,227,208,.34);--sheen:rgba(27,227,208,.10);--topline:rgba(27,227,208,.42);--shadow:0 1px 2px rgba(0,0,0,.7),0 10px 32px rgba(0,0,0,.55);}
+
+/* ---- v7.0 typography, depth and glow ---- */
+h1,h2,h3,h4{font-weight:800;letter-spacing:-.025em}
+.num,.big,.goal-value,.exam-days,.study-clock,.cel-total,.float-xp b,#level,#xp,#streak,#progressText,.shop-balance b,.rpg-level-orb b,.mini-grid b,.home-stats .num,.exam-name{font-family:var(--num-font,inherit);font-variant-numeric:tabular-nums}
+.card,.hero,.reward-card,.rpg-stat{background-image:radial-gradient(130% 110% at 0% 0%,var(--sheen),transparent 62%)}
+.card{border-top-color:var(--topline)}
+.hero,.next-card,.exam-home,.motivation-hero,.home-stats,.exam-card{box-shadow:var(--shadow),0 0 32px -10px var(--glow)}
+.nav{background-image:none}
+html[data-skin=ninja] .primary,html[data-skin=ninja] .mission button,html[data-skin=ninja] .shop-modal-actions button:last-child{background:var(--accent-grad);border-color:transparent;color:#fff}
+html[data-skin=ninja] .fill,html[data-skin=ninja] .motivation-fill,html[data-skin=ninja] .rpg-xp-fill{background:var(--accent-grad)}
+html[data-skin=ninja] .card,html[data-skin=ninja] .hero{border-color:color-mix(in srgb,var(--accent) 30%,var(--line))}
+html[data-skin=egypt] .hero,html[data-skin=egypt] .next-card{border-color:color-mix(in srgb,#d4af37 55%,var(--line))}
+html[data-skin=elite] .card{border-color:color-mix(in srgb,var(--accent) 22%,var(--line))}
+
+/* ---- equipped emblem / frame / banner ---- */
+html[data-emblem=elemental-emblem]{--emblem-glyph:"⚡"}
+html[data-emblem=scarab-emblem]{--emblem-glyph:"🪲"}
+html[data-emblem=consultant-badge]{--emblem-glyph:"👑"}
+html[data-emblem] .top .level::before{content:var(--emblem-glyph);font-size:15px;margin-right:2px}
+.rpg-level-orb{position:relative}
+html[data-emblem] .rpg-level-orb::after{content:var(--emblem-glyph);position:absolute;right:-8px;top:-8px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--surface);border:2px solid var(--accent);font-size:16px}
+@property --ang{syntax:'<angle>';inherits:false;initial-value:0deg}
+@keyframes angSpin{to{--ang:360deg}}
+@keyframes wardPulse{0%,100%{box-shadow:0 0 4px var(--glow)}50%{box-shadow:0 0 16px var(--glow),0 0 0 2px color-mix(in srgb,var(--accent) 40%,transparent)}}
+html[data-frame=dojo-frame] .top .level,html[data-frame=dojo-frame] .rpg-level-orb{border:2px solid transparent;background:linear-gradient(var(--surface),var(--surface)) padding-box,conic-gradient(from var(--ang),#ff3b4e,#4da3ff,#46e08a,#ffd34d,#ff3b4e) border-box;animation:angSpin 6s linear infinite}
+html[data-frame=papyrus-frame] .top .level,html[data-frame=papyrus-frame] .rpg-level-orb{border:1px solid #d4af37;box-shadow:0 0 0 2px var(--surface),0 0 0 3px rgba(212,175,55,.75)}
+html[data-frame=papyrus-frame] .rpg-level-orb{border:3px double #d4af37}
+html[data-frame=ward-frame] .top .level,html[data-frame=ward-frame] .rpg-level-orb{border:1px solid var(--accent);animation:wardPulse 2.6s ease-in-out infinite}
+.hero{position:relative}
+html[data-banner=ninja-banner] #homeView .hero::after{content:"🏴";position:absolute;right:16px;top:10px;font-size:24px;filter:drop-shadow(0 2px 6px var(--glow))}
+
+/* ---- appearance picker ---- */
+.skin-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.skin-card{padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--surface2);display:grid;gap:8px;align-content:start}
+.skin-card.active{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 35%,transparent)}
+.skin-sw{display:flex;height:30px;border-radius:9px;overflow:hidden;border:1px solid var(--line)}
+.skin-sw i{flex:1}
+.skin-card b{font-size:14px}
+.skin-card .meta{margin:0;min-height:32px}
+.skin-actions{display:flex;gap:6px}.skin-actions button{flex:1;min-height:36px;padding:0 8px;font-size:12px}
+.skin-preview-pill{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:10060;display:flex;align-items:center;gap:10px;max-width:94vw;padding:8px 10px 8px 16px;border-radius:99px;background:var(--text);color:var(--bg);font-size:13px;font-weight:700;box-shadow:0 8px 28px rgba(0,0,0,.4)}
+.skin-preview-pill span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.skin-preview-pill button{min-height:32px;padding:0 14px;border:0;border-radius:99px;background:var(--bg);color:var(--text);font-weight:800;font-size:12.5px;flex:none}
+.skin-preview-pill button[data-pv=buy]{background:var(--accent);color:var(--accent-ink)}
+.skin-price{font-size:11.5px;color:var(--muted);line-height:1.5}.skin-price b{color:var(--text)}.skin-price .ok{color:var(--good);font-weight:700}
+.skin-mini{width:100%;margin-top:6px;min-height:34px;font-size:12px}
+.shop-modal-preview{width:100%;margin-top:12px;min-height:44px}
+.skin-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.skin-card{min-width:0}
+.skin-actions{flex-direction:column}.skin-actions button{width:100%;min-width:0}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v6.9</small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v7.0</small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -3001,6 +3060,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
  let M=JSON.parse(localStorage.getItem(KEY)||'null');
  if(!M){const legacy=JSON.parse(localStorage.getItem(LEGACY)||'null')||{};const earned=Math.floor(Number(readCore().xp||0)/250);M={dailyTarget:legacy.dailyTarget||3,weeklyTarget:legacy.weeklyTarget||15,campaignGoal:legacy.campaignGoal||'Clear '+COURSE.short+' campaign',redeemed:legacy.redeemed||[],rewardCreditsEarned:Math.max(earned,Number(legacy.rewardCreditsEarned||0)),rewardCreditsSpent:Number(legacy.rewardCreditsSpent||0),ownedItems:legacy.ownedItems||[],shopVersion:2};localStorage.setItem(KEY,JSON.stringify(M));}
  M.rewardCreditsEarned=Number(M.rewardCreditsEarned||0);M.rewardCreditsSpent=Number(M.rewardCreditsSpent||0);M.ownedItems=Array.isArray(M.ownedItems)?M.ownedItems:[];
+ M.equipped=Object.assign({skin:'clinical',frame:null,emblem:null,banner:null},(M.equipped&&typeof M.equipped==='object')?M.equipped:{});
  function saveM(){localStorage.setItem(KEY,JSON.stringify(M));}
  function dayKey(d=new Date()){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
  function ledger(){const c=readCore();return Array.isArray(c.activityLedger)?c.activityLedger:[]}
@@ -3017,18 +3077,67 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
   {id:'big',cost:8,icon:'🏆',name:'Major reward',desc:'A larger personal reward you choose.',type:'reward'}
  ];
  const collections=[
-  {id:'ninja-legends',name:'Ninja Legends',icon:'🥷',desc:'Original ninja-themed cosmetics for Medical HQ.',items:[['ninja-banner','Ninja Banner',12,'🏴'],['dojo-frame','Dojo Profile Frame',18,'🥋'],['elemental-emblem','Elemental Emblem',25,'⚡']]},
+  {id:'ninja-legends',name:'Ninja Legends',icon:'🥷',desc:'Elemental ninja cosmetics: fire, lightning and spinjitzu energy.',items:[['ninja-banner','Ninja Banner',12,'🏴'],['dojo-frame','Dojo Profile Frame',18,'🥋'],['elemental-emblem','Elemental Emblem',25,'⚡']]},
   {id:'egyptian-heritage',name:'Egyptian Heritage',icon:'𓂀',desc:'Original Egypt-inspired visual collectibles.',items:[['papyrus-frame','Papyrus Frame',15,'📜'],['scarab-emblem','Scarab Emblem',22,'🪲']]},
   {id:'medical-elite',name:'Medical Elite',icon:'🩺',desc:'Future badges, frames and command-center cosmetics.',items:[['ward-frame','Ward Warrior Frame',30,'🏥'],['consultant-badge','Consultant Badge',50,'👑']]}
  ];
  function owned(id){return Array.isArray(M.ownedItems)&&M.ownedItems.includes(id)}
+ /* ---- appearance: skins, frames, emblems ---- */
+ const SKINS=[
+  {id:'clinical',name:'Clinical Command',icon:'🩺',desc:'Crisp emerald and cyan tactical medical UI.',sw:['#06704f','#0a7f9c','#10201c','#38d9a9']},
+  {id:'sage',name:'Classic Sage',icon:'🌿',desc:'The calm original look.',sw:['#3d6b50','#e2ece4','#1e2a23','#8cc79b']},
+  {id:'egypt',name:'Egyptian Heritage',icon:'𓂀',collection:'egyptian-heritage',desc:'Obsidian, royal gold and lapis lazuli.',sw:['#d4af37','#1c4f94','#0c0a07','#f1e8d3']},
+  {id:'ninja',name:'Ninja Legends',icon:'🥷',collection:'ninja-legends',desc:'Elemental fire and lightning on midnight slate.',sw:['#e11d38','#7c3aed','#0a0e18','#4da3ff']},
+  {id:'elite',name:'Medical Elite',icon:'⚕️',collection:'medical-elite',desc:'ICU-monitor dark with surgical teal and gold.',sw:['#1be3d0','#f5c542','#02090b','#4bb8ff']}
+ ];
+ const SLOT={'ninja-banner':'banner','dojo-frame':'frame','elemental-emblem':'emblem','papyrus-frame':'frame','scarab-emblem':'emblem','ward-frame':'frame','consultant-badge':'emblem'};
+ function skinUnlocked(s){if(!s.collection)return true;const col=collections.find(c=>c.id===s.collection);return !!col&&col.items.some(i=>owned(i[0]))}
+ function syncThemeColor(){const m=document.querySelector('meta[name=theme-color]');if(m){const bg=getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();if(bg)m.content=bg}}
+ let previewTimer=null;
+ function applyAppearance(){
+  const r=document.documentElement,e=M.equipped||{};
+  const sk=SKINS.find(s=>s.id===e.skin);
+  if(!sk||!skinUnlocked(sk)){e.skin='clinical'}
+  ['frame','emblem','banner'].forEach(slot=>{if(e[slot]&&(!owned(e[slot])||SLOT[e[slot]]!==slot))e[slot]=null});
+  if(e.skin&&e.skin!=='clinical')r.dataset.skin=e.skin;else delete r.dataset.skin;
+  ['frame','emblem','banner'].forEach(slot=>{if(e[slot])r.dataset[slot]=e[slot];else delete r.dataset[slot]});
+  syncThemeColor();
+ }
+ window.mhqEquipSkin=function(id){const s=SKINS.find(x=>x.id===id);if(!s)return;if(!skinUnlocked(s)){toast('🔒 Own any '+(collections.find(c=>c.id===s.collection)||{}).name+' item to unlock this look');return}M.equipped.skin=id;saveM();clearPreview(true);applyAppearance();render();playSfx('ui_click',.5);toast('🎨 '+s.name+' equipped')};
+ function collectionSlots(colId){const col=collections.find(c=>c.id===colId),o={};if(col)col.items.forEach(i=>{if(SLOT[i[0]])o[SLOT[i[0]]]=i[0]});return o}
+ function startPreview(skinId,slots,label,buyId){
+  clearPreview(true);document.getElementById('mhqShopModal')?.remove();
+  const r=document.documentElement;
+  if(skinId==='clinical')delete r.dataset.skin;else r.dataset.skin=skinId;
+  ['frame','emblem','banner'].forEach(s=>{if(slots&&slots[s])r.dataset[s]=slots[s];else delete r.dataset[s]});
+  syncThemeColor();
+  const pill=document.createElement('div');pill.className='skin-preview-pill';pill.id='mhqSkinPreview';
+  pill.innerHTML=`<span>👁 Previewing ${escapeHtml(label)}</span><button type="button" data-pv="stop">Stop</button>${buyId?'<button type="button" data-pv="buy">Unlock →</button>':''}`;
+  pill.addEventListener('click',e=>{const b=e.target.closest('[data-pv]');if(!b)return;const act=b.dataset.pv;clearPreview();if(act==='buy')window.mhqOpenCollection(buyId)});
+  document.body.appendChild(pill);previewTimer=setTimeout(()=>clearPreview(),30000);
+ }
+ window.mhqPreviewSkin=function(id){const s=SKINS.find(x=>x.id===id);if(!s)return;startPreview(id,s.collection?collectionSlots(s.collection):{},s.name,null)};
+ window.mhqPreviewCollection=function(colId){const s=SKINS.find(x=>x.collection===colId),col=collections.find(c=>c.id===colId);if(!s||!col)return;const next=col.items.filter(i=>!owned(i[0])).sort((a,b)=>a[2]-b[2])[0];startPreview(s.id,collectionSlots(colId),s.name,next?next[0]:null)};
+ window.mhqPreviewItem=function(itemId){const col=collections.find(c=>c.items.some(i=>i[0]===itemId));if(!col)return;const s=SKINS.find(x=>x.collection===col.id),it=col.items.find(i=>i[0]===itemId);startPreview(s?s.id:'clinical',{[SLOT[itemId]]:itemId},col.name+' · '+it[1],owned(itemId)?null:itemId)};
+ function clearPreview(silent){clearTimeout(previewTimer);previewTimer=null;document.getElementById('mhqSkinPreview')?.remove();if(!silent)applyAppearance()}
+ window.mhqGoToCollection=function(colId){const d=document.getElementById('collectionDetails');if(d)d.open=true;setTimeout(()=>{const c=document.querySelector(`.collection-card[data-col="${colId}"]`);if(c)c.scrollIntoView({behavior:'smooth',block:'center'})},80)};
+ window.mhqEquipItem=function(id){clearPreview(true);const slot=SLOT[id];if(!slot||!owned(id))return;M.equipped[slot]=(M.equipped[slot]===id)?null:id;saveM();applyAppearance();render();playSfx('ui_click',.5);toast(M.equipped[slot]?'✨ Equipped':'Removed')};
+ function skinCost(s){const col=collections.find(c=>c.id===s.collection);if(!col)return null;const n=col.items.filter(i=>!owned(i[0])).sort((a,b)=>a[2]-b[2])[0];return n?{name:n[1],cost:n[2],icon:n[3]}:null}
+ function appearanceHTML(){
+  const bal=credits();
+  return `<div class="skin-grid">${SKINS.map(s=>{
+   const un=skinUnlocked(s),on=(M.equipped.skin||'clinical')===s.id,cp=!un?skinCost(s):null;
+   const main=on?'<button class="reward-buy" disabled>✓ Equipped</button>':un?`<button class="reward-buy" onclick="window.mhqEquipSkin('${s.id}')">Equip</button>`:`<button class="reward-buy" onclick="window.mhqGoToCollection('${s.collection}')">${cp&&bal>=cp.cost?'🛒 Unlock':'View in shop'}</button>`;
+   const price=(!un&&cp)?`<div class="skin-price"><b>From ${cp.cost} 💠</b> · ${cp.icon} ${cp.name}<br><span class="${bal>=cp.cost?'ok':''}">${bal>=cp.cost?'✓ You can afford it now':'Need '+(cp.cost-bal)+' more 💠 (you have '+bal+')'}</span></div>`:'';
+   return `<div class="skin-card ${on?'active':''}"><div class="skin-sw">${s.sw.map(c=>`<i style="background:${c}"></i>`).join('')}</div><b>${s.icon} ${s.name}</b><div class="meta">${s.desc}</div>${price}<div class="skin-actions">${main}<button onclick="window.mhqPreviewSkin('${s.id}')">👁 Preview</button></div></div>`}).join('')}</div>`;
+ }
  function allCollectionItems(){return collections.flatMap(c=>c.items.map(i=>({id:i[0],name:i[1],cost:i[2],icon:i[3],collection:c.name})))}
  function toast(msg){let t=document.getElementById('mhqRewardToast');if(!t){t=document.createElement('div');t.id='mhqRewardToast';t.className='redemption-toast';document.body.appendChild(t)}t.textContent=msg;t.classList.add('show');clearTimeout(window.__mhqToast);window.__mhqToast=setTimeout(()=>t.classList.remove('show'),2600)}
  function openShopConfirm(itemId,kind){
    const item=kind==='collection'?allCollectionItems().find(x=>x.id===itemId):rewards.find(x=>x.id===itemId);if(!item)return;
    const balance=credits();if(kind==='collection'&&owned(item.id)){toast('✓ Already in your collection');return}
    const backdrop=document.createElement('div');backdrop.className='shop-modal-backdrop';backdrop.id='mhqShopModal';
-   backdrop.innerHTML=`<div class="shop-modal" role="dialog" aria-modal="true"><div class="shop-modal-head"><div><div class="shop-modal-icon">${item.icon}</div><h3>${kind==='collection'?'Unlock collection item':'Redeem reward'}</h3><p>${item.name}</p></div><button class="shop-close" onclick="document.getElementById('mhqShopModal')?.remove()">✕</button></div><div class="goal-card" style="margin-top:12px"><div class="goal-label">Cost</div><div class="goal-value">${item.cost} 💠</div><div class="goal-foot">Your balance: ${balance} Credit${balance===1?'':'s'}</div></div><div class="shop-modal-actions"><button onclick="document.getElementById('mhqShopModal')?.remove()">Cancel</button><button ${balance<item.cost?'disabled':''} onclick="window.mhqConfirmPurchase('${item.id}','${kind}')">${balance<item.cost?'🔒 Not enough Credits':'✓ Confirm'}</button></div></div>`;
+   backdrop.innerHTML=`<div class="shop-modal" role="dialog" aria-modal="true"><div class="shop-modal-head"><div><div class="shop-modal-icon">${item.icon}</div><h3>${kind==='collection'?'Unlock collection item':'Redeem reward'}</h3><p>${item.name}</p></div><button class="shop-close" onclick="document.getElementById('mhqShopModal')?.remove()">✕</button></div><div class="goal-card" style="margin-top:12px"><div class="goal-label">Cost</div><div class="goal-value">${item.cost} 💠</div><div class="goal-foot">Your balance: ${balance} Credit${balance===1?'':'s'}</div></div>${kind==='collection'?`<button type="button" class="shop-modal-preview" onclick="window.mhqPreviewItem('${item.id}')">👁 Preview this look first</button>`:''}<div class="shop-modal-actions"><button onclick="document.getElementById('mhqShopModal')?.remove()">Cancel</button><button ${balance<item.cost?'disabled':''} onclick="window.mhqConfirmPurchase('${item.id}','${kind}')">${balance<item.cost?'🔒 Not enough Credits':'✓ Confirm'}</button></div></div>`;
    backdrop.addEventListener('click',e=>{if(e.target===backdrop)backdrop.remove()});document.body.appendChild(backdrop)
  }
  window.mhqConfirmPurchase=function(itemId,kind){
@@ -3040,10 +3149,10 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
    M.redeemed=Array.isArray(M.redeemed)?M.redeemed:[];M.redeemed.push({date:dayKey(),reward:item.id,cost:item.cost,type:kind,remainingCredits:Math.max(0,M.rewardCreditsEarned-M.rewardCreditsSpent)});
    saveM();document.getElementById('mhqShopModal')?.remove();render();
    playSfx(kind==='collection'?'achievement':'lecture_clear',.85);
-   toast(`${kind==='collection'?'🔓 Unlocked':'🎁 Redeemed'} ${item.name} · ${credits()} Credit${credits()===1?'':'s'} left`)
+   toast(`${kind==='collection'?'🔓 Unlocked':'🎁 Redeemed'} ${item.name} · ${credits()} Credit${credits()===1?'':'s'} left${kind==='collection'?' · equip it under 🎨 Appearance':''}`)
  }
  function rewardCardHTML(r){const c=credits(),can=c>=r.cost;return `<div class="reward-card"><div class="reward-icon">${r.icon}</div><h4>${r.name}</h4><p>${r.desc}</p><div class="reward-cost"><span class="reward-chip">${r.cost} 💠</span><span class="reward-balance">${can?'Available':'Need '+(r.cost-c)+' more'}</span></div><button class="reward-buy" ${can?'':'disabled'} onclick="window.mhqOpenReward('${r.id}')">${can?'🎁 Redeem':'🔒 Locked'}</button></div>`}
- function collectionHTML(){const c=credits();return collections.map(col=>`<div class="reward-card collection-card"><div class="collection-banner"><div style="font-size:1.9rem">${col.icon}</div><span class="reward-chip">${col.items.filter(i=>owned(i[0])).length}/${col.items.length}</span></div><h4>${col.name}</h4><p>${col.desc}</p><div class="collection-items">${col.items.map(i=>{const own=owned(i[0]),can=c>=i[2];return `<div class="collection-item"><div class="collection-item-top"><span>${i[3]} ${i[1]}</span><span class="collection-state">${own?'OWNED':i[2]+' 💠'}</span></div>${own?'<div class="collection-state" style="margin-top:7px;color:var(--good)">✓ Added to collection</div>':`<button class="reward-buy" ${can?'':'disabled'} onclick="window.mhqOpenCollection('${i[0]}')">${can?'Unlock':'🔒 Locked'}</button>`}</div>`}).join('')}</div></div>`).join('')}
+ function collectionHTML(){const c=credits();return collections.map(col=>`<div class="reward-card collection-card" data-col="${col.id}"><div class="collection-banner"><div style="font-size:1.9rem">${col.icon}</div><span class="reward-chip">${col.items.filter(i=>owned(i[0])).length}/${col.items.length}</span></div><h4>${col.name}</h4><p>${col.desc}</p><button type="button" class="reward-buy" style="margin:2px 0 10px" onclick="window.mhqPreviewCollection('${col.id}')">👁 Preview this look</button><div class="collection-items">${col.items.map(i=>{const own=owned(i[0]),can=c>=i[2];return `<div class="collection-item"><div class="collection-item-top"><span>${i[3]} ${i[1]}</span><span class="collection-state">${own?'OWNED':i[2]+' 💠'}</span></div>${own?`<button class="reward-buy" style="margin-top:7px" onclick="window.mhqEquipItem('${i[0]}')">${M.equipped[SLOT[i[0]]]===i[0]?'✓ Equipped · tap to remove':'Equip '+SLOT[i[0]]}</button>`:`<button class="reward-buy" ${can?'':'disabled'} onclick="window.mhqOpenCollection('${i[0]}')">${can?'Unlock':'🔒 Locked'}</button>`}${own?'':`<button type="button" class="skin-mini" onclick="window.mhqPreviewItem('${i[0]}')">👁 Preview</button>`}</div>`}).join('')}</div></div>`).join('')}
  function render(){const el=document.getElementById('motivationPanel');if(!el)return;const openIds=[...el.querySelectorAll('details[id]')].filter(d=>d.open).map(d=>d.id);paint();openIds.forEach(id=>{const d=document.getElementById(id);if(d)d.open=true;});}
  function paint(){const el=document.getElementById('motivationPanel');if(!el)return;const d=studyActions(),w=weeklyActions(),x=xp(),c=credits(),dp=pct(d,M.dailyTarget),wp=pct(w,M.weeklyTarget),ownedCount=allCollectionItems().filter(i=>owned(i.id)).length;el.innerHTML=`
  <div class="card motivation-hero"><div class="motivation-shell"><div class="motivation-head"><div><div class="eyebrow">⚡ MOTIVATION CORE</div><h2>Your study progress should unlock real rewards.</h2><p style="opacity:.7;max-width:650px">XP is permanent medical progression. Credits are the spendable currency you earn from studying.</p></div><div class="wallet-hero"><small>REWARD WALLET</small><div class="wallet-number">${c} 💠</div><small>${M.rewardCreditsEarned} earned · ${M.rewardCreditsSpent} spent</small></div></div>
@@ -3051,13 +3160,16 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
  <div class="goal-card"><div class="goal-icon">📆</div><div class="goal-label">7-day mission</div><div class="goal-value">${w}/${M.weeklyTarget}</div><div class="motivation-bar"><div class="motivation-fill" style="width:${wp}%"></div></div><div class="goal-foot">${wp>=100?'WEEKLY TARGET CLEARED 🏆':`${Math.max(0,M.weeklyTarget-w)} actions remaining`}</div></div>
  <div class="goal-card"><div class="goal-icon">🛒</div><div class="goal-label">Collection</div><div class="goal-value">${ownedCount}/${allCollectionItems().length}</div><div class="goal-foot">Cosmetics you have unlocked</div></div></div>
  <div style="margin-top:16px"><span class="reward-chip">🎯 ${M.campaignGoal}</span></div><div class="hero-actions" style="margin-top:12px"><button onclick="window.mhqSetGoal()">🎯 Edit Goals</button><button onclick="(()=>{const d=document.getElementById('rewardShopDetails');if(d)d.open=true;document.getElementById('rewardShopSection')?.scrollIntoView({behavior:'smooth',block:'start'})})()">🛒 Open Reward Shop</button></div></div></div>
+ <details class="card shop-disclosure" id="appearanceDetails"><summary>🎨 Appearance <span style="float:right;color:var(--muted);font-weight:600">Skins, frames and emblems</span></summary><div style="margin-top:14px"><div class="shop-toolbar"><div><div class="eyebrow">🎨 APPEARANCE</div><h3 style="margin-bottom:3px">Choose how Medical HQ looks</h3><div style="font-size:11px;color:var(--muted)">Preview any look first, then unlock it by owning any item in its collection. You have ${credits()} 💠.</div></div></div>${appearanceHTML()}</div></details>
  <details class="card shop-disclosure" id="rewardShopDetails"><summary>🎁 Reward Shop <span style="float:right;color:var(--muted);font-weight:600">Spend your Credits</span></summary><div id="rewardShopSection" style="margin-top:14px"><div class="shop-toolbar"><div><div class="eyebrow">🎁 REWARD SHOP</div><h3 style="margin-bottom:3px">Spend what you earned</h3><div style="font-size:11px;color:var(--muted)">Every 250 XP generates 1 Credit.</div></div><div class="shop-balance">💠 <b>${c}</b> <span>Credits</span></div></div><div class="reward-shop">${rewards.map(rewardCardHTML).join('')}</div></div></details>
  <details class="card shop-disclosure" id="collectionDetails"><summary>🛒 Collections <span style="float:right;color:var(--muted);font-weight:600">Unlockable items</span></summary><div style="margin-top:14px"><div class="shop-toolbar"><div><div class="eyebrow">🛒 COLLECTIONS</div><h3 style="margin-bottom:3px">Build your Medical HQ collection</h3><div style="font-size:11px;color:var(--muted)">Original cosmetics first. More collections can be added later.</div></div><div class="shop-balance">🏆 <b>${ownedCount}</b> <span>Owned</span></div></div><div class="collection-grid">${collectionHTML()}</div></div></details>`;}
  window.mhqOpenReward=function(id){openShopConfirm(id,'reward')};window.mhqOpenCollection=function(id){openShopConfirm(id,'collection')};window.mhqRewardShop=function(){(()=>{const d=document.getElementById('rewardShopDetails');if(d)d.open=true;document.getElementById('rewardShopSection')?.scrollIntoView({behavior:'smooth',block:'start'})})()};
  window.mhqSetGoal=function(){document.getElementById('mhqGoalModal')?.remove();const b=document.createElement('div');b.className='shop-modal-backdrop';b.id='mhqGoalModal';b.innerHTML=`<form class="shop-modal" id="mhqGoalForm"><div class="shop-modal-head"><div><div class="shop-modal-icon">🎯</div><h3>Your study goals</h3><p>Set targets that encourage you without overwhelming you.</p></div><button type="button" class="shop-close" id="mhqGoalClose">✕</button></div><label class="goal-label" for="mhqDailyGoal">Daily study actions</label><input id="mhqDailyGoal" type="number" min="1" max="20" value="${M.dailyTarget}" required style="width:100%;margin:7px 0 14px"><label class="goal-label" for="mhqWeeklyGoal">Weekly study actions</label><input id="mhqWeeklyGoal" type="number" min="1" max="100" value="${M.weeklyTarget}" required style="width:100%;margin:7px 0 14px"><label class="goal-label" for="mhqCampaignGoal">Current campaign goal</label><input id="mhqCampaignGoal" maxlength="80" value="${String(M.campaignGoal).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}" required style="width:100%;margin:7px 0 0"><div class="shop-modal-actions"><button type="button" id="mhqGoalCancel">Cancel</button><button type="submit" class="primary">Save goals</button></div></form>`;document.body.appendChild(b);b.addEventListener('click',e=>{if(e.target===b)b.remove()});document.getElementById('mhqGoalClose').onclick=()=>b.remove();document.getElementById('mhqGoalCancel').onclick=()=>b.remove();document.getElementById('mhqGoalForm').onsubmit=e=>{e.preventDefault();const d=Number(document.getElementById('mhqDailyGoal').value),w=Number(document.getElementById('mhqWeeklyGoal').value),g=document.getElementById('mhqCampaignGoal').value.trim();if(!Number.isFinite(d)||d<1||d>20||!Number.isFinite(w)||w<1||w>100||!g)return;M.dailyTarget=Math.round(d);M.weeklyTarget=Math.round(w);M.campaignGoal=g.slice(0,80);saveM();b.remove();render();toast('✓ Study goals updated')};}
  window.mhqCollectionShop=function(){(()=>{const d=document.getElementById('collectionDetails');if(d)d.open=true;d?.scrollIntoView({behavior:'smooth',block:'start'})})()}
  window.mhqRewardState=function(){reconcileWallet();return {earned:M.rewardCreditsEarned,spent:M.rewardCreditsSpent,balance:credits(),ownedItems:M.ownedItems.slice(),redeemed:M.redeemed.slice()}}
- window.addEventListener('storage',render);document.addEventListener('DOMContentLoaded',()=>{reconcileWallet();render()});window.mhqMotivationRender=()=>{reconcileWallet();render()};
+ window.addEventListener('storage',render);document.addEventListener('DOMContentLoaded',()=>{reconcileWallet();render()});new MutationObserver(syncThemeColor).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+applyAppearance();
+window.mhqMotivationRender=()=>{reconcileWallet();render()};
 })();
 </script>
 <script id="mhq-v55-interaction-polish">
