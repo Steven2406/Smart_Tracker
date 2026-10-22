@@ -527,6 +527,77 @@ html[data-frame=ward-frame] .top .level,html[data-frame=ward-frame] .rpg-level-o
 .hero{position:relative}
 html[data-banner=ninja-banner] #homeView .hero::after{content:"🏴";position:absolute;right:16px;top:10px;font-size:24px;filter:drop-shadow(0 2px 6px var(--glow))}
 
+/* ---- v7.0.1 skin personalities (CSS only) ---- */
+:root{--m-ecg:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 14'%3E%3Cpath d='M0 7H18L22 7L26 1L32 13L36 7H64' fill='none' stroke='black' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E");--m-leaf:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 24'%3E%3Cpath d='M2 22C2 9 12 2 26 2C26 15 18 23 2 22Z'/%3E%3C/svg%3E");--m-step:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M0 0H16V4H12V8H8V12H4V16H0Z'/%3E%3C/svg%3E");--m-grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.07'/%3E%3C/svg%3E")}
+.card,.reward-card,.rpg-stat{position:relative;isolation:isolate}
+.card:not(.hero)::before,.reward-card::before{content:"";position:absolute;z-index:-1;pointer-events:none;opacity:0}
+@keyframes hbeat{0%,100%{box-shadow:0 0 0 0 transparent}12%,36%{box-shadow:0 0 10px 1px var(--glow)}24%{box-shadow:0 0 0 0 transparent}}
+@keyframes goldSweep{to{background-position:-200% 0}}
+@keyframes streak{to{background-position:-220% 0,0 0}}
+@keyframes shimmer{to{background-position:-250% 0}}
+@keyframes leafSway{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(7deg)}}
+
+/* Clinical: ECG line, heartbeat bar */
+html:not([data-skin]) .card:not(.hero)::before{opacity:.4;bottom:3px;right:14px;width:56px;height:11px;background:var(--accent);-webkit-mask:var(--m-ecg) center/contain no-repeat;mask:var(--m-ecg) center/contain no-repeat}
+html:not([data-skin]) .fill,html:not([data-skin]) .rpg-xp-fill,html:not([data-skin]) .motivation-fill{background:linear-gradient(90deg,var(--accent),var(--accent2))}
+html:not([data-skin]) .rpg-xp-fill{animation:hbeat 2.4s ease-in-out infinite}
+html:not([data-skin]) .nav button.active{box-shadow:inset 0 -2px 0 var(--accent)}
+
+/* Sage: botanical journal */
+html[data-skin=sage] body{background-image:var(--m-grain)}
+html[data-skin=sage] h1,html[data-skin=sage] h2,html[data-skin=sage] h3,html[data-skin=sage] .cel-title{font-family:var(--serif);letter-spacing:-.01em}
+html[data-skin=sage] .card,html[data-skin=sage] .reward-card,html[data-skin=sage] .rpg-stat{border-radius:22px 6px 22px 6px}
+html[data-skin=sage] .hero{border-radius:30px 8px 30px 8px}
+html[data-skin=sage] .card:not(.hero)::before{opacity:.4;bottom:2px;right:12px;width:17px;height:13px;background:var(--accent);-webkit-mask:var(--m-leaf) center/contain no-repeat;mask:var(--m-leaf) center/contain no-repeat;transform-origin:0 100%;animation:leafSway 7s ease-in-out infinite}
+html[data-skin=sage] .fill,html[data-skin=sage] .rpg-xp-fill,html[data-skin=sage] .motivation-fill{background:repeating-linear-gradient(90deg,var(--accent) 0 9px,color-mix(in srgb,var(--accent) 70%,#fff) 9px 11px)}
+html[data-skin=sage] .nav{border-radius:26px 10px 26px 10px}
+html[data-skin=sage] .cel-card{border-radius:30px 8px 30px 8px;font-family:var(--serif)}
+
+/* Egypt: temple stone, gold inlay */
+html[data-skin=egypt] body{background-image:var(--m-grain),repeating-linear-gradient(90deg,transparent 0 46px,color-mix(in srgb,#d4af37 7%,transparent) 46px 47px)}
+html[data-skin=egypt] h1,html[data-skin=egypt] h2,html[data-skin=egypt] h3,html[data-skin=egypt] .cel-title{font-family:var(--serif);letter-spacing:.01em}
+html[data-skin=egypt] .card,html[data-skin=egypt] .reward-card,html[data-skin=egypt] .rpg-stat{border-radius:8px;box-shadow:inset 0 0 0 3px var(--surface),inset 0 0 0 4px color-mix(in srgb,#d4af37 55%,transparent),var(--shadow)}
+html[data-skin=egypt] .card:not(.hero)::before{opacity:.7;top:5px;left:5px;width:10px;height:10px;background:#d4af37;-webkit-mask:var(--m-step) center/contain no-repeat;mask:var(--m-step) center/contain no-repeat}
+html[data-skin=egypt] .hero{border-radius:10px}
+html[data-skin=egypt] .hero::before{content:"";position:absolute;inset:0;border-radius:inherit;z-index:-1;pointer-events:none;background:linear-gradient(110deg,transparent 38%,var(--sheen) 50%,transparent 62%);background-size:250% 100%;animation:shimmer 7s linear infinite}
+html[data-skin=egypt] .fill,html[data-skin=egypt] .rpg-xp-fill,html[data-skin=egypt] .motivation-fill{background:linear-gradient(90deg,#9a7410,#e9c65c,#9a7410);background-size:200% 100%;animation:goldSweep 3.5s linear infinite}
+html[data-skin=egypt] .nav{border-color:color-mix(in srgb,#d4af37 55%,var(--line));border-radius:14px}
+html[data-skin=egypt] .nav button{border-radius:9px}
+html[data-skin=egypt] .nav button.active{box-shadow:inset 0 -2px 0 #d4af37}
+html[data-skin=egypt] .cel-card{border-radius:12px;box-shadow:inset 0 0 0 4px var(--surface),inset 0 0 0 5px color-mix(in srgb,#d4af37 70%,transparent),0 24px 70px rgba(0,0,0,.5);font-family:var(--serif)}
+
+/* Ninja: slashes, energy streaks, spinning orb */
+html[data-skin=ninja] body{background-image:repeating-linear-gradient(115deg,transparent 0 26px,color-mix(in srgb,var(--accent2) 5%,transparent) 26px 27px)}
+html[data-skin=ninja] h1,html[data-skin=ninja] h2,html[data-skin=ninja] h3{text-transform:none;letter-spacing:-.02em}
+html[data-skin=ninja] .card,html[data-skin=ninja] .reward-card,html[data-skin=ninja] .rpg-stat{border-radius:16px 3px 16px 3px}
+html[data-skin=ninja] .hero{border-radius:26px 4px 26px 4px;background-image:repeating-linear-gradient(115deg,transparent 0 18px,var(--sheen) 18px 20px),radial-gradient(130% 110% at 0% 0%,var(--sheen),transparent 62%)}
+html[data-skin=ninja] .card:not(.hero)::before{opacity:1;top:-1px;left:16px;width:46px;height:4px;background:linear-gradient(90deg,var(--accent) 0 62%,transparent 62% 72%,var(--accent2) 72%);transform:skewX(-35deg)}
+html[data-skin=ninja] .fill,html[data-skin=ninja] .rpg-xp-fill,html[data-skin=ninja] .motivation-fill{background-image:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.5) 50%,transparent 70%),var(--accent-grad);background-size:220% 100%,100% 100%;animation:streak 2.4s linear infinite}
+html[data-skin=ninja] .rpg-level-orb::before{content:"";position:absolute;inset:-6px;border-radius:50%;pointer-events:none;background:conic-gradient(from var(--ang),transparent 0 65%,var(--accent) 85%,var(--accent2));-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2px));mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2px));animation:angSpin 3s linear infinite}
+html[data-skin=ninja] .primary:active,html[data-skin=ninja] .mission button:active{transform:scale(.97);box-shadow:0 0 0 4px var(--glow)}
+html[data-skin=ninja] .nav{border-radius:18px 4px 18px 4px;border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
+html[data-skin=ninja] .nav button{border-radius:12px 3px 12px 3px}
+html[data-skin=ninja] .nav button.active{box-shadow:inset 0 -3px 0 var(--accent)}
+html[data-skin=ninja] .cel-card{border-radius:22px 4px 22px 4px;border-top:3px solid var(--accent)}
+html[data-skin=ninja] .cel-kicker{letter-spacing:.26em}
+html[data-skin=ninja] .float-xp{text-shadow:0 0 14px var(--glow),0 2px 0 var(--bg)}
+
+/* Elite: HUD console */
+html[data-skin=elite] body{background-image:linear-gradient(color-mix(in srgb,var(--accent) 5%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--accent) 5%,transparent) 1px,transparent 1px);background-size:28px 28px}
+html[data-skin=elite][data-theme=dark] body::before{content:"";position:fixed;inset:0;z-index:5;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(255,255,255,.018) 2px 3px)}
+html[data-skin=elite] .card,html[data-skin=elite] .reward-card,html[data-skin=elite] .rpg-stat{border-radius:6px}
+html[data-skin=elite] .hero{border-radius:10px}
+html[data-skin=elite] .card:not(.hero)::before{opacity:.85;top:6px;left:6px;width:10px;height:10px;border-top:2px solid var(--accent);border-left:2px solid var(--accent)}
+html[data-skin=elite] .card:not(.hero)::after{content:"";position:absolute;z-index:-1;pointer-events:none;right:6px;bottom:6px;width:10px;height:10px;border-right:2px solid var(--accent);border-bottom:2px solid var(--accent);opacity:.85}
+html[data-skin=elite] .fill,html[data-skin=elite] .rpg-xp-fill,html[data-skin=elite] .motivation-fill{border-radius:2px;background:repeating-linear-gradient(90deg,var(--accent) 0 6px,transparent 6px 8px)}
+html[data-skin=elite][data-theme=dark] .big,html[data-skin=elite][data-theme=dark] .num,html[data-skin=elite][data-theme=dark] .cel-total{text-shadow:0 0 12px var(--glow)}
+html[data-skin=elite] .nav{border-radius:10px;border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
+html[data-skin=elite] .nav button{border-radius:6px}
+html[data-skin=elite] .nav button.active{box-shadow:inset 0 2px 0 var(--accent)}
+html[data-skin=elite] .cel-card{border-radius:8px;border-color:var(--accent);box-shadow:0 0 28px -4px var(--glow),0 24px 70px rgba(0,0,0,.5)}
+html[data-skin=elite] .cel-title,html[data-skin=elite] .cel-kicker{font-family:var(--num-font)}
+html[data-skin=elite] .float-xp{font-family:var(--num-font)}
+
 /* ---- appearance picker ---- */
 .skin-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
 .skin-card{padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--surface2);display:grid;gap:8px;align-content:start}
@@ -551,7 +622,7 @@ html[data-banner=ninja-banner] #homeView .hero::after{content:"🏴";position:ab
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v7.0</small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v7.0.1</small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
