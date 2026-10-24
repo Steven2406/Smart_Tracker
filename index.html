@@ -796,12 +796,25 @@ html[data-fx=off] .hp-bar i{transition:none}
 .rh-bars i{flex:1;min-height:3px;border-radius:3px 3px 0 0;background:var(--surface2);border:1px solid var(--line)}.rh-bars i.on{background:var(--accent);border-color:var(--accent);opacity:.55}.rh-bars i.peak{opacity:1;background:var(--gold);border-color:var(--gold)}
 .rh-axis{display:flex;justify-content:space-between;margin-top:4px;font-size:10.5px;color:var(--muted)}
 @media (prefers-reduced-motion:reduce){.tsplash,.tsplash *,.ts-art,.ts-art::before,.ts-art::after,.scrub,.scrub *{animation:none!important}.ts-ninja .ts-art::before,.ts-ninja .ts-art::after{transform:rotate(var(--rot))}}
+
+/* ---- v7.3.0 daily rounds ---- */
+@keyframes rdChest{50%{transform:translateY(-3px) rotate(-6deg)}}
+.rounds{padding:14px}.rounds-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.rounds-head h2{margin:4px 0 0;font-size:19px}
+.rounds-chest{font-size:34px;filter:grayscale(1);opacity:.55}.rounds-chest.ready{filter:none;opacity:1;animation:rdChest 1.4s ease-in-out infinite}.rounds-chest.open{filter:none;opacity:.9}
+.rd-row{display:flex;align-items:center;gap:12px;width:100%;margin-top:8px;padding:10px 12px;text-align:left;font-weight:400;border-radius:12px;background:var(--surface2);border:1px solid var(--line);color:var(--text)}
+.rd-chk{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:14px;font-weight:800;border:2px solid var(--line);color:var(--muted)}
+.rd-row.done .rd-chk{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.rd-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.rd-tx b{font-size:13.5px}.rd-tx small{font-size:11.5px;color:var(--muted)}.rd-row.done .rd-tx b{text-decoration:line-through;text-decoration-thickness:1px}
+.rd-go{flex:none;color:var(--muted);font-size:18px}.rd-claim{width:100%;margin-top:12px}.rd-foot{margin-top:10px;font-size:12px;color:var(--muted)}
+.rounds-adrenaline{border:1px solid var(--danger)}.rounds-calm .rounds-chest.ready{animation:none}
+html[data-fx=off] .rounds-chest.ready{animation:none}
+@media (prefers-reduced-motion:reduce){.rounds-chest.ready{animation:none}}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v7.2.0</small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v7.3.0</small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -842,6 +855,7 @@ html[data-fx=off] .hp-bar i{transition:none}
     </div>
   </div>
 
+  <div id="roundsCard"></div>
   <div id="homeExamCard"></div>
   <div id="vitalsBox"></div>
 
@@ -2634,7 +2648,7 @@ function openCampaignTerritory(id){
 }
 function renderExtraViews(){
   if(window.mhqMotivationRender)window.mhqMotivationRender();
-  renderExams();renderHomeExam();try{renderUrgency()}catch(e){}try{renderTrophies()}catch(e){}try{mhqWatchTerritories()}catch(e){}try{renderRhythm()}catch(e){}
+  renderExams();renderHomeExam();try{renderUrgency()}catch(e){}try{renderTrophies()}catch(e){}try{mhqWatchTerritories()}catch(e){}try{renderRhythm()}catch(e){}try{renderRounds()}catch(e){}
   populateStudyLectures();
   renderCampaignMap();
   renderRpg();
@@ -3321,7 +3335,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
  function weeklyActions(){const now=new Date();let n=0;for(let i=0;i<7;i++){const d=new Date(now);d.setDate(now.getDate()-i);n+=studyActions(dayKey(d));}return n}
  function xp(){return Number(readCore().xp||0)}
  function reconcileWallet(){const shouldHave=Math.floor(xp()/250);if(shouldHave>M.rewardCreditsEarned){M.rewardCreditsEarned=shouldHave;saveM();}}
- function credits(){reconcileWallet();return Math.max(0,M.rewardCreditsEarned-M.rewardCreditsSpent)}
+ function credits(){reconcileWallet();return Math.max(0,M.rewardCreditsEarned+Math.max(0,Number(M.bonusCredits)||0)-M.rewardCreditsSpent)}
  function pct(a,b){return b?Math.min(100,Math.round(a/b*100)):0}
  const rewards=[
   {id:'break30',cost:1,icon:'☕',name:'30-minute guilt-free break',desc:'A real break. No studying. No guilt.',type:'reward'},
@@ -3393,6 +3407,10 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
  window.mhqSetIntensity=function(m){M.equipped.intensity=['calm','standard','adrenaline'].includes(m)?m:'standard';saveM();applyAppearance();render();playSfx('ui_click',.5)};
  window.mhqGetPins=function(){const p=M.equipped&&M.equipped.pins;return Array.isArray(p)?p.filter(x=>typeof x==='string').slice(0,3):[]};
  window.mhqTogglePin=function(id){const p=window.mhqGetPins().slice(),i=p.indexOf(id);if(i>=0)p.splice(i,1);else{if(p.length>=3){toast('📌 Shelf is full — unpin one first');return}p.push(id)}M.equipped.pins=p;saveM();try{renderAchievements();renderTrophies()}catch(e){}};
+ window.mhqRoundsStore={
+  get:function(){return{rounds:(M.rounds&&typeof M.rounds==='object')?M.rounds:null,streak:(M.roundsStreak&&typeof M.roundsStreak==='object')?M.roundsStreak:{last:null,n:0}}},
+  setRounds:function(r){M.rounds=r;saveM()},
+  claim:function(extra,streak){M.bonusCredits=Math.max(0,Number(M.bonusCredits)||0)+extra;M.roundsStreak=streak;if(M.rounds)M.rounds.claimed=true;saveM();try{paint()}catch(e){}}};
  window.mhqSetFx=function(m){M.equipped.fx=['full','subtle','off'].includes(m)?m:'full';saveM();applyAppearance();render();playSfx('ui_click',.5)};
  function styleControlsHTML(){
   const sid=M.equipped.skin||'clinical',vs=VARIANTS[sid]||[],cur=(M.equipped.vmap||{})[sid]||'',fx=M.equipped.fx||'full';
@@ -3414,7 +3432,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
    if(kind==='collection'&&owned(item.id)){document.getElementById('mhqShopModal')?.remove();toast('Already owned');return}
    M.rewardCreditsSpent+=item.cost;
    if(kind==='collection'){M.ownedItems=Array.isArray(M.ownedItems)?M.ownedItems:[];M.ownedItems.push(item.id)}
-   M.redeemed=Array.isArray(M.redeemed)?M.redeemed:[];M.redeemed.push({date:dayKey(),reward:item.id,cost:item.cost,type:kind,remainingCredits:Math.max(0,M.rewardCreditsEarned-M.rewardCreditsSpent)});
+   M.redeemed=Array.isArray(M.redeemed)?M.redeemed:[];M.redeemed.push({date:dayKey(),reward:item.id,cost:item.cost,type:kind,remainingCredits:credits()});
    saveM();document.getElementById('mhqShopModal')?.remove();render();
    playSfx(kind==='collection'?'achievement':'lecture_clear',.85);
    toast(`${kind==='collection'?'🔓 Unlocked':'🎁 Redeemed'} ${item.name} · ${credits()} Credit${credits()===1?'':'s'} left${kind==='collection'?' · equip it under 🎨 Appearance':''}`)
@@ -3434,7 +3452,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
  window.mhqOpenReward=function(id){openShopConfirm(id,'reward')};window.mhqOpenCollection=function(id){openShopConfirm(id,'collection')};window.mhqRewardShop=function(){(()=>{const d=document.getElementById('rewardShopDetails');if(d)d.open=true;document.getElementById('rewardShopSection')?.scrollIntoView({behavior:'smooth',block:'start'})})()};
  window.mhqSetGoal=function(){document.getElementById('mhqGoalModal')?.remove();const b=document.createElement('div');b.className='shop-modal-backdrop';b.id='mhqGoalModal';b.innerHTML=`<form class="shop-modal" id="mhqGoalForm"><div class="shop-modal-head"><div><div class="shop-modal-icon">🎯</div><h3>Your study goals</h3><p>Set targets that encourage you without overwhelming you.</p></div><button type="button" class="shop-close" id="mhqGoalClose">✕</button></div><label class="goal-label" for="mhqDailyGoal">Daily study actions</label><input id="mhqDailyGoal" type="number" min="1" max="20" value="${M.dailyTarget}" required style="width:100%;margin:7px 0 14px"><label class="goal-label" for="mhqWeeklyGoal">Weekly study actions</label><input id="mhqWeeklyGoal" type="number" min="1" max="100" value="${M.weeklyTarget}" required style="width:100%;margin:7px 0 14px"><label class="goal-label" for="mhqCampaignGoal">Current campaign goal</label><input id="mhqCampaignGoal" maxlength="80" value="${String(M.campaignGoal).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}" required style="width:100%;margin:7px 0 0"><div class="shop-modal-actions"><button type="button" id="mhqGoalCancel">Cancel</button><button type="submit" class="primary">Save goals</button></div></form>`;document.body.appendChild(b);b.addEventListener('click',e=>{if(e.target===b)b.remove()});document.getElementById('mhqGoalClose').onclick=()=>b.remove();document.getElementById('mhqGoalCancel').onclick=()=>b.remove();document.getElementById('mhqGoalForm').onsubmit=e=>{e.preventDefault();const d=Number(document.getElementById('mhqDailyGoal').value),w=Number(document.getElementById('mhqWeeklyGoal').value),g=document.getElementById('mhqCampaignGoal').value.trim();if(!Number.isFinite(d)||d<1||d>20||!Number.isFinite(w)||w<1||w>100||!g)return;M.dailyTarget=Math.round(d);M.weeklyTarget=Math.round(w);M.campaignGoal=g.slice(0,80);saveM();b.remove();render();toast('✓ Study goals updated')};}
  window.mhqCollectionShop=function(){(()=>{const d=document.getElementById('collectionDetails');if(d)d.open=true;d?.scrollIntoView({behavior:'smooth',block:'start'})})()}
- window.mhqRewardState=function(){reconcileWallet();return {earned:M.rewardCreditsEarned,spent:M.rewardCreditsSpent,balance:credits(),ownedItems:M.ownedItems.slice(),redeemed:M.redeemed.slice()}}
+ window.mhqRewardState=function(){reconcileWallet();return {earned:M.rewardCreditsEarned+Math.max(0,Number(M.bonusCredits)||0),spent:M.rewardCreditsSpent,balance:credits(),ownedItems:M.ownedItems.slice(),redeemed:M.redeemed.slice()}}
  window.addEventListener('storage',render);document.addEventListener('DOMContentLoaded',()=>{reconcileWallet();render()});new MutationObserver(syncThemeColor).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 applyAppearance();
 window.mhqMotivationRender=()=>{reconcileWallet();render()};
@@ -4037,6 +4055,62 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
   for(var k=0;k<24;k++){var pk=(k===bh||k===(bh+1)%24)&&hrs[k]>0;bars+='<i class="'+(hrs[k]>0?'on':'')+(pk?' peak':'')+'" style="height:'+Math.max(4,Math.round(hrs[k]/mx*100))+'%"></i>'}
   host.innerHTML='<div class="section card"><div class="label">STUDY RHYTHM</div><h2 style="margin:6px 0">When you focus best</h2><div class="sub" style="margin:0">Peak window: <b>'+label+'</b> · Best day: <b>'+DAYS[bd]+'</b></div><div class="rh-bars" role="img" aria-label="Focus minutes by hour of day">'+bars+'</div><div class="rh-axis"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span><span>12 AM</span></div><div class="meta" style="margin-top:8px">Based on '+ss.length+' focus sessions (by the hour they finished).</div></div>'};
  try{renderTrophies();renderRhythm();mhqWatchTerritories()}catch(e){}
+})();
+</script>
+<script>
+/* v7.3.0 Daily Rounds: 3 quests/day from real activity, chest = bonus credit */
+(function(){
+ var root=document.documentElement;
+ function mode(){var m=root.dataset.intensity;return m==='calm'||m==='adrenaline'?m:'standard'}
+ function hash(s){var x=7;for(var i=0;i<s.length;i++)x=(x*31+s.charCodeAt(i))>>>0;return x}
+ function prevKey(){var d=new Date();d.setDate(d.getDate()-1);return localDateKey(d)}
+ function ledgerCount(t){return(typeof activityLedger!=='undefined'?activityLedger:[]).filter(function(e){return e&&e.type===t&&e.dateKey===todayKey}).length}
+ function pickRescue(){
+  var rows=data.map(function(x){return{x:x,s:reviewStatus(x),m:inferredMastery(x)}});
+  var due=rows.filter(function(o){return o.s.state==='due'}).sort(function(a,b){return a.m-b.m});
+  if(due.length)return{lec:due[0].x.id,why:'Due for review'};
+  var weak=rows.filter(function(o){return o.s.state!=='untested'&&o.m<65}).sort(function(a,b){return a.m-b.m});
+  return weak.length?{lec:weak[0].x.id,why:'Weakest area'}:null}
+ function generate(){
+  var h=hash(todayKey+'|'+(typeof COURSE!=='undefined'&&COURSE.name||'')),res=null,hasCases=typeof clinicalCases!=='undefined'&&clinicalCases.length>0;
+  try{res=pickRescue()}catch(e){}
+  var core=['steps3','focus'][h%2],tests=res?['flash']:['mcq','flash'];if(hasCases)tests.push('case');
+  var test=tests[Math.floor(h/7)%tests.length],q=[{k:core},{k:test}];
+  q.push(res?{k:'rescue',lec:res.lec,why:res.why}:{k:core==='steps3'?'focus':'steps3'});
+  return{date:todayKey,q:q,claimed:false}}
+ function mcqToday(l){return(l.mcqs||[]).filter(function(m){return m&&m.dateKey===todayKey}).length}
+ function status(q){
+  switch(q.k){
+   case 'steps3':return{t:'Complete 3 study steps',p:Math.min(todaySteps,3),n:3,go:'startMission()'};
+   case 'focus':return{t:'Finish a focus session',p:Math.min(studySessions.filter(function(s){return s.dateKey===todayKey}).length,1),n:1,go:"showView('studyView',document.querySelector('[data-view=&quot;studyView&quot;]'))"};
+   case 'mcq':return{t:'Log an MCQ set',p:Math.min(data.reduce(function(n,l){return n+mcqToday(l)},0),1),n:1,go:'startMission()'};
+   case 'flash':return{t:'Do a flashcard session',p:Math.min(ledgerCount('flashcards'),1),n:1,go:'startMission()'};
+   case 'case':return{t:'Solve a clinical case',p:Math.min(ledgerCount('clinical-case'),1),n:1,go:"showView('clinicalView',document.querySelector('[data-view=&quot;clinicalView&quot;]'))"};
+   case 'rescue':var l=data.find(function(x){return x.id===q.lec});if(!l)return{t:'Review a weak lecture',p:0,n:1,go:'startMission()'};
+    return{t:'Test yourself on L'+l.id+' · '+escapeHtml(l.title),sub:q.why,p:Math.min(mcqToday(l),1),n:1,go:'openLecture('+l.id+')'}}
+  return{t:'Study',p:0,n:1,go:'startMission()'}}
+ window.renderRounds=function(){
+  var el=document.getElementById('roundsCard'),S=window.mhqRoundsStore;if(!el||!S||!data.length)return;
+  var st=S.get(),r=st.rounds;
+  if(!r||r.date!==todayKey||!Array.isArray(r.q)||r.q.length!==3){r=generate();S.setRounds(r)}
+  var md=mode(),items=r.q.map(status),done=items.filter(function(i){return i.p>=i.n}).length,all=done===3;
+  var sv=st.streak,live=sv.last===todayKey||sv.last===prevKey()?(sv.n||0):0;
+  var end=new Date();end.setHours(24,0,0,0);var ms=end.getTime()-Date.now(),hh=Math.floor(ms/3600000),mm=Math.floor(ms%3600000/60000);
+  var rows=items.map(function(i){var d=i.p>=i.n;return'<button type="button" class="rd-row'+(d?' done':'')+'" onclick="'+i.go+'"><span class="rd-chk" aria-hidden="true">'+(d?'✓':'')+'</span><span class="rd-tx"><b>'+i.t+'</b><small>'+(i.sub?i.sub+' · ':'')+(d?'Done':i.p+'/'+i.n)+'</small></span><span class="rd-go" aria-hidden="true">›</span></button>'}).join('');
+  var left=7-(live%7),nn=(sv.last===prevKey())?(sv.n||0)+1:1,foot;
+  if(r.claimed)foot='<div class="rd-foot">✅ Chest claimed today · Rounds streak '+live+' day'+(live===1?'':'s')+' · bonus credit in '+left+' day'+(left===1?'':'s')+'</div>';
+  else if(all)foot='<button type="button" class="primary rd-claim" onclick="mhqClaimRounds()">🎁 CLAIM CHEST · +'+(nn%7===0?2:1)+' credit'+(nn%7===0?'s':'')+'</button>';
+  else foot='<div class="rd-foot">Finish all 3 to open today’s chest (+1 credit)'+(live?' · Rounds streak '+live:'')+(md==='adrenaline'?' · ends in '+hh+'h '+(mm<10?'0':'')+mm+'m':'')+'</div>';
+  el.innerHTML='<div class="section card rounds rounds-'+md+'"><div class="rounds-head"><div><div class="label">DAILY ROUNDS</div><h2>'+done+'/3 complete</h2></div><div class="rounds-chest'+(r.claimed?' open':all?' ready':'')+'" aria-hidden="true">'+(r.claimed?'🎉':'🎁')+'</div></div>'+rows+foot+'</div>'};
+ window.mhqClaimRounds=function(){
+  var S=window.mhqRoundsStore,st=S.get(),r=st.rounds;if(!r||r.claimed||r.date!==todayKey)return;
+  var done=r.q.map(status).every(function(i){return i.p>=i.n});if(!done){toast('Finish all 3 Rounds first');return}
+  var sv=st.streak,n=(sv.last===prevKey())?(sv.n||0)+1:1,extra=(n%7===0)?2:1;
+  S.claim(extra,{last:todayKey,n:n});
+  try{playSfx('achievement',.8)}catch(e){}
+  celebrate({kind:'chest',icon:'🎁',kicker:'DAILY ROUNDS COMPLETE',title:'+'+extra+' credit'+(extra>1?'s':''),sub:'Rounds streak: '+n+' day'+(n===1?'':'s')+(extra>1?' · 7-day bonus!':''),color:'#d4af37'});
+  window.renderRounds()};
+ try{window.renderRounds()}catch(e){}
 })();
 </script>
 </body>
