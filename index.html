@@ -756,12 +756,52 @@ html[data-intensity=calm] .hp-bar i{transition:none}
 html[data-fx=off] .hp.hit,html[data-fx=off] .hp.hit .hp-bar,html[data-fx=off] .cp-med{animation:none!important}
 html[data-fx=off] .hp-bar i{transition:none}
 @media (prefers-reduced-motion:reduce){html .hp.hit,html .hp.hit .hp-bar,html .cp-med{animation:none!important}html .hp-bar i{transition:none}}
+
+/* ---- v7.2.0 trophies, splash, scrub-in, rhythm ---- */
+@keyframes tsIn{from{opacity:0}}@keyframes tsOut{to{opacity:0}}
+@keyframes tsRise{from{opacity:0;transform:translateY(18px) scale(.96)}}
+@keyframes tsPop{from{transform:scale(.2);opacity:0}}
+@keyframes scanY{to{transform:translateY(100vh)}}
+@keyframes ecgRun2{to{-webkit-mask-position:-120px 0;mask-position:-120px 0}}
+@keyframes slashIn{to{transform:rotate(var(--rot)) translateX(0)}}
+@keyframes scrubPop{0%{transform:scale(1.7);opacity:0}30%{opacity:1}100%{transform:scale(.9);opacity:.85}}
+.trophy-shelf{margin:0 0 12px;padding:10px 12px 0;border-radius:14px;background:var(--surface);border:1px solid var(--line)}
+.trophy-title{font-size:10.5px;font-weight:800;letter-spacing:.09em;color:var(--muted)}
+.trophy-row{display:flex;gap:8px;margin-top:8px;padding-bottom:9px;border-bottom:5px solid color-mix(in srgb,var(--gold) 55%,var(--line));border-radius:0 0 4px 4px}
+.trophy{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center}
+.trophy .t-ic{font-size:28px;filter:drop-shadow(0 3px 4px rgba(0,0,0,.25))}.trophy b{font-size:11px;line-height:1.15}
+.pin-btn{margin-top:8px;min-height:34px;padding:0 10px;font-size:11.5px}.pin-btn.on{border-color:var(--accent);color:var(--accent)}
+.tsplash{position:fixed;inset:0;z-index:10060;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:28px;text-align:center;color:#fff;overflow:hidden;background:radial-gradient(circle at 50% 38%,color-mix(in srgb,var(--accent) 38%,#05080b),#05080b 78%);animation:tsIn .5s ease-out both}
+.tsplash.out{animation:tsOut .4s ease-in forwards}
+.tsplash>*:not(.ts-art){position:relative;z-index:2}
+.ts-ic{font-size:64px;animation:tsPop .7s .1s cubic-bezier(.2,1.4,.3,1) both}
+.ts-k{font-size:12px;font-weight:800;letter-spacing:.3em;color:rgba(255,255,255,.85)}
+.ts-t{font-family:var(--serif);font-size:34px;font-weight:700;line-height:1.1;text-shadow:0 4px 24px rgba(0,0,0,.5);animation:tsRise .8s .15s both}
+.ts-s{font-size:14px;color:rgba(255,255,255,.88)}.ts-h{margin-top:22px;font-size:11.5px;letter-spacing:.12em;color:rgba(255,255,255,.72)}
+.ts-art{position:absolute;inset:0;pointer-events:none}.ts-art::before,.ts-art::after{content:"";position:absolute}
+.ts-clinical .ts-art::before{left:0;right:0;top:64%;height:40px;background:var(--accent);opacity:.85;-webkit-mask:var(--m-ecg) 0 0/120px 40px repeat-x;mask:var(--m-ecg) 0 0/120px 40px repeat-x;animation:ecgRun2 2.4s linear infinite}
+.ts-sage .ts-art::before,.ts-sage .ts-art::after{left:50%;top:34%;width:270px;height:270px;margin:-135px 0 0 -135px;border-radius:50%;border:2px dotted var(--accent);animation:spinS 30s linear infinite}
+.ts-sage .ts-art::after{width:330px;height:330px;margin:-165px 0 0 -165px;animation-direction:reverse;opacity:.6}
+.ts-egypt .ts-art{background:repeating-conic-gradient(from 0deg at 50% 34%,rgba(212,175,55,.2) 0 6deg,transparent 6deg 15deg);animation:spinS 90s linear infinite}
+.ts-egypt::before,.ts-egypt::after{content:"";position:absolute;left:0;right:0;height:12px;background:linear-gradient(135deg,#d4af37 25%,transparent 25%) -6px 0,linear-gradient(225deg,#d4af37 25%,transparent 25%) -6px 0,linear-gradient(315deg,#d4af37 25%,transparent 25%),linear-gradient(45deg,#d4af37 25%,transparent 25%);background-size:12px 12px}
+.ts-egypt::before{top:0}.ts-egypt::after{bottom:0}
+.ts-ninja .ts-art::before,.ts-ninja .ts-art::after{left:-20%;width:140%;height:6px;top:30%;--rot:-24deg;background:linear-gradient(90deg,transparent,var(--accent),transparent);transform:rotate(var(--rot)) translateX(-120%);animation:slashIn .6s .1s ease-out forwards}
+.ts-ninja .ts-art::after{top:58%;--rot:17deg;background:linear-gradient(90deg,transparent,var(--accent2),transparent);animation-delay:.35s}
+.ts-elite .ts-art{background:linear-gradient(var(--accent),var(--accent)) 14px 14px/30px 2px no-repeat,linear-gradient(var(--accent),var(--accent)) 14px 14px/2px 30px no-repeat,linear-gradient(var(--accent),var(--accent)) calc(100% - 14px) 14px/30px 2px no-repeat,linear-gradient(var(--accent),var(--accent)) calc(100% - 14px) 14px/2px 30px no-repeat,linear-gradient(var(--accent),var(--accent)) 14px calc(100% - 14px)/30px 2px no-repeat,linear-gradient(var(--accent),var(--accent)) 14px calc(100% - 14px)/2px 30px no-repeat,linear-gradient(var(--accent),var(--accent)) calc(100% - 14px) calc(100% - 14px)/30px 2px no-repeat,linear-gradient(var(--accent),var(--accent)) calc(100% - 14px) calc(100% - 14px)/2px 30px no-repeat}
+.ts-elite .ts-art::before{left:0;right:0;top:0;height:2px;background:var(--accent);box-shadow:0 0 14px var(--accent);animation:scanY 2.6s linear infinite}
+.scrub{position:fixed;inset:0;z-index:10055;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:color-mix(in srgb,#05080b 82%,var(--accent));color:#fff;animation:tsIn .25s both}
+.scrub-n{font-family:var(--num-font,var(--serif));font-size:120px;line-height:1;font-weight:800;animation:scrubPop .7s ease-out both}
+.scrub-t{font-size:16px;letter-spacing:.06em;color:rgba(255,255,255,.92)}.scrub small{margin-top:14px;font-size:11px;letter-spacing:.12em;color:rgba(255,255,255,.72)}
+.rh-bars{display:flex;align-items:flex-end;gap:2px;height:70px;margin-top:14px}
+.rh-bars i{flex:1;min-height:3px;border-radius:3px 3px 0 0;background:var(--surface2);border:1px solid var(--line)}.rh-bars i.on{background:var(--accent);border-color:var(--accent);opacity:.55}.rh-bars i.peak{opacity:1;background:var(--gold);border-color:var(--gold)}
+.rh-axis{display:flex;justify-content:space-between;margin-top:4px;font-size:10.5px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.tsplash,.tsplash *,.ts-art,.ts-art::before,.ts-art::after,.scrub,.scrub *{animation:none!important}.ts-ninja .ts-art::before,.ts-ninja .ts-art::after{transform:rotate(var(--rot))}}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v7.1.1</small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v7.2.0</small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -786,6 +826,7 @@ html[data-fx=off] .hp-bar i{transition:none}
     <h1>Gastrointestinal Tract</h1>
   </div>
 
+  <div id="trophyShelf"></div>
   <div class="section card next-card">
     <div class="next-main">
       <div class="label">DO THIS NEXT</div>
@@ -2348,8 +2389,8 @@ function renderAchievements(){
   if(!ag)return;
   const unlocked=defs.filter(a=>achievementIds.includes(a.id));
   ag.innerHTML=defs.map(a=>{
-    const on=achievementIds.includes(a.id);
-    return `<div class="card achievement ${on?'unlocked':'locked'}"><div class="check">${on?'✓':'🔒'}</div><div class="icon">${on?a.icon:'❓'}</div><div class="name">${on?a.name:'???'}</div><div class="desc">${on?a.desc:'Hidden until unlocked.'}</div><div class="reward">${on?'+'+a.xp+' XP':'Reward: '+a.xp+' XP'}</div></div>`;
+    const on=achievementIds.includes(a.id),pinned=on&&window.mhqGetPins&&mhqGetPins().includes(a.id);
+    return `<div class="card achievement ${on?'unlocked':'locked'}"><div class="check">${on?'✓':'🔒'}</div><div class="icon">${on?a.icon:'❓'}</div><div class="name">${on?a.name:'???'}</div><div class="desc">${on?a.desc:'Hidden until unlocked.'}</div><div class="reward">${on?'+'+a.xp+' XP':'Reward: '+a.xp+' XP'}</div>${on?`<button type="button" class="pin-btn${pinned?' on':''}" onclick="mhqTogglePin('${a.id}')">${pinned?'📌 Pinned':'📍 Pin to shelf'}</button>`:''}</div>`;
   }).join('');
   const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
   set('achievementCount',unlocked.length);
@@ -2593,7 +2634,7 @@ function openCampaignTerritory(id){
 }
 function renderExtraViews(){
   if(window.mhqMotivationRender)window.mhqMotivationRender();
-  renderExams();renderHomeExam();try{renderUrgency()}catch(e){}
+  renderExams();renderHomeExam();try{renderUrgency()}catch(e){}try{renderTrophies()}catch(e){}try{mhqWatchTerritories()}catch(e){}try{renderRhythm()}catch(e){}
   populateStudyLectures();
   renderCampaignMap();
   renderRpg();
@@ -3350,6 +3391,8 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
 
  window.mhqSetVariant=function(v){const sid=M.equipped.skin||'clinical';if(!M.equipped.vmap||typeof M.equipped.vmap!=='object')M.equipped.vmap={};if(v)M.equipped.vmap[sid]=v;else delete M.equipped.vmap[sid];saveM();applyAppearance();render();playSfx('ui_click',.5)};
  window.mhqSetIntensity=function(m){M.equipped.intensity=['calm','standard','adrenaline'].includes(m)?m:'standard';saveM();applyAppearance();render();playSfx('ui_click',.5)};
+ window.mhqGetPins=function(){const p=M.equipped&&M.equipped.pins;return Array.isArray(p)?p.filter(x=>typeof x==='string').slice(0,3):[]};
+ window.mhqTogglePin=function(id){const p=window.mhqGetPins().slice(),i=p.indexOf(id);if(i>=0)p.splice(i,1);else{if(p.length>=3){toast('📌 Shelf is full — unpin one first');return}p.push(id)}M.equipped.pins=p;saveM();try{renderAchievements();renderTrophies()}catch(e){}};
  window.mhqSetFx=function(m){M.equipped.fx=['full','subtle','off'].includes(m)?m:'full';saveM();applyAppearance();render();playSfx('ui_click',.5)};
  function styleControlsHTML(){
   const sid=M.equipped.skin||'clinical',vs=VARIANTS[sid]||[],cur=(M.equipped.vmap||{})[sid]||'',fx=M.equipped.fx||'full';
@@ -3936,6 +3979,64 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
   var bb=document.getElementById('campaignBosses');if(bb)bb.textContent=bossDefinitions.filter(function(b){return bossVictories[b.id]}).length+'/'+bossDefinitions.length};
  new MutationObserver(function(){try{window.renderBosses();window.renderCampaignMap()}catch(e){}}).observe(document.documentElement,{attributes:true,attributeFilter:['data-intensity']});
  try{window.renderBosses();window.renderCampaignMap()}catch(e){}
+})();
+</script>
+<script>
+/* v7.2.0 trophy shelf, territory splash, scrub-in intro, study rhythm */
+(function(){
+ var root=document.documentElement;
+ function fxm(){return root.dataset.fx||'full'}
+ function skin(){return root.dataset.skin||'clinical'}
+ function reduced(){return window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches}
+ window.renderTrophies=function(){
+  var el=document.getElementById('trophyShelf');if(!el)return;
+  var pins=window.mhqGetPins?window.mhqGetPins():[],defs=achievementDefinitions();
+  var items=pins.map(function(id){return defs.find(function(a){return a.id===id})}).filter(function(a){return a&&achievementIds.indexOf(a.id)>=0});
+  el.innerHTML=items.length?'<div class="trophy-shelf"><div class="trophy-title">🏆 TROPHY SHELF</div><div class="trophy-row">'+items.map(function(a){return'<div class="trophy"><span class="t-ic" aria-hidden="true">'+a.icon+'</span><b>'+escapeHtml(a.name)+'</b></div>'}).join('')+'</div></div>':''};
+ var prevTerr=null,shown={};
+ function waitThen(fn){var t=0;(function w(){var busy=document.querySelector('.celebrate');try{busy=busy||fx.active||fx.queue.length}catch(e){}if(busy&&t++<30)return setTimeout(w,400);fn()})()}
+ function showSplash(b,i,n){
+  var f=fxm(),sub='Territory '+i+' of '+n+' · '+bossStats(b).lectures.length+' lectures cleared';
+  if(f==='off'){toast('🗺️ '+b.name+' cleared');return}
+  if(f==='subtle'||reduced()){celebrate({kind:'territory',icon:b.icon||'🗺️',kicker:'TERRITORY CLEARED',title:b.name,sub:sub,color:'var(--accent)'});return}
+  var sk=skin(),el=document.createElement('div');el.className='tsplash ts-'+sk;el.setAttribute('role','dialog');el.setAttribute('aria-label',b.name+' cleared');
+  el.innerHTML='<div class="ts-art"></div><div class="ts-ic">'+(b.icon||'🗺️')+'</div><div class="ts-k">'+(sk==='elite'?'SECTOR CLEARED':'TERRITORY CLEARED')+'</div><div class="ts-t">'+escapeHtml(b.name)+'</div><div class="ts-s">'+sub+'</div><div class="ts-h">TAP TO CONTINUE</div>';
+  document.body.appendChild(el);try{playSfx('achievement',.7)}catch(e){}
+  var done=0;function close(){if(done)return;done=1;el.classList.add('out');setTimeout(function(){el.remove()},420)}
+  el.addEventListener('click',close);setTimeout(close,4600)}
+ window.mhqWatchTerritories=function(){
+  if(typeof bossDefinitions==='undefined'||!bossDefinitions.length||!data.length)return;
+  var terr=bossDefinitions.filter(function(b){return!b.final}),now={};
+  terr.forEach(function(b){var s=bossStats(b);now[b.id]=s.lectures.length>0&&s.cleared===s.lectures.length});
+  if(prevTerr===null){prevTerr=now;return}
+  var fresh=terr.filter(function(b){return now[b.id]&&!prevTerr[b.id]&&!shown[b.id]});prevTerr=now;
+  if(fresh.length){var b=fresh[0];shown[b.id]=1;waitThen(function(){showSplash(b,terr.indexOf(b)+1,terr.length)})}};
+ var tg=window.toggleStudyTimer,busy=false,started=false,LINES={clinical:'Scrubbing in…',sage:'Breathe in…',egypt:'Entering the temple…',ninja:'Channel your element…',elite:'Initializing…'};
+ window.toggleStudyTimer=function(){
+  if(!busy&&!studyRunning&&(studyRemaining<=0||(studyRemaining>=studyTotal&&!started))&&fxm()==='full'&&!reduced()){
+   busy=true;var el=document.createElement('div');el.className='scrub';el.setAttribute('role','dialog');el.setAttribute('aria-label','Starting focus session');
+   el.innerHTML='<div class="scrub-n"></div><div class="scrub-t">'+LINES[skin()]+'</div><small>TAP TO SKIP</small>';document.body.appendChild(el);
+   var n=3,fin=false,tm=null,num=el.querySelector('.scrub-n');
+   function end(){if(fin)return;fin=true;clearTimeout(tm);el.remove();busy=false;tg();if(studyRunning)started=true}
+   function step(){if(fin)return;if(n===0){end();return}num.textContent=n;num.style.animation='none';void num.offsetWidth;num.style.animation='';try{playSfx('ui_click',.3)}catch(e){}n--;tm=setTimeout(step,700)}
+   el.addEventListener('click',end);step();return}
+  var r=tg.apply(this,arguments);if(studyRunning)started=true;return r};
+ [['resetStudyTimer'],['setStudyPreset']].forEach(function(n){var o=window[n[0]];window[n[0]]=function(){if(!studyRunning||n[0]==='resetStudyTimer')started=false;return o.apply(this,arguments)}});
+ var DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+ function hr(h){return(h%12||12)+(h<12?' AM':' PM')}
+ window.renderRhythm=function(){
+  var ss=(typeof studySessions!=='undefined'&&studySessions||[]).filter(function(s){return s&&s.finishedAt&&!isNaN(new Date(s.finishedAt))});
+  var host=document.getElementById('rhythmCard');
+  if(!host){var a=document.getElementById('statsSummary'),c=a&&a.closest('.card');if(!c)return;host=document.createElement('div');host.id='rhythmCard';c.parentNode.insertBefore(host,c.nextSibling)}
+  if(ss.length<3){host.innerHTML='';return}
+  var hrs=new Array(24).fill(0),days=new Array(7).fill(0);
+  ss.forEach(function(s){var d=new Date(s.finishedAt),m=Math.max(1,+s.minutes||0);hrs[d.getHours()]+=m;days[new Date((s.dateKey||localDateKey(d))+'T12:00:00').getDay()]+=m});
+  var best=0,bh=0;for(var h=0;h<24;h++){var v=hrs[h]+hrs[(h+1)%24];if(v>best){best=v;bh=h}}
+  var e=(bh+2)%24,pa=bh<12?'AM':'PM',pe=e<12?'AM':'PM',label=(bh%12||12)+(pa===pe?'':' '+pa)+'–'+(e%12||12)+' '+pe;
+  var bd=days.indexOf(Math.max.apply(null,days)),mx=Math.max.apply(null,hrs),bars='';
+  for(var k=0;k<24;k++){var pk=(k===bh||k===(bh+1)%24)&&hrs[k]>0;bars+='<i class="'+(hrs[k]>0?'on':'')+(pk?' peak':'')+'" style="height:'+Math.max(4,Math.round(hrs[k]/mx*100))+'%"></i>'}
+  host.innerHTML='<div class="section card"><div class="label">STUDY RHYTHM</div><h2 style="margin:6px 0">When you focus best</h2><div class="sub" style="margin:0">Peak window: <b>'+label+'</b> · Best day: <b>'+DAYS[bd]+'</b></div><div class="rh-bars" role="img" aria-label="Focus minutes by hour of day">'+bars+'</div><div class="rh-axis"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span><span>12 AM</span></div><div class="meta" style="margin-top:8px">Based on '+ss.length+' focus sessions (by the hour they finished).</div></div>'};
+ try{renderTrophies();renderRhythm();mhqWatchTerritories()}catch(e){}
 })();
 </script>
 </body>
