@@ -719,12 +719,49 @@ html[data-intensity=adrenaline] .exam-home.urgent{animation:urgGlow 1.6s ease-in
 .vit-more{width:100%;margin-top:10px;min-height:38px}
 html[data-fx=off] .urg-box,html[data-fx=off] .urg-ic,html[data-fx=off] .vit-ic,html[data-fx=off] .exam-home.urgent{animation:none!important}
 @media (prefers-reduced-motion:reduce){html .urg-box,html .urg-ic,html .vit-ic,html .exam-home.urgent{animation:none!important}}
+
+/* ---- v7.1.1 boss HP + campaign path ---- */
+@keyframes hpFlash{0%{box-shadow:0 0 0 0 var(--danger);filter:brightness(1.9)}100%{box-shadow:0 0 0 7px transparent;filter:none}}
+@keyframes hpShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+@keyframes cpGlow{50%{box-shadow:0 0 0 8px color-mix(in srgb,var(--gold) 18%,transparent)}}
+@keyframes cpRing{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 45%,transparent)}100%{box-shadow:0 0 0 12px transparent}}
+.hp{width:100%}.hp-top{display:flex;justify-content:space-between;gap:8px;margin-bottom:4px;font-size:10.5px;font-weight:800;letter-spacing:.06em;color:var(--muted)}.hp-top b{color:var(--text);font-variant-numeric:tabular-nums}
+.hp-bar{position:relative;height:10px;border-radius:99px;background:var(--surface2);border:1px solid var(--line);overflow:hidden}
+.hp-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--danger),color-mix(in srgb,var(--danger) 55%,#ffb45a));transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.hp-bar::after{content:"";position:absolute;left:0;top:0;bottom:0;width:10%;background:repeating-linear-gradient(135deg,rgba(255,255,255,.55) 0 3px,transparent 3px 6px);pointer-events:none}
+.hp.dead .hp-bar i{width:0!important}.hp.dead .hp-bar::after{display:none}
+.hp.hit .hp-bar{animation:hpFlash .7s ease-out}
+html[data-intensity=adrenaline] .hp.hit{animation:hpShake .45s}
+html[data-intensity=calm] .hp-bar i{transition:none}
+.boss-card .hp{margin-top:12px}
+.cp-jump{width:100%;margin-bottom:6px;min-height:40px}
+.cpath{display:flex;flex-direction:column}
+.cp-row{display:flex;align-items:center;gap:12px;width:100%;padding:4px 0;border:0;background:none;color:var(--text);text-align:left;font-weight:400;box-shadow:none}
+.cp-row.cp-r{flex-direction:row-reverse;text-align:right}
+.cp-med{flex:none;position:relative;width:64px;height:64px;border-radius:50%;display:grid;place-items:center;font-size:28px;background:var(--surface);border:3px solid var(--line)}
+.cp-row.final .cp-med{width:76px;height:76px;font-size:34px;margin-inline:-6px}
+.cp-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}.cp-r .cp-tx{align-items:flex-end}
+.cp-tx small{font-size:10.5px;font-weight:800;letter-spacing:.09em;color:var(--muted);text-transform:uppercase}
+.cp-tx b{font-family:var(--serif);font-size:16.5px;line-height:1.2}
+.cp-dots{display:flex;flex-wrap:wrap;gap:3px}.cp-r .cp-dots{justify-content:flex-end}
+.cp-dots i{width:7px;height:7px;border-radius:50%;background:var(--surface2);border:1px solid var(--line)}.cp-dots i.on{background:var(--accent);border-color:var(--accent)}
+.cp-meta{font-size:12px;color:var(--muted)}
+.cp-here{display:block;width:max-content;font-style:normal;font-size:10.5px;font-weight:800;letter-spacing:.06em;padding:2px 9px;border-radius:99px;background:var(--accent);color:var(--accent-ink)}
+.st-defeated .cp-med{border-color:var(--good);background:var(--soft)}
+.st-progress .cp-med{border-color:var(--accent)}
+.st-current .cp-med,.cp-row.here .cp-med{border-color:var(--accent);animation:cpRing 2s ease-out infinite}
+.st-ready .cp-med{border-color:var(--gold);box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 28%,transparent);animation:cpGlow 2s ease-in-out infinite}
+.st-idle .cp-med{border-style:dashed;opacity:.6}
+.cp-link{display:block;width:100%;height:44px}.cp-link path{fill:none;stroke:var(--line);stroke-width:3;stroke-dasharray:5 6;stroke-linecap:round;vector-effect:non-scaling-stroke}.cp-link.on path{stroke:var(--good);stroke-dasharray:none}
+html[data-fx=off] .hp.hit,html[data-fx=off] .hp.hit .hp-bar,html[data-fx=off] .cp-med{animation:none!important}
+html[data-fx=off] .hp-bar i{transition:none}
+@media (prefers-reduced-motion:reduce){html .hp.hit,html .hp.hit .hp-bar,html .cp-med{animation:none!important}html .hp-bar i{transition:none}}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v7.1.0</small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v7.1.1</small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -3861,6 +3898,44 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
  ['homeExamCard','examList'].forEach(function(id){var el=document.getElementById(id);if(el)new MutationObserver(function(){loop()}).observe(el,{childList:true})});
  document.addEventListener('visibilitychange',function(){if(!document.hidden)window.renderUrgency()});
  try{window.renderUrgency()}catch(e){}
+})();
+</script>
+<script>
+/* v7.1.1 boss HP bars + campaign path */
+(function(){
+ var seen=window.__mhqHp=window.__mhqHp||{};
+ function mode(){var m=document.documentElement.dataset.intensity;return m==='calm'||m==='adrenaline'?m:'standard'}
+ function hpOf(b){var s=bossStats(b);if(bossVictories[b.id])return{s:s,hp:0,def:true};
+  var L=s.lectures.length?s.cleared/s.lectures.length:0,A=s.accuracy===null?0:Math.min(s.accuracy/70,1),T=Math.min(s.attempts/3,1);
+  return{s:s,hp:Math.max(10,Math.round(100-90*(.5*L+.25*A+.25*T))),def:false}}
+ function hpHtml(view,b,o){var k=view+b.id,prev=seen[k],hit=prev!==undefined&&o.hp<prev&&mode()!=='calm',from=prev===undefined?o.hp:prev;seen[k]=o.hp;
+  var lab=o.def?'DEFEATED':(o.hp<=10?'ARMORED · PASS THE TRIAL':'BOSS HP');
+  return '<div class="hp'+(hit?' hit':'')+(o.def?' dead':'')+'" role="img" aria-label="Boss HP '+o.hp+' of 100"><div class="hp-top"><span>'+lab+'</span><b>'+o.hp+'/100</b></div><div class="hp-bar"><i data-to="'+o.hp+'" style="width:'+from+'%"></i></div></div>'}
+ function go(root){requestAnimationFrame(function(){requestAnimationFrame(function(){root.querySelectorAll('.hp-bar i[data-to]').forEach(function(i){i.style.width=i.dataset.to+'%'})})})}
+ var rb=window.renderBosses;
+ window.renderBosses=function(){rb.apply(this,arguments);try{var box=document.getElementById('bossGrid');if(!box)return;var cards=box.querySelectorAll('.boss-card');
+  bossDefinitions.forEach(function(b,i){var c=cards[i],bar=c&&c.querySelector('.boss-progress');if(!bar)return;var d=document.createElement('div');d.innerHTML=hpHtml('b',b,hpOf(b));bar.replaceWith(d.firstChild)});go(box)}catch(e){}};
+ window.renderCampaignMap=function(){
+  if(!bossDefinitions.length)return;var box=document.getElementById('campaignMap');if(!box)return;
+  var terr=bossDefinitions.filter(function(b){return!b.final}),all=bossDefinitions.find(function(b){return b.final});
+  var done=data.filter(function(x){return x.steps.every(Boolean)}).length,overall=Math.round(done/data.length*100);
+  var cur=terr.find(function(b){var s=bossStats(b);return s.cleared<s.lectures.length})||all,list=terr.concat(all?[all]:[]);
+  var html='<button type="button" class="cp-jump" onclick="var e=document.querySelector(\'.cp-row.here\');if(e)e.scrollIntoView({behavior:\'smooth\',block:\'center\'})">📍 Jump to current</button><div class="cpath">';
+  list.forEach(function(b,i){
+   var o=hpOf(b),s=o.s,n=s.lectures.length,pct=n?Math.round(s.cleared/n*100):0,here=!!cur&&cur.id===b.id&&!o.def;
+   var st=o.def?'defeated':s.ready?'ready':here?'current':pct>0?'progress':'idle',side=i%2?'r':'l';
+   var icon=o.def?'🏆':st==='ready'?'⚔️':b.icon,dn=Math.min(n,20),on=n?Math.round(s.cleared/n*dn):0,dots='';
+   for(var k=0;k<dn;k++)dots+='<i'+(k<on?' class="on"':'')+'></i>';
+   var status=o.def?'🏆 Boss defeated':st==='ready'?'⚔️ Ready for boss':(pct>0||here)?'📚 In progress':'○ Not started · still open';
+   var click=b.final?"showView('bossView',document.querySelector('[data-view=&quot;bossView&quot;]'))":"openCampaignTerritory('"+b.id+"')";
+   html+='<button type="button" class="cp-row cp-'+side+' st-'+st+(here?' here':'')+(b.final?' final':'')+'" onclick="'+click+'"><span class="cp-med" aria-hidden="true">'+icon+'</span><span class="cp-tx"><small>'+(b.final?'Final boss':'Territory '+(i+1))+'</small><b>'+escapeHtml(b.name)+'</b>'+(here?'<em class="cp-here">📍 YOU ARE HERE</em>':'')+hpHtml('c',b,o)+'<span class="cp-dots" aria-hidden="true">'+dots+'</span><span class="cp-meta">'+s.cleared+'/'+n+' cleared · '+status+'</span></span></button>';
+   if(i<list.length-1)html+='<svg class="cp-link'+(o.def?' on':'')+'" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="'+(side==='l'?'M9 0 C9 70 91 30 91 100':'M91 0 C91 70 9 30 9 100')+'"/></svg>'});
+  box.innerHTML=html+'</div>';go(box);
+  var p=document.getElementById('campaignMapProgress');if(p)p.textContent=overall+'%';
+  var t=document.getElementById('campaignTerritories');if(t)t.textContent=terr.filter(function(b){return bossVictories[b.id]}).length+'/'+terr.length;
+  var bb=document.getElementById('campaignBosses');if(bb)bb.textContent=bossDefinitions.filter(function(b){return bossVictories[b.id]}).length+'/'+bossDefinitions.length};
+ new MutationObserver(function(){try{window.renderBosses();window.renderCampaignMap()}catch(e){}}).observe(document.documentElement,{attributes:true,attributeFilter:['data-intensity']});
+ try{window.renderBosses();window.renderCampaignMap()}catch(e){}
 })();
 </script>
 </body>
