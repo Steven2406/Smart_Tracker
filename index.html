@@ -697,12 +697,34 @@ html[data-fx=off] #mhqFx{display:none}
 html[data-fx=off] .top::after,html[data-fx=off] .rpg-level-orb::before,html[data-fx=off] .rpg-xp-fill,html[data-fx=off] .fill,html[data-fx=off] .motivation-fill,html[data-fx=off] .hero::before,html[data-fx=off] .card::before,html[data-fx=off] .eyebrow::after,html[data-fx=off] .top .level{animation:none!important}
 html[data-fx=subtle] .top::after,html[data-fx=subtle] .eyebrow::after{animation:none!important}
 
+
+/* ---- v7.1.0 urgency ---- */
+@keyframes urgBeat{50%{transform:scale(1.18)}}
+@keyframes urgGlow{50%{box-shadow:0 0 0 3px color-mix(in srgb,var(--danger) 30%,transparent),0 0 22px -4px var(--danger)}}
+.exam-days{font-variant-numeric:tabular-nums}
+.urg-box{display:flex;align-items:center;gap:12px;margin:0 0 12px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--surface)}
+.urg-ic{font-size:24px;line-height:1}
+.urg-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;font-size:12.5px;color:var(--muted)}
+.urg-tx b{color:var(--text);font-size:14px}.urg-tx em{font-style:normal;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums}
+.urg-box button{flex:none;min-height:40px;padding:0 14px}
+.urg-calm{padding:8px 12px;font-size:12.5px;color:var(--muted)}.urg-calm .urg-tx{display:block}.urg-calm .urg-ic{display:none}
+.urg-standard{border-left:4px solid #c98a1b}.urg-standard .urg-ic,.vit-standard .vit-ic{animation:urgBeat 1.8s ease-in-out infinite}
+.urg-adrenaline{border:1px solid var(--danger);border-left-width:5px;animation:urgGlow 1.6s ease-in-out infinite}.urg-adrenaline .urg-ic,.vit-adrenaline .vit-ic{animation:urgBeat 1s ease-in-out infinite}
+html[data-intensity=adrenaline] .exam-home.urgent{animation:urgGlow 1.6s ease-in-out infinite}
+.vit-box{margin:0 0 12px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);border-left:4px solid var(--danger);background:var(--surface)}
+.vit-head{display:flex;align-items:center;gap:8px;font-weight:800;font-size:14px}.vit-head small{margin-left:auto;font-weight:600;color:var(--muted);font-size:11.5px}
+.vit-calm{border-left-color:var(--line)}.vit-adrenaline{border-width:1px 1px 1px 5px;border-color:var(--danger)}
+.vit-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0 0;margin-top:9px;border-top:1px solid var(--line);font-size:13px}
+.vit-row .meta{margin-top:2px}.vit-row button{flex:none;min-height:38px;padding:0 12px}
+.vit-more{width:100%;margin-top:10px;min-height:38px}
+html[data-fx=off] .urg-box,html[data-fx=off] .urg-ic,html[data-fx=off] .vit-ic,html[data-fx=off] .exam-home.urgent{animation:none!important}
+@media (prefers-reduced-motion:reduce){html .urg-box,html .urg-ic,html .vit-ic,html .exam-home.urgent{animation:none!important}}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v7.0.2</small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v7.1.0</small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -721,6 +743,7 @@ html[data-fx=subtle] .top::after,html[data-fx=subtle] .eyebrow::after{animation:
   <div id="homeView" class="view active">
   <div id="protectCard"></div>
   <div id="cloudNotice"></div>
+  <div id="urgencyBox"></div>
   <div class="hero hero-slim">
     <div class="label">CURRENT CAMPAIGN</div>
     <h1>Gastrointestinal Tract</h1>
@@ -742,6 +765,7 @@ html[data-fx=subtle] .top::after,html[data-fx=subtle] .eyebrow::after{animation:
   </div>
 
   <div id="homeExamCard"></div>
+  <div id="vitalsBox"></div>
 
   <div class="section card adaptive-review-card">
     <div class="section-head"><h2>🧠 Reviews due</h2><small id="hqDueCount"></small></div>
@@ -2532,7 +2556,7 @@ function openCampaignTerritory(id){
 }
 function renderExtraViews(){
   if(window.mhqMotivationRender)window.mhqMotivationRender();
-  renderExams();renderHomeExam();
+  renderExams();renderHomeExam();try{renderUrgency()}catch(e){}
   populateStudyLectures();
   renderCampaignMap();
   renderRpg();
@@ -2906,7 +2930,7 @@ function renderExams(){
   const card=e=>{
     const s=examStats(e),cls=s.days<=3?"urgent":s.days<=7?"soon":"";
     const pick=s.ls.slice().sort((a,b)=>lecturePriority(b)-lecturePriority(a))[0];
-    return `<div class="card exam-card ${cls}"><div class="exam-card-head"><div><div class="exam-name">${escapeHtml(e.name)}</div><div class="meta">${fmtExamDate(e.date)} · ${s.total} lecture${s.total===1?"":"s"}</div></div><div class="exam-days">${examDaysLabel(s.days)}</div></div>
+    return `<div class="card exam-card ${cls}"><div class="exam-card-head"><div><div class="exam-name">${escapeHtml(e.name)}</div><div class="meta">${fmtExamDate(e.date)} · ${s.total} lecture${s.total===1?"":"s"}</div></div><div class="exam-days" data-xdate="${e.date}" data-xlabel="${examDaysLabel(s.days)}">${examDaysLabel(s.days)}</div></div>
       <div class="progress" style="margin-top:12px"><div class="fill" style="width:${s.total?Math.round(s.cleared/s.total*100):0}%"></div></div>
       <div class="mini-grid" style="margin-top:12px"><div class="card"><div class="label">Cleared</div><b>${s.cleared}/${s.total}</b></div><div class="card"><div class="label">Tested</div><b>${s.tested}/${s.total}</b></div><div class="card"><div class="label">Readiness</div><b>${s.mastery}%</b></div></div>
       <div style="margin-top:10px">${examPaceHtml(s)}</div>
@@ -2921,7 +2945,7 @@ function renderHomeExam(){
   const up=upcomingExams();
   if(!up.length){el.innerHTML=`<button type="button" class="exam-empty" onclick="showView('examsView')">📅 Add your exam date for a countdown and a smarter plan →</button>`;return;}
   const e=up[0],s=examStats(e),more=up.length-1,cls=s.days<=3?"urgent":s.days<=7?"soon":"";
-  el.innerHTML=`<div class="section card exam-home ${cls}"><div class="exam-card-head"><div><div class="label">NEXT EXAM</div><div class="exam-name">${escapeHtml(e.name)}</div><div class="meta">${fmtExamDate(e.date)} · ${s.total} lecture${s.total===1?"":"s"}</div></div><div class="exam-days">${examDaysLabel(s.days)}</div></div>
+  el.innerHTML=`<div class="section card exam-home ${cls}"><div class="exam-card-head"><div><div class="label">NEXT EXAM</div><div class="exam-name">${escapeHtml(e.name)}</div><div class="meta">${fmtExamDate(e.date)} · ${s.total} lecture${s.total===1?"":"s"}</div></div><div class="exam-days" data-xdate="${e.date}" data-xlabel="${examDaysLabel(s.days)}">${examDaysLabel(s.days)}</div></div>
     <div class="progress" style="margin-top:12px"><div class="fill" style="width:${s.total?Math.round(s.cleared/s.total*100):0}%"></div></div>
     <div class="meta" style="margin-top:8px">${s.cleared}/${s.total} cleared · readiness ${s.mastery}%</div>
     <div style="margin-top:8px">${examPaceHtml(s)}</div>
@@ -3211,7 +3235,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
  let M=JSON.parse(localStorage.getItem(KEY)||'null');
  if(!M){const legacy=JSON.parse(localStorage.getItem(LEGACY)||'null')||{};const earned=Math.floor(Number(readCore().xp||0)/250);M={dailyTarget:legacy.dailyTarget||3,weeklyTarget:legacy.weeklyTarget||15,campaignGoal:legacy.campaignGoal||'Clear '+COURSE.short+' campaign',redeemed:legacy.redeemed||[],rewardCreditsEarned:Math.max(earned,Number(legacy.rewardCreditsEarned||0)),rewardCreditsSpent:Number(legacy.rewardCreditsSpent||0),ownedItems:legacy.ownedItems||[],shopVersion:2};localStorage.setItem(KEY,JSON.stringify(M));}
  M.rewardCreditsEarned=Number(M.rewardCreditsEarned||0);M.rewardCreditsSpent=Number(M.rewardCreditsSpent||0);M.ownedItems=Array.isArray(M.ownedItems)?M.ownedItems:[];
- M.equipped=Object.assign({skin:'clinical',frame:null,emblem:null,banner:null,vmap:{},fx:'full'},(M.equipped&&typeof M.equipped==='object')?M.equipped:{});
+ M.equipped=Object.assign({skin:'clinical',frame:null,emblem:null,banner:null,vmap:{},fx:'full',intensity:'standard'},(M.equipped&&typeof M.equipped==='object')?M.equipped:{});
  function saveM(){localStorage.setItem(KEY,JSON.stringify(M));}
  function dayKey(d=new Date()){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
  function ledger(){const c=readCore();return Array.isArray(c.activityLedger)?c.activityLedger:[]}
@@ -3253,7 +3277,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
   ['frame','emblem','banner'].forEach(slot=>{if(e[slot]&&(!owned(e[slot])||SLOT[e[slot]]!==slot))e[slot]=null});
   if(e.skin&&e.skin!=='clinical')r.dataset.skin=e.skin;else delete r.dataset.skin;
   if(!e.vmap||typeof e.vmap!=='object')e.vmap={};
-  {const sid=e.skin||'clinical',vm=e.vmap[sid],ok=(VARIANTS[sid]||[]).some(x=>x[0]===vm);if(vm&&ok)r.dataset.variant=vm;else delete r.dataset.variant;r.dataset.fx=(e.fx==='subtle'||e.fx==='off')?e.fx:'full'}
+  {const sid=e.skin||'clinical',vm=e.vmap[sid],ok=(VARIANTS[sid]||[]).some(x=>x[0]===vm);if(vm&&ok)r.dataset.variant=vm;else delete r.dataset.variant;r.dataset.fx=(e.fx==='subtle'||e.fx==='off')?e.fx:'full';r.dataset.intensity=['calm','standard','adrenaline'].includes(e.intensity)?e.intensity:'standard'}
   ['frame','emblem','banner'].forEach(slot=>{if(e[slot])r.dataset[slot]=e[slot];else delete r.dataset[slot]});
   syncThemeColor();
  }
@@ -3288,12 +3312,13 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
  }
 
  window.mhqSetVariant=function(v){const sid=M.equipped.skin||'clinical';if(!M.equipped.vmap||typeof M.equipped.vmap!=='object')M.equipped.vmap={};if(v)M.equipped.vmap[sid]=v;else delete M.equipped.vmap[sid];saveM();applyAppearance();render();playSfx('ui_click',.5)};
+ window.mhqSetIntensity=function(m){M.equipped.intensity=['calm','standard','adrenaline'].includes(m)?m:'standard';saveM();applyAppearance();render();playSfx('ui_click',.5)};
  window.mhqSetFx=function(m){M.equipped.fx=['full','subtle','off'].includes(m)?m:'full';saveM();applyAppearance();render();playSfx('ui_click',.5)};
  function styleControlsHTML(){
   const sid=M.equipped.skin||'clinical',vs=VARIANTS[sid]||[],cur=(M.equipped.vmap||{})[sid]||'',fx=M.equipped.fx||'full';
   const chip=(on,fn,sw,t)=>`<button type="button" class="${on?'on':''}" onclick="${fn}">${sw?`<i style="background:${sw}"></i>`:''}${t}</button>`;
   const sk=SKINS.find(s=>s.id===sid)||SKINS[0];
-  return `<div class="sty-row"><b>🎛 ${sk.name} style</b><div class="sty-chips">${chip(!cur,"window.mhqSetVariant('')",sk.sw[0],'Classic')}${vs.map(v=>chip(cur===v[0],`window.mhqSetVariant('${v[0]}')`,v[3],v[1])).join('')}</div></div><div class="sty-row"><b>✨ Effects</b><div class="sty-chips">${[['full','Full'],['subtle','Subtle'],['off','Off']].map(m=>chip(fx===m[0],`window.mhqSetFx('${m[0]}')`,'',m[1])).join('')}</div><div class="meta" style="font-size:11px;margin-top:6px">Drifting particles, header animation and celebration bursts. Off is best for battery.</div></div>`}
+  return `<div class="sty-row"><b>🎛 ${sk.name} style</b><div class="sty-chips">${chip(!cur,"window.mhqSetVariant('')",sk.sw[0],'Classic')}${vs.map(v=>chip(cur===v[0],`window.mhqSetVariant('${v[0]}')`,v[3],v[1])).join('')}</div></div><div class="sty-row"><b>✨ Effects</b><div class="sty-chips">${[['full','Full'],['subtle','Subtle'],['off','Off']].map(m=>chip(fx===m[0],`window.mhqSetFx('${m[0]}')`,'',m[1])).join('')}</div><div class="meta" style="font-size:11px;margin-top:6px">Drifting particles, header animation and celebration bursts. Off is best for battery.</div></div><div class="sty-row"><b>⚡ Urgency</b><div class="sty-chips">${[['calm','Calm'],['standard','Standard'],['adrenaline','Adrenaline']].map(m=>chip((M.equipped.intensity||'standard')===m[0],`window.mhqSetIntensity('${m[0]}')`,'',m[1])).join('')}</div><div class="meta" style="font-size:11px;margin-top:6px">Only real situations trigger alerts (streak at risk, exam close, reviews overdue). This sets how loud they are: Calm = quiet text and day counts, Standard = colored cards and a live countdown, Adrenaline = red glow and sharper wording.</div></div>`}
  function allCollectionItems(){return collections.flatMap(c=>c.items.map(i=>({id:i[0],name:i[1],cost:i[2],icon:i[3],collection:c.name})))}
  function toast(msg){let t=document.getElementById('mhqRewardToast');if(!t){t=document.createElement('div');t.id='mhqRewardToast';t.className='redemption-toast';document.body.appendChild(t)}t.textContent=msg;t.classList.add('show');clearTimeout(window.__mhqToast);window.__mhqToast=setTimeout(()=>t.classList.remove('show'),2600)}
  function openShopConfirm(itemId,kind){
@@ -3794,6 +3819,48 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
    for(var i=0;i<n;i++){var e=document.createElement('i');e.style.cssText='--a:'+Math.round(i*360/n+Math.random()*14)+'deg;--r:'+Math.round(110+Math.random()*130)+'px';b.appendChild(e)}
    nd.appendChild(b);setTimeout(function(){b.remove()},2200)})})
  }).observe(document.body||root,{childList:true});
+})();
+</script>
+<script>
+/* v7.1.0 urgency: streak-at-risk, live exam countdown, vitals-dropping alert */
+(function(){
+ var root=document.documentElement,T=null,MODES=['calm','standard','adrenaline'];
+ function mode(){var m=root.dataset.intensity;return MODES.indexOf(m)>=0?m:'standard'}
+ function yKey(){var d=new Date();d.setDate(d.getDate()-1);return localDateKey(d)}
+ function pad(n){return n<10?'0'+n:''+n}
+ function left(ms){var s=Math.max(0,Math.floor(ms/1000)),h=Math.floor(s/3600),m=Math.floor(s%3600/60);return h?h+'h '+pad(m)+'m':m+'m'}
+ function exLeft(ms){var s=Math.floor(ms/1000),d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60);
+  if(ms<86400000)return h+'h '+pad(m)+'m '+pad(s%60)+'s';return d+'d '+h+'h '+pad(m)+'m'}
+ function tick(){
+  var now=Date.now(),md=mode(),sec=false;
+  document.querySelectorAll('[data-until]').forEach(function(el){el.textContent=left(+el.dataset.until-now)});
+  document.querySelectorAll('[data-xdate]').forEach(function(el){
+   var ms=new Date(el.dataset.xdate+'T00:00:00').getTime()-now;
+   if(md==='calm'||ms<=0){if(el.textContent!==el.dataset.xlabel)el.textContent=el.dataset.xlabel;return}
+   el.textContent=exLeft(ms);if(ms<86400000)sec=true});
+  return sec}
+ function loop(){clearTimeout(T);if(document.hidden)return;var sec=tick();T=setTimeout(loop,sec?1000:20000)}
+ window.renderUrgency=function(){
+  var md=mode(),box=document.getElementById('urgencyBox'),vb=document.getElementById('vitalsBox');
+  if(box){var html='';
+   try{if(typeof lastStudyDate==='string'&&lastStudyDate===yKey()&&appStreak>=2&&todayKey===localDateKey()){
+    var end=new Date();end.setHours(24,0,0,0);var u='<em data-until="'+end.getTime()+'"></em>';
+    html=md==='calm'
+     ?'<div class="urg-box urg-calm" role="status"><div class="urg-tx">🔥 Your '+appStreak+'-day streak continues if you study today ('+u+' left).</div><button type="button" onclick="startMission()">Start</button></div>'
+     :'<div class="urg-box urg-'+md+'" role="status"><div class="urg-ic" aria-hidden="true">'+(md==='adrenaline'?'🚨':'🔥')+'</div><div class="urg-tx"><b>'+(md==='adrenaline'?appStreak+'-DAY STREAK ABOUT TO BREAK':appStreak+'-day streak at risk')+'</b><span>'+(md==='adrenaline'?'One study step saves it · ':'One study step keeps it alive · ')+u+' left today</span></div><button type="button" class="primary" onclick="startMission()">1 STEP</button></div>'}}catch(e){}
+   box.innerHTML=html}
+  if(vb){var h2='';
+   try{var rows=data.map(function(x){return{x:x,s:reviewStatus(x),m:inferredMastery(x)}}).filter(function(o){return o.s.state==='due'&&(o.s.overdueDays>=1||o.m<65)}).sort(function(a,b){return(b.s.overdueDays-a.s.overdueDays)||(a.m-b.m)});
+   if(rows.length){var top=rows.slice(0,3),title=md==='calm'?'Reviews waiting':(md==='adrenaline'?'VITALS DROPPING':'Vitals dropping');
+    h2='<div class="vit-box vit-'+md+'"><div class="vit-head">'+(md==='calm'?'🧠':'<span class="vit-ic" aria-hidden="true">🫀</span>')+'<span>'+title+'</span><small>'+rows.length+' lecture'+(rows.length===1?'':'s')+' fading</small></div>'
+    +top.map(function(o){return'<div class="vit-row"><div><b>L'+o.x.id+' · '+escapeHtml(o.x.title)+'</b><div class="meta">'+o.m+'% mastery · '+escapeHtml(o.s.label)+'</div></div><button type="button" class="primary" onclick="openLecture('+o.x.id+')">REVIEW</button></div>'}).join('')
+    +(rows.length>3?'<button type="button" class="vit-more" onclick="showView(\'reviewView\')">See all '+rows.length+' in Review Queue</button>':'')+'</div>'}}catch(e){}
+   vb.innerHTML=h2}
+  loop()}
+ new MutationObserver(function(){window.renderUrgency()}).observe(root,{attributes:true,attributeFilter:['data-intensity']});
+ ['homeExamCard','examList'].forEach(function(id){var el=document.getElementById(id);if(el)new MutationObserver(function(){loop()}).observe(el,{childList:true})});
+ document.addEventListener('visibilitychange',function(){if(!document.hidden)window.renderUrgency()});
+ try{window.renderUrgency()}catch(e){}
 })();
 </script>
 </body>
