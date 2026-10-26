@@ -856,12 +856,24 @@ html[data-fx=subtle] .bd *:not(.b-blink):not(.b-bob){animation:none!important}
 .gt-node button{flex:none;min-height:36px;padding:0 12px;font-size:12px}
 .gt-final{margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--surface2);font-size:13px;line-height:1.45}
 .gt-note{margin-top:8px;font-size:11.5px;color:var(--muted)}
+
+/* ---- v7.5.1 weekly report card ---- */
+.rc-ov{position:fixed;inset:0;z-index:10070;background:rgba(5,10,12,.78);overflow:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top,0px) + 12px) 12px calc(env(safe-area-inset-bottom,0px) + 16px)}
+.rc-panel{max-width:520px;margin:0 auto;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px}
+.rc-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.rc-head h2{font-size:18px;margin:0}
+.rc-x{min-height:38px;padding:0 14px}
+.rc-opts{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.rc-opts button{min-height:38px;padding:0 12px;border:1px solid var(--line);border-radius:99px;background:var(--surface2);color:var(--text);font-size:12.5px;font-weight:700}
+.rc-opts button.on{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.rc-img{display:block;width:100%;height:auto;border-radius:12px;border:1px solid var(--line);background:var(--surface2);min-height:120px}
+.rc-act{display:flex;gap:8px;margin-top:12px}.rc-act button{flex:1;min-height:46px}
+.rc-note{margin-top:8px;font-size:11.5px;color:var(--muted)}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v7.5.0</small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v7.5.1</small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -1178,6 +1190,12 @@ html[data-fx=subtle] .bd *:not(.b-blink):not(.b-bob){animation:none!important}
       <h2 style="margin:6px 0">Weekly Stats</h2>
       <div class="sub" style="margin:0">See whether your study is becoming more consistent — and whether your learning is improving.</div>
       <div id="statsSummary" class="stats-grid" style="margin-top:16px"></div>
+    </div>
+    <div class="section card">
+      <div class="label">SHARE YOUR WEEK</div>
+      <h2 style="margin:6px 0">Weekly report card</h2>
+      <div class="sub" style="margin:0 0 12px">A clean image of your last 7 days (with your buddy) to save or share. Made on your phone — nothing is uploaded.</div>
+      <button type="button" class="primary" style="width:100%" onclick="mhqReportCard()">🖼 CREATE REPORT CARD</button>
     </div>
     <div class="section card">
       <div class="section-head"><h2>Last 7 Days</h2><small id="statsRange"></small></div>
@@ -4367,6 +4385,7 @@ function buddy(sp,mo,sk,stg,anim){
   var M=mood();
   paint('buddyCard','bdPetH','bd-card',c,M,force,false);
   paint('buddyFocus','bdPetF','bd-focus',c,M,force,true)};
+ window.mhqBuddyDraw=function(mo){var c=cfg();return{svg:buddy(c.sp,mo,root.dataset.skin||'clinical',stage()),name:c.name,on:c.on,stage:stage()}};
  function snd(n,fb,g){try{(typeof loadSfx==='function'?loadSfx(n):Promise.resolve(null)).then(function(b){playSfx(b?n:fb,g)}).catch(function(){playSfx(fb,g)})}catch(e){}}
  window.mhqPetBuddy=function(host){
   var c=cfg(),btn=document.getElementById(host==='buddyFocus'?'bdPetF':'bdPetH');if(!btn)return;
@@ -4470,6 +4489,136 @@ function buddy(sp,mo,sk,stg,anim){
   if(ls.length&&ls.every(mcqToday)){rec.cel=true;window.mhqGauntletStore.set(e.id,rec);var s=examStats(e);try{celebrate({kind:'gauntlet',icon:'⚔️',kicker:'GAUNTLET CLEARED',title:e.name,sub:'Readiness '+s.mastery+'%',color:'#d4af37'})}catch(x){}}}
  var ex=document.getElementById('examList');if(ex)new MutationObserver(function(){window.renderGauntlet()}).observe(ex,{childList:true});
  try{window.renderGauntlet()}catch(e){}
+})();
+</script>
+<script>
+/* v7.5.1 weekly report card: drawn on a canvas from your real weekly stats */
+(function(){
+ var opts={size:'portrait',hide:false},ov=null,busy=false;
+ function cv(n,d){var v=getComputedStyle(document.documentElement).getPropertyValue(n).trim();return v||d}
+ function lum(c){var m=/^#?([0-9a-f]{6})$/i.exec(c);if(!m)return .5;var n=parseInt(m[1],16),r=n>>16&255,g=n>>8&255,b=n&255;return(.2126*r+.7152*g+.0722*b)/255}
+ function fmtMin(m){return m>=60?Math.floor(m/60)+'h '+('0'+(m%60)).slice(-2)+'m':m+'m'}
+ function hashS(s){var x=7;for(var i=0;i<s.length;i++)x=(x*31+s.charCodeAt(i))>>>0;return x}
+ function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
+ function fit(c,t,w){t=String(t);if(c.measureText(t).width<=w)return t;while(t.length>1&&c.measureText(t+'…').width>w)t=t.slice(0,-1);return t+'…'}
+ function inWeek(days,k){return days.some(function(d){return d.key===k})}
+ function collect(){
+  var days=weekStats(),S=function(k){return days.reduce(function(a,d){return a+d[k]},0)};
+  var prev=new Set(Array.from({length:7},function(_,i){return dateKeyOffset(i-13)})),p={steps:0,mcqs:0,c:0,q:0,focus:0};
+  data.forEach(function(x){x.steps.forEach(function(done,i){if(done&&x.stepDates&&prev.has(x.stepDates[i]))p.steps++});x.mcqs.forEach(function(m){if(m.dateKey&&prev.has(m.dateKey)){var q=parseMCQScore(m.score);if(q){p.mcqs++;p.c+=q.got;p.q+=q.max}}})});
+  studySessions.forEach(function(x){if(prev.has(x.dateKey))p.focus+=Number(x.minutes)||0});
+  var focus=S('focus'),steps=S('steps'),mcqs=S('mcqs'),cor=S('correct'),qs=S('questions'),xp=S('xp');
+  var acc=qs?Math.round(cor/qs*100):null,pacc=p.q?Math.round(p.c/p.q*100):null;
+  var active=days.filter(function(d){return d.steps+d.mcqs+d.focus>0}).length;
+  var best=days.reduce(function(a,d){return(d.steps+d.mcqs)>(a.steps+a.mcqs)||((d.steps+d.mcqs)===(a.steps+a.mcqs)&&d.xp>a.xp)?d:a},days[0]);
+  var cleared=data.filter(function(l){return l.completionDate&&inWeek(days,l.completionDate)}).length;
+  var bosses=Object.keys(bossVictories).filter(function(k){var v=bossVictories[k];return v&&v.date&&inWeek(days,v.date)}).length;
+  var watch=data.map(function(l){return{l:l,m:inferredMastery(l),a:learningProfile(l).attempts}}).filter(function(o){return o.a>0}).sort(function(a,b){return a.m-b.m}).slice(0,3);
+  var ex=null;try{var e=upcomingExams()[0];if(e){var st=examStats(e);ex={name:e.name,days:examDaysLeft(e),ready:st.mastery}}}catch(x){}
+  return{days:days,focus:focus,steps:steps,mcqs:mcqs,acc:acc,xp:xp,active:active,best:best,cleared:cleared,bosses:bosses,watch:watch,ex:ex,
+   d:{focus:focus-p.focus,steps:steps-p.steps,mcqs:mcqs-p.mcqs,acc:(acc!==null&&pacc!==null)?acc-pacc:null}}}
+ function decor(c,sk,W,H,col){
+  c.save();
+  if(sk==='clinical'){c.strokeStyle=col.acc;c.globalAlpha=.55;c.lineWidth=4;c.beginPath();var y=277;c.moveTo(0,y);for(var x=0;x<W;x+=120){c.lineTo(x+30,y);c.lineTo(x+42,y-16);c.lineTo(x+56,y+18);c.lineTo(x+68,y-6);c.lineTo(x+80,y)}c.lineTo(W,y);c.stroke()}
+  if(sk==='sage'){c.fillStyle=col.acc;c.globalAlpha=.22;[[70,60,-35],[W-80,80,40],[50,H-90,35],[W-60,H-70,-40],[130,36,-10],[W-150,30,12]].forEach(function(p){c.save();c.translate(p[0],p[1]);c.rotate(p[2]*Math.PI/180);c.beginPath();c.ellipse(0,0,60,24,0,0,7);c.fill();c.restore()})}
+  if(sk==='egypt'){c.fillStyle=col.gold;c.globalAlpha=.85;[0,H-26].forEach(function(y0,k){for(var x=0;x<W;x+=26){c.beginPath();c.moveTo(x,k?y0+26:y0);c.lineTo(x+13,k?y0:y0+26);c.lineTo(x+26,k?y0+26:y0);c.closePath();c.fill()}})}
+  if(sk==='ninja'){c.globalAlpha=.9;[[col.acc,.0],[col.acc2,.5]].forEach(function(s,i){c.fillStyle=s[0];c.beginPath();c.moveTo(W-360+i*60,0);c.lineTo(W-300+i*60,0);c.lineTo(W-380+i*60,88);c.lineTo(W-440+i*60,88);c.closePath();c.fill()});c.globalAlpha=.08;c.strokeStyle=col.text;c.lineWidth=2;for(var k=-H;k<W;k+=60){c.beginPath();c.moveTo(k,0);c.lineTo(k+H*.6,H);c.stroke()}}
+  if(sk==='elite'){c.strokeStyle=col.acc;c.globalAlpha=.9;c.lineWidth=5;var m=26,L=70;[[m,m,1,1],[W-m,m,-1,1],[m,H-m,1,-1],[W-m,H-m,-1,-1]].forEach(function(p){c.beginPath();c.moveTo(p[0],p[1]+L*p[3]);c.lineTo(p[0],p[1]);c.lineTo(p[0]+L*p[2],p[1]);c.stroke()});c.globalAlpha=.05;c.fillStyle=col.text;for(var yy=0;yy<H;yy+=8)c.fillRect(0,yy,W,2)}
+  c.restore()}
+ function drawCard(canvas,D,img){
+  var W=1080,story=opts.size==='story',H=story?1920:1350,c=canvas.getContext('2d');canvas.width=W;canvas.height=H;
+  var sk=document.documentElement.dataset.skin||'clinical';
+  var col={bg:cv('--bg','#f2f7f6'),surf:cv('--surface','#fff'),surf2:cv('--surface2','#e8f1ef'),line:cv('--line','#d3e3df'),text:cv('--text','#10201c'),muted:cv('--muted','#4b605a'),acc:cv('--accent','#06704f'),acc2:cv('--accent2','#0b7a66'),ink:cv('--accent-ink','#fff'),gold:cv('--gold','#d4af37'),good:cv('--good','#1f8f5f'),bad:cv('--danger','#c0392b')};
+  var dark=lum(col.bg)<.4,FB=getComputedStyle(document.body).fontFamily||'sans-serif',FS=(cv('--serif','Georgia,serif'))||'Georgia,serif';
+  var P=64,names=!opts.hide,days=D.days;
+  c.fillStyle=col.bg;c.fillRect(0,0,W,H);
+  var g=c.createRadialGradient(W/2,0,60,W/2,0,H*.7);g.addColorStop(0,col.acc+(dark?'55':'33'));g.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=g;c.fillRect(0,0,W,H);
+  decor(c,sk,W,H,col);
+  c.textBaseline='alphabetic';c.fillStyle=col.acc;c.font='800 28px '+FB;try{c.letterSpacing='6px'}catch(e){}c.fillText('WEEK IN REVIEW',P,118);try{c.letterSpacing='0px'}catch(e){}
+  c.fillStyle=col.text;c.font='800 62px '+FS;c.fillText(fit(c,names?COURSE.name:'My study week',W-2*P),P,192);
+  var f=function(k){var d=new Date(k+'T12:00:00');return d.toLocaleDateString(undefined,{month:'short',day:'numeric'})};
+  c.fillStyle=col.muted;c.font='600 32px '+FB;c.fillText(f(days[0].key)+' – '+f(days[6].key)+', '+new Date(days[6].key+'T12:00:00').getFullYear(),P,246);
+  var tw=(W-2*P-24)/2,th=story?176:136,ty=story?312:300,gy=story?24:16;
+  function tile(i,label,big,sub,subc){var x=P+(i%2)*(tw+24),y=ty+Math.floor(i/2)*(th+gy);rr(c,x,y,tw,th,26);c.fillStyle=col.surf;c.fill();c.lineWidth=2;c.strokeStyle=col.line;c.stroke();
+   c.fillStyle=col.muted;c.font='700 24px '+FB;try{c.letterSpacing='2px'}catch(e){}c.fillText(label,x+28,y+(story?50:38));try{c.letterSpacing='0px'}catch(e){}
+   c.fillStyle=col.text;c.font='800 '+(story?72:54)+'px '+FS;c.fillText(big,x+28,y+(story?122:90));
+   if(sub){c.fillStyle=subc||col.muted;c.font='700 24px '+FB;c.fillText(sub,x+28,y+th-(story?24:14))}}
+  function dl(v,unit){if(v===null||v===undefined)return{t:'',c:col.muted};if(v===0)return{t:'same as last week',c:col.muted};return{t:(v>0?'↑ ':'↓ ')+Math.abs(v)+(unit||'')+' vs last week',c:v>0?col.good:col.bad}}
+  var d1=dl(D.d.focus>=0?Math.round(D.d.focus):Math.round(D.d.focus),'m'),d2=dl(D.d.steps),d3=dl(D.d.mcqs),d4=dl(D.d.acc,' pp');
+  tile(0,'FOCUS TIME',fmtMin(D.focus),d1.t,d1.c);tile(1,'STUDY STEPS',String(D.steps),d2.t,d2.c);
+  tile(2,'MCQ SETS',String(D.mcqs),D.acc===null?'no MCQs logged yet':(D.acc+'% accuracy'+(d4.t?'  '+d4.t.split(' vs')[0]:'')),D.acc===null?col.muted:(D.d.acc>0?col.good:D.d.acc<0?col.bad:col.muted));
+  tile(3,'XP EARNED',String(D.xp),D.active+' active day'+(D.active===1?'':'s')+' of 7',col.muted);
+  tile(4,'LECTURES CLEARED',String(D.cleared)+(D.bosses?' · '+D.bosses+' boss':''),D.bosses?'boss defeated this week':'this week',col.muted);
+  tile(5,'STREAK',appStreak+' day'+(appStreak===1?'':'s'),appStreak>=7?'a full week or more!':'keep it going',col.muted);
+  /* chart */
+  var cy=ty+3*(th+gy)+(story?6:6),ch=story?300:200;
+  rr(c,P,cy,W-2*P,ch,26);c.fillStyle=col.surf;c.fill();c.strokeStyle=col.line;c.stroke();
+  c.fillStyle=col.muted;c.font='700 24px '+FB;try{c.letterSpacing='2px'}catch(e){}c.fillText('ACTIVITY · STEPS + MCQ SETS',P+28,cy+44);try{c.letterSpacing='0px'}catch(e){}
+  var vals=days.map(function(d){return d.steps+d.mcqs}),mx=Math.max.apply(null,vals.concat([1])),bw=(W-2*P-56-6*16)/7,base=cy+ch-56,top=cy+(story?90:86),bi=days.indexOf(D.best);
+  days.forEach(function(d,i){var x=P+28+i*(bw+16),bh=Math.max(6,(base-top)*vals[i]/mx);
+   rr(c,x,base-bh,bw,bh,10);c.fillStyle=(i===bi&&vals[i]>0)?col.gold:col.acc;c.globalAlpha=vals[i]>0?1:.25;c.fill();c.globalAlpha=1;
+   if(vals[i]>0){c.fillStyle=col.text;c.font='800 24px '+FB;c.textAlign='center';c.fillText(vals[i],x+bw/2,base-bh-8)}
+   c.fillStyle=col.muted;c.font='700 24px '+FB;c.textAlign='center';c.fillText(new Date(d.key+'T12:00:00').toLocaleDateString(undefined,{weekday:'short'}).slice(0,3),x+bw/2,base+38);c.textAlign='left'});
+  if(vals[bi]>0){c.fillStyle=col.gold;c.font='800 24px '+FB;c.textAlign='right';c.fillText('★ Best day: '+new Date(D.best.key+'T12:00:00').toLocaleDateString(undefined,{weekday:'long'}),W-P-28,cy+44);c.textAlign='left'}
+  /* buddy + watch */
+  var by=cy+ch+(story?24:20),bs=story?330:250,wx=img?P+bs+(story?24:20):P,ww=W-P-wx,eo=sk==='egypt'?30:0;
+  var wh=story?(H-by-150-eo):(H-by-76-eo);
+  if(img){c.drawImage(img,P-10,story?by+Math.max(0,(wh-bs)/2):by+6,bs,bs)}
+  rr(c,wx,by,ww,wh,26);c.fillStyle=col.surf;c.fill();c.strokeStyle=col.line;c.stroke();
+  c.fillStyle=col.muted;c.font='700 24px '+FB;try{c.letterSpacing='2px'}catch(e){}c.fillText('WATCH LIST',wx+28,by+44);try{c.letterSpacing='0px'}catch(e){}
+  var ry=by+84,rowH=story?56:50;
+  if(!D.watch.length){c.fillStyle=col.text;c.font='600 26px '+FB;c.fillText('Log MCQs to see your weakest',wx+28,ry+8);c.fillText('lectures here.',wx+28,ry+44)}
+  D.watch.forEach(function(o,i){var y=ry+i*rowH,mc=o.m<55?col.bad:o.m<75?col.gold:col.good;
+   c.fillStyle=col.text;c.font='700 26px '+FB;c.fillText(fit(c,'L'+o.l.id+(names?' · '+o.l.title:''),ww-56-110),wx+28,y);
+   c.fillStyle=mc;c.font='800 26px '+FB;c.textAlign='right';c.fillText(o.m+'%',wx+ww-28,y);c.textAlign='left';
+   rr(c,wx+28,y+12,ww-56,10,5);c.fillStyle=col.surf2;c.fill();rr(c,wx+28,y+12,Math.max(10,(ww-56)*o.m/100),10,5);c.fillStyle=mc;c.fill()});
+  var ey=ry+3*rowH+(story?14:6);
+  c.fillStyle=col.text;c.font='700 25px '+FB;
+  if(D.ex)c.fillText(fit(c,'📅 '+(names?D.ex.name:'Next exam')+' · '+(D.ex.days===0?'today':story?D.ex.days+'d':D.ex.days+' day'+(D.ex.days===1?'':'s'))+' · '+D.ex.ready+'% ready',ww-56),wx+28,ey+16);
+  else{c.fillStyle=col.muted;c.fillText(fit(c,'📅 Add an exam date for a countdown',ww-56),wx+28,ey+16)}
+  if(story){
+   var hy=ey+64,sess=studySessions.filter(function(s2){return inWeek(days,s2.dateKey)}),avg=sess.length?Math.round(sess.reduce(function(a,s2){return a+(+s2.minutes||0)},0)/sess.length):0;
+   c.strokeStyle=col.line;c.lineWidth=2;c.beginPath();c.moveTo(wx+28,hy-34);c.lineTo(wx+ww-28,hy-34);c.stroke();
+   c.fillStyle=col.muted;c.font='700 22px '+FB;try{c.letterSpacing='2px'}catch(e){}c.fillText('HIGHLIGHTS',wx+28,hy-4);try{c.letterSpacing='0px'}catch(e){}
+   var hl=[];if(vals[bi]>0)hl.push('★ Best day: '+new Date(D.best.key+'T12:00:00').toLocaleDateString(undefined,{weekday:'long'})+' · '+vals[bi]+' actions');
+   hl.push('🎯 '+sess.length+' focus session'+(sess.length===1?'':'s')+(avg?' · avg '+avg+' min':''));hl.push('🏆 '+D.cleared+' lecture'+(D.cleared===1?'':'s')+' cleared'+(D.bosses?' · '+D.bosses+' boss defeated':''));
+   c.fillStyle=col.text;c.font='600 25px '+FB;hl.forEach(function(t,i){c.fillText(fit(c,t,ww-56),wx+28,hy+40+i*42)})}
+  /* buddy line + footer */
+  var mood=D.active===0?'sleepy':D.active<=2?'happy':D.active<=4?'excited':'cheer',nm=(window.mhqBuddyCfg?mhqBuddyCfg().name:'Axo'),seed=days[0].key;
+  var L={sleepy:['Fresh week ahead — one small step is all it takes!','Rest is fine. Let’s start gently next week!'],happy:['A gentle start. Let’s build on it next week!','Every step counts. Onwards!'],excited:['Solid week! You studied on '+D.active+' days 🔥','Great rhythm — '+D.active+' study days!'],cheer:['Wow — '+D.active+' study days this week! Unstoppable!','What a week! '+D.active+' days of progress!']}[mood];
+  var line=L[hashS(seed)%L.length],bon=!!(window.mhqBuddyCfg&&mhqBuddyCfg().on);
+  c.fillStyle=col.text;c.font='700 28px '+FB;c.textAlign='center';
+  c.fillText(fit(c,(bon?nm+': “':'“')+line+'”',W-2*P),W/2,H-(story?72:44)-eo);
+  c.fillStyle=col.muted;c.font='600 22px '+FB;c.fillText('Medical HQ · weekly report',W/2,H-(story?34:14)-eo);c.textAlign='left';
+  return mood}
+ function loadBuddy(mood){return new Promise(function(res){
+  try{var b=window.mhqBuddyDraw(mood);if(!b||!b.on){res(null);return}
+   var svg=b.svg.replace('<svg class="bd"','<svg width="600" height="600" class="bd"'),im=new Image();im.onload=function(){res(im)};im.onerror=function(){res(null)};im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)}catch(e){res(null)}})}
+ function moodOf(D){return D.active===0?'sleepy':D.active<=2?'happy':D.active<=4?'excited':'cheer'}
+ var cv0=document.createElement('canvas');
+ async function build(){
+  if(busy)return;busy=true;
+  try{var D=collect(),img=await loadBuddy(moodOf(D));drawCard(cv0,D,img);
+   var im=document.getElementById('rcImg');if(im)im.src=cv0.toDataURL('image/png')}catch(e){console.error(e);toast('Could not create the report card')}
+  busy=false}
+ function chip(on,fn,t){return'<button type="button" class="'+(on?'on':'')+'" onclick="'+fn+'">'+t+'</button>'}
+ function paintOpts(){var o=document.getElementById('rcOpts');if(o)o.innerHTML=chip(opts.size==='portrait',"mhqReportOpt('size','portrait')",'Portrait 1080×1350')+chip(opts.size==='story',"mhqReportOpt('size','story')",'Story 1080×1920')+chip(opts.hide,"mhqReportOpt('hide')",opts.hide?'Names hidden':'Hide names')}
+ window.mhqReportOpt=function(k,v){if(k==='size')opts.size=v;else opts.hide=!opts.hide;paintOpts();build()};
+ window.mhqReportCard=function(){
+  if(ov)ov.remove();
+  ov=document.createElement('div');ov.className='rc-ov';ov.setAttribute('role','dialog');ov.setAttribute('aria-label','Weekly report card');
+  ov.innerHTML='<div class="rc-panel"><div class="rc-head"><h2>🖼 Weekly report card</h2><button type="button" class="rc-x" onclick="mhqReportClose()">Close</button></div><div class="rc-opts" id="rcOpts"></div><img id="rcImg" class="rc-img" alt="Your weekly report card"><div class="rc-act"><button type="button" class="primary" onclick="mhqReportShare()">📤 Share</button><button type="button" onclick="mhqReportSave()">💾 Save image</button></div><div class="rc-note">If Save doesn’t start a download on your phone, press and hold the image and choose “Save image”.</div></div>';
+  document.body.appendChild(ov);paintOpts();build()};
+ window.mhqReportClose=function(){if(ov){ov.remove();ov=null}};
+ function blob(){return new Promise(function(r){cv0.toBlob(r,'image/png')})}
+ function fname(){return'medical-hq-week-'+(opts.size==='story'?'story':'portrait')+'.png'}
+ window.mhqReportShare=async function(){
+  try{var b=await blob(),f=new File([b],fname(),{type:'image/png'});
+   if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'My study week'});return}
+  }catch(e){if(e&&e.name==='AbortError')return}
+  window.mhqReportSave()};
+ window.mhqReportSave=async function(){
+  try{var b=await blob(),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=fname();document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000);toast('Image saved')}catch(e){toast('Press and hold the image to save it')}};
 })();
 </script>
 </body>
