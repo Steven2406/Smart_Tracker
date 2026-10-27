@@ -868,12 +868,39 @@ html[data-fx=subtle] .bd *:not(.b-blink):not(.b-bob){animation:none!important}
 .rc-img{display:block;width:100%;height:auto;border-radius:12px;border:1px solid var(--line);background:var(--surface2);min-height:120px}
 .rc-act{display:flex;gap:8px;margin-top:12px}.rc-act button{flex:1;min-height:46px}
 .rc-note{margin-top:8px;font-size:11.5px;color:var(--muted)}
+
+/* ---- v7.6.0 body map ---- */
+@keyframes bmBreathe{50%{transform:scale(1.035)}}@keyframes bmGlow{50%{filter:drop-shadow(0 0 6px #2fb574)}}
+.bm-modes{display:flex;gap:6px;margin:10px 0}.bm-modes button{min-height:38px;padding:0 13px;border:1px solid var(--line);border-radius:99px;background:var(--surface2);color:var(--text);font-size:12.5px;font-weight:700}.bm-modes button.on{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.bm-stage{position:relative;border:1px solid var(--line);border-radius:18px;background:var(--surface);padding:6px 2px 2px}
+.bm-stage svg{display:block;width:100%;height:auto;max-height:76vh}
+.bm-org{cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent}
+.bm-org:focus-visible .bm-sh,.bm-org.bm-sel .bm-sh{filter:drop-shadow(0 0 5px var(--accent))}.bm-org.bm-sel .bm-lab rect{stroke:var(--accent);stroke-width:2}
+.bm-lab rect{fill:var(--surface);stroke:var(--line);stroke-width:1.2}.bm-lab text{font:600 12.5px system-ui,sans-serif;fill:var(--text)}.bm-lab .bm-pc{font-weight:800;font-size:13.5px}
+html:not([data-fx=off]):not([data-fx=subtle]):not([data-intensity=calm]) .bm-weak .bm-grp{transform-box:fill-box;transform-origin:center;animation:bmBreathe 2.4s ease-in-out infinite}
+html:not([data-fx=off]):not([data-fx=subtle]):not([data-intensity=calm]) .bm-strong .bm-sh{animation:bmGlow 2.8s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.bm-org .bm-grp,.bm-org .bm-sh{animation:none!important}}
+.bm-ring{position:absolute;left:8px;bottom:8px;width:64px;text-align:center;font-size:10px;font-weight:800;color:var(--muted);letter-spacing:.05em}.bm-ring svg{width:56px!important;height:56px!important;display:block;margin:0 auto 2px;max-height:none!important}
+.bm-leg{display:flex;flex-wrap:wrap;gap:6px 14px;margin:10px 2px 0;font-size:12px;color:var(--muted)}.bm-leg i{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-2px;margin-right:5px}
+.bm-n{background:#9aa7b2}.bm-w{background:#e5484d}.bm-m{background:#f0a020}.bm-s{background:#2fb574}
+.bm-buddy{display:flex;align-items:center;gap:10px;margin:8px 0}.bm-buddy .bm-b{flex:none;width:74px}.bm-buddy .bm-b svg{display:block;width:100%;height:auto}
+.bm-bub{flex:1;padding:8px 12px;border-radius:14px;background:var(--surface2);border:1px solid var(--line);font-size:13px;font-weight:600;line-height:1.35}
+.bm-tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.bm-tile{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-height:92px;padding:12px;text-align:left;border:1px solid var(--line);border-left:6px solid #9aa7b2;border-radius:14px;background:var(--surface);color:var(--text);font-weight:400}
+.bm-tile b{font-size:13.5px}.bm-tile span{font-size:24px;font-weight:800;font-family:var(--serif)}.bm-tile small{font-size:11.5px;color:var(--muted)}
+.bm-tile.bm-weak{border-left-color:#e5484d}.bm-tile.bm-mid{border-left-color:#f0a020}.bm-tile.bm-strong{border-left-color:#2fb574}
+.bm-sheetbg{position:fixed;inset:0;z-index:10050;background:rgba(5,10,12,.5)}
+.bm-sheet{position:fixed;left:0;right:0;bottom:0;max-width:560px;margin:0 auto;max-height:78vh;overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:20px 20px 0 0;padding:14px 16px calc(env(safe-area-inset-bottom,0px) + 18px);z-index:10051}
+.bm-sh-h{display:flex;align-items:center;gap:10px}.bm-sh-h b{flex:1;font-size:17px}.bm-sh-h span{font-weight:800}.bm-x{min-height:36px;padding:0 12px}
+.bm-sub{margin:4px 0 6px;font-size:12px;color:var(--muted)}
+.bm-lec{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line);font-size:13.5px}.bm-lec>div{flex:1;min-width:0}.bm-lec small{display:block;color:var(--muted);font-size:11.5px}
+.bm-lec button{flex:none;min-height:36px;padding:0 12px}.bm-lec select{flex:none;max-width:132px;min-height:36px;font-size:12px}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v7.5.1</small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v7.6.0</small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -1110,6 +1137,17 @@ html[data-fx=subtle] .bd *:not(.b-blink):not(.b-bob){animation:none!important}
   </div>
 
   <div id="reviewView" class="view"><div class="hero"><div class="label">SPACED REVIEW ENGINE</div><h1>🧠 Review Queue</h1><div class="sub">Your next review is calculated from MCQ performance and mastery. Weak topics return sooner; stronger topics get more spacing.</div></div><div class="card"><h3 style="margin-top:0">Due & Upcoming Reviews</h3><div id="reviewQueue"></div></div></div>
+  <div id="bodyMapView" class="view">
+    <div class="section card">
+      <div class="section-head"><h2>🫀 Body Map</h2><small id="bmSub">Your mastery, organ by organ</small></div>
+      <div id="bmBuddy"></div>
+      <div class="bm-modes" id="bmModes"></div>
+      <div id="bmStage"></div>
+      <div class="bm-leg"><span><i class="bm-n"></i>Not tested</span><span><i class="bm-w"></i>Weak &lt;55%</span><span><i class="bm-m"></i>Medium 55–74%</span><span><i class="bm-s"></i>Strong 75%+</span></div>
+    </div>
+    <div id="bmUnassigned"></div>
+  </div>
+
   <div id="bossView" class="view">
     <div class="section card">
       <div class="label">GIT BOSS CHAMBER</div>
@@ -2208,7 +2246,7 @@ const VIEW_SECTIONS={
   homeView:"home",
   curriculumView:"study",todayView:"study",weaknessView:"study",reviewView:"study",examsView:"study",
   clinicalView:"testing",externalTestsView:"testing",
-  campaignView:"campaign",bossView:"campaign",
+  campaignView:"campaign",bossView:"campaign",bodyMapView:"campaign",
   studyView:"focus",
   rpgView:"progress",achievementsView:"progress",statsView:"progress",dataView:"progress"
 };
@@ -2715,7 +2753,7 @@ function openCampaignTerritory(id){
 }
 function renderExtraViews(){
   if(window.mhqMotivationRender)window.mhqMotivationRender();
-  renderExams();renderHomeExam();try{renderUrgency()}catch(e){}try{renderTrophies()}catch(e){}try{mhqWatchTerritories()}catch(e){}try{renderRhythm()}catch(e){}try{renderRounds()}catch(e){}try{renderBuddy()}catch(e){}try{renderGauntlet()}catch(e){}
+  renderExams();renderHomeExam();try{renderUrgency()}catch(e){}try{renderTrophies()}catch(e){}try{mhqWatchTerritories()}catch(e){}try{renderRhythm()}catch(e){}try{renderRounds()}catch(e){}try{renderBuddy()}catch(e){}try{renderGauntlet()}catch(e){}try{renderBodyMap()}catch(e){}
   populateStudyLectures();
   renderCampaignMap();
   renderRpg();
@@ -3486,6 +3524,9 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
  window.mhqToggleBuddy=function(){const c=window.mhqBuddyCfg();setBuddy({on:!c.on})};
  window.mhqRenameBuddy=function(v){const c=window.mhqBuddyCfg();const n=String(v||'').replace(/[<>&"'`]/g,'').trim().slice(0,14);setBuddy({name:n||BUDDY_NAMES[c.sp]})};
  window.mhqGauntletStore={get:function(id){const g=(M.gauntlet&&typeof M.gauntlet==='object')?M.gauntlet:{};return g[id]||null},set:function(id,v){if(!M.gauntlet||typeof M.gauntlet!=='object')M.gauntlet={};M.gauntlet[id]=v;saveM()},prune:function(keep){if(!M.gauntlet||typeof M.gauntlet!=='object')return;let ch=false;Object.keys(M.gauntlet).forEach(k=>{if(keep.indexOf(k)<0){delete M.gauntlet[k];ch=true}});if(ch)saveM()}};
+ window.mhqBodyMapStore={
+  get:function(){const b=(M.bodymap&&typeof M.bodymap==='object')?M.bodymap:{};const a={};if(b.assign&&typeof b.assign==='object')Object.keys(b.assign).forEach(k=>{if(/^\d+$/.test(k)&&typeof b.assign[k]==='string')a[k]=b.assign[k]});return{assign:a,mode:['organs','territories'].indexOf(b.mode)>=0?b.mode:'auto'}},
+  set:function(assign,mode){M.bodymap={assign:assign||{},mode:mode||'auto'};saveM()}};
  window.mhqSetFx=function(m){M.equipped.fx=['full','subtle','off'].includes(m)?m:'full';saveM();applyAppearance();render();playSfx('ui_click',.5)};
  function styleControlsHTML(){
   const sid=M.equipped.skin||'clinical',vs=VARIANTS[sid]||[],cur=(M.equipped.vmap||{})[sid]||'',fx=M.equipped.fx||'full';
@@ -3553,7 +3594,7 @@ window.mhqMotivationRender=()=>{reconcileWallet();render()};
  observer.observe(document.body,{childList:true,subtree:true});
  // Keep navigation state accurate when inner routes are opened by quick actions.
  const originalShow=window.showView;
- if(typeof originalShow==='function')window.showView=function(id,button){originalShow(id,button);document.querySelectorAll('.nav button').forEach(b=>{const sec=({homeView:'home',curriculumView:'study',todayView:'study',weaknessView:'study',reviewView:'study',examsView:'study',clinicalView:'testing',externalTestsView:'testing',campaignView:'campaign',bossView:'campaign',studyView:'focus',rpgView:'progress',achievementsView:'progress',statsView:'progress',dataView:'progress'})[id]||'home';b.classList.toggle('active',b.dataset.section===sec)});};
+ if(typeof originalShow==='function')window.showView=function(id,button){originalShow(id,button);document.querySelectorAll('.nav button').forEach(b=>{const sec=({homeView:'home',curriculumView:'study',todayView:'study',weaknessView:'study',reviewView:'study',examsView:'study',clinicalView:'testing',externalTestsView:'testing',campaignView:'campaign',bossView:'campaign',bodyMapView:'campaign',studyView:'focus',rpgView:'progress',achievementsView:'progress',statsView:'progress',dataView:'progress'})[id]||'home';b.classList.toggle('active',b.dataset.section===sec)});};
 })();
 </script>
 <script>
@@ -3563,7 +3604,7 @@ window.mhqMotivationRender=()=>{reconcileWallet();render()};
  const groups={
   curriculumView:[['curriculumView','📚 Curriculum'],['weaknessView','🎯 Weak Topics'],['reviewView','🧠 Reviews'],['todayView','⚡ Today'],['examsView','📅 Exams']],
   clinicalView:[['clinicalView','🩺 Clinical Cases'],['externalTestsView','🧪 External Tests']],
-  campaignView:[['campaignView','🗺️ Campaign Map'],['bossView','🐉 Boss Battles']],
+  campaignView:[['campaignView','🗺️ Campaign Map'],['bossView','🐉 Boss Battles'],['bodyMapView','🫀 Body Map']],
   rpgView:[['rpgView','🏆 RPG Profile'],['achievementsView','🏅 Achievements'],['statsView','📊 Weekly Stats'],['dataView','⚙️ Data & Backup']]
  };
  const mainIds=new Set(['homeView','curriculumView','clinicalView','campaignView','studyView','rpgView']);
@@ -3597,7 +3638,7 @@ window.mhqMotivationRender=()=>{reconcileWallet();render()};
  window.mhqToggleTheme=function(){applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark',{animate:true,save:true})};
  let saved=null;try{saved=localStorage.getItem(THEME_KEY)}catch(e){}applyTheme(saved||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
  const original=window.showView;const historyStack=[];let restoring=false;
- const labels={homeView:'HQ',curriculumView:'Study',todayView:'Today',weaknessView:'Weak Topics',reviewView:'Reviews',examsView:'Exams',clinicalView:'Testing',externalTestsView:'External Tests',campaignView:'Campaign',bossView:'Boss Battles',studyView:'Focus',rpgView:'Progress',achievementsView:'Achievements',statsView:'Weekly Stats',dataView:'Data & Backup'};
+ const labels={homeView:'HQ',curriculumView:'Study',todayView:'Today',weaknessView:'Weak Topics',reviewView:'Reviews',examsView:'Exams',clinicalView:'Testing',externalTestsView:'External Tests',campaignView:'Campaign',bossView:'Boss Battles',bodyMapView:'Body Map',studyView:'Focus',rpgView:'Progress',achievementsView:'Achievements',statsView:'Weekly Stats',dataView:'Data & Backup'};
  function activeId(){return document.querySelector('.view.active')?.id||'homeView'}
  function syncBack(){const id=activeId();document.querySelectorAll('.mhq-back-row').forEach(row=>{const b=row.querySelector('button');const hint=row.querySelector('.mhq-back-hint');const prev=historyStack.length>1?historyStack[historyStack.length-2]:'';row.hidden=id==='homeView';if(b)b.disabled=!prev;if(hint)hint.textContent=prev?'Back to '+(labels[prev]||'previous page'):'You are at the start'});}
  window.mhqGoBack=function(){if(historyStack.length>1){historyStack.pop();const prev=historyStack[historyStack.length-1];restoring=true;original?.(prev);restoring=false;syncBack()}else if(activeId()!=='homeView'){restoring=true;original?.('homeView');restoring=false;historyStack.splice(0,historyStack.length,'homeView');syncBack()}};
@@ -4619,6 +4660,123 @@ function buddy(sp,mo,sk,stg,anim){
   window.mhqReportSave()};
  window.mhqReportSave=async function(){
   try{var b=await blob(),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=fname();document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000);toast('Image saved')}catch(e){toast('Press and hold the image to save it')}};
+})();
+</script>
+<script>
+/* v7.6.0 Body Map: GIT organ template (auto-matched) with a Course Map fallback for other subjects */
+(function(){
+ var NS={none:'Not tested',weak:'Weak',mid:'Medium',strong:'Strong'};
+ var KEY=function(){return window.mhqBodyMapStore?window.mhqBodyMapStore.get():{assign:{},mode:'auto'}};
+ var ORG=[
+  {id:'mouth',n:'Mouth & glands',side:'R',ly:40,ax:152,ay:46,re:[/mouth|\boral\b|salivar|parotid|dental|teeth|tooth|tongue|stomatit|mastic|gingiv|oropharyn|pharyn|dysgeus|lip\b/]},
+  {id:'esoph',n:'Esophagus',side:'L',ly:104,ax:178,ay:104,re:[/oesoph|esoph|dysphag|achalas|barrett|\bgerd\b|reflux|swallow|deglut|hiatus|hiatal/]},
+  {id:'liver',n:'Liver',side:'L',ly:176,ax:104,ay:176,re:[/liver|hepat|cirrho|jaundic|portal hypert|ascit|wilson|hemochromat|haemochromat|encephalopathy|varice/]},
+  {id:'gb',n:'Gallbladder',side:'L',ly:244,ax:126,ay:236,re:[/gall ?bladder|cholecyst|cholelith|gallston|cholangi|bile duct|\bercp\b|choledoch|biliary colic/]},
+  {id:'pancreas',n:'Pancreas',side:'R',ly:250,ax:232,ay:256,re:[/pancrea/]},
+  {id:'stomach',n:'Stomach',side:'R',ly:168,ax:250,ay:170,re:[/stomach|gastric|gastr(?!o ?intestin|oenter)|peptic|\bulcer(?!ative)|pylor|dyspep|zollinger|gastritis|gastropar|vomit|emesis|antrum/]},
+  {id:'small',n:'Small intestine',side:'L',ly:326,ax:134,ay:332,re:[/small (bowel|intestin)|duoden|jejun|ileum|ileal|malabsorp|coeliac|celiac|sprue|enteritis|enteropath|short bowel|lactose|giardia|typhoid|\babsorption|digestion/]},
+  {id:'large',n:'Large intestine',side:'L',ly:408,ax:98,ay:396,re:[/colon|colorectal|large (bowel|intestin)|crohn|ulcerative colitis|\bibd\b|inflammatory bowel|\bibs\b|irritable|diverticul|appendic|polyp|constipat|diarrh|megacolon|hirschsprung|sigmoid|caecum|cecum|cecal|bowel obstruction|intestinal obstruction/]},
+  {id:'rectum',n:'Rectum & anus',side:'R',ly:468,ax:198,ay:468,re:[/rectum|rectal|\banal\b|\banus\b|anorect|hemorrhoid|haemorrhoid|fissure|fistula|perianal|\bpiles\b|incontinen|defecat/]}
+ ];
+ var SHAPES={
+  mouth:[{k:'f',d:'M146 46 Q162 34 180 41 Q198 34 214 46 Q198 66 180 68 Q162 66 146 46Z'},{k:'f',d:'M122 52 a11 16 -20 1 0 0.1 0Z'},{k:'f',d:'M238 52 a11 16 20 1 0 0.1 0Z'}],
+  esoph:[{k:'t',d:'M180 68 C180 96 178 118 184 142',w:15}],
+  liver:[{k:'f',d:'M84 158 C110 142 168 144 200 154 C206 182 190 210 154 222 C120 232 86 212 74 186 C70 174 76 164 84 158Z'}],
+  gb:[{k:'f',d:'M130 218 C120 228 122 248 134 252 C148 250 148 230 140 218Z'}],
+  pancreas:[{k:'f',d:'M118 254 C140 242 194 240 236 248 C252 253 250 264 236 266 C198 262 152 266 128 278 C112 284 106 266 118 254Z'}],
+  stomach:[{k:'f',d:'M186 142 C208 124 250 130 255 166 C260 202 240 234 206 236 C186 236 172 226 174 213 C176 203 190 206 200 206 C214 206 222 192 220 178 C218 166 204 162 196 160 C188 156 184 150 186 142Z'}],
+  small:[{k:'t',d:'M178 218 C150 226 122 236 128 260 C132 272 150 276 170 270',w:11},{k:'t',d:'M134 318 H226 C240 318 240 338 226 338 H136 C122 338 122 358 136 358 H226 C240 358 240 378 226 378 H142',w:14}],
+  large:[{k:'t',d:'M110 398 V298 Q110 290 118 290 H242 Q250 290 250 298 V388 Q250 414 222 416 Q192 418 186 432',w:18},{k:'f',d:'M98 398 a13 13 0 1 0 26 0 a13 13 0 1 0 -26 0Z'}],
+  rectum:[{k:'t',d:'M186 430 V470',w:15},{k:'f',d:'M174 474 a12 7 0 1 0 24 0 a12 7 0 1 0 -24 0Z'}]};
+ var sel=null,sheet=null;
+ function stOf(m,tested){return!tested?'none':m<55?'weak':m<75?'mid':'strong'}
+ function colv(s){return s==='none'?'#9aa7b2':s==='weak'?'#e5484d':s==='mid'?'#f0a020':'#2fb574'}
+ function esc(s){return escapeHtml(String(s))}
+ function textOf(l){return(l.title+' '+(l.territory||'')+' '+(l.subject||'')).toLowerCase()}
+ function autoOrgan(l){var t=textOf(l),best=null,bs=0;ORG.forEach(function(o){var s=0;o.re.forEach(function(r){var m=t.match(new RegExp(r.source,'g'));if(m)s+=m.length});if(s>bs){bs=s;best=o.id}});return best}
+ function organOf(l,assign){var a=assign[String(l.id)];if(a==='skip')return'skip';if(a&&ORG.some(function(o){return o.id===a}))return a;return autoOrgan(l)||null}
+ function groupAll(){
+  var cfg=KEY(),g={},un=[],sk=[];ORG.forEach(function(o){g[o.id]=[]});
+  data.forEach(function(l){var o=organOf(l,cfg.assign);if(o==='skip')sk.push(l);else if(o)g[o].push(l);else un.push(l)});
+  return{g:g,un:un,sk:sk,cfg:cfg}}
+ function stats(ls){
+  if(!ls.length)return{m:0,t:0,n:0,s:'none'};
+  var prof=ls.map(function(l){return{l:l,m:inferredMastery(l),a:learningProfile(l).attempts}}),tested=prof.filter(function(p){return p.a>0}).length,avg=Math.round(prof.reduce(function(a,p){return a+p.m},0)/prof.length);
+  return{m:avg,t:tested,n:ls.length,s:stOf(avg,tested>0),prof:prof}}
+ function useOrgans(grp){
+  var mode=grp.cfg.mode;if(mode==='organs')return true;if(mode==='territories')return false;
+  var matched=data.length-grp.un.length-grp.sk.length;return data.length>0&&matched/data.length>=.4}
+ function terrGroups(){
+  var out=[];try{bossDefinitions.filter(function(b){return!b.final}).forEach(function(b){var ls=data.filter(function(l){return l.id>=b.start&&l.id<=b.end});if(ls.length)out.push({id:b.id,n:b.name,icon:b.icon||'🗺️',ls:ls})})}catch(e){}
+  if(!out.length){var by={};data.forEach(function(l){(by[l.subject]=by[l.subject]||[]).push(l)});Object.keys(by).forEach(function(k){out.push({id:k,n:k,icon:'📚',ls:by[k]})})}
+  return out}
+ function orgSvg(grp){
+  var s='<svg viewBox="0 0 480 540" role="group" aria-label="Digestive system map"><defs><pattern id="bmHat" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2.6" height="7" fill="rgba(255,255,255,.55)"/></pattern><radialGradient id="bmShine" cx=".3" cy=".25" r=".9"><stop offset="0" stop-color="#fff" stop-opacity=".38"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>';
+  s+='<g transform="translate(60 0)"><path d="M112 76 C72 92 58 132 54 192 C50 262 56 340 76 420 C92 474 132 508 180 512 C228 508 268 474 284 420 C304 340 310 262 306 192 C302 132 288 92 248 76 Z" style="fill:var(--surface2);stroke:var(--line);stroke-width:2"/><ellipse cx="180" cy="46" rx="54" ry="44" style="fill:var(--surface2);stroke:var(--line);stroke-width:2"/><rect x="160" y="80" width="40" height="20" style="fill:var(--surface2)"/>';
+  var labs='';
+  ORG.forEach(function(o){
+   var st=stats(grp.g[o.id]),has=o.id!=='x'&&grp.g[o.id].length>0,c=colv(has?st.s:'none'),cls=has?st.s:'none',pc=(has&&st.t>0)?st.m+'%':(has?'not tested':'no lectures'),sel2=sel===o.id?' bm-sel':'';
+   var dark='rgba(0,0,0,.28)',sh='';
+   SHAPES[o.id].forEach(function(q){
+    if(q.k==='f'){sh+='<path d="'+q.d+'" style="fill:'+c+';stroke:'+dark+';stroke-width:2;stroke-linejoin:round"/><path d="'+q.d+'" fill="url(#bmShine)"/>'+(cls==='none'?'<path d="'+q.d+'" fill="url(#bmHat)"/>':'')}
+    else sh+='<path d="'+q.d+'" style="fill:none;stroke:'+dark+'" stroke-width="'+(q.w+4)+'" stroke-linecap="round" stroke-linejoin="round"/><path d="'+q.d+'" style="fill:none;stroke:'+c+'" stroke-width="'+q.w+'" stroke-linecap="round" stroke-linejoin="round"/><path d="'+q.d+'" style="fill:none" stroke="rgba(255,255,255,.4)" stroke-width="'+Math.max(3,q.w*.28)+'" stroke-linecap="round"'+(cls==='none'?' stroke-dasharray="2 7"':'')+' transform="translate(-1,-2)"/>'});
+   s+='<g class="bm-org bm-'+cls+sel2+'" data-oid="'+o.id+'" tabindex="0" role="button" aria-label="'+esc(o.n)+', '+(has&&st.t>0?st.m+' percent':'not tested')+'"><g class="bm-grp"><g class="bm-sh">'+sh+'</g></g></g>';
+   var left=o.side==='L',pw=108,ph=40,px=left?4:468-pw,py=o.ly-ph/2,ax=o.ax+60;
+   labs+='<g class="bm-org bm-'+cls+sel2+'" data-oid="'+o.id+'" aria-hidden="true"><path d="M'+(left?px+pw:px)+' '+o.ly+' L'+ax+' '+o.ay+'" style="stroke:var(--muted)" stroke-width="1.4" fill="none" stroke-dasharray="3 3" opacity=".8"/><circle cx="'+ax+'" cy="'+o.ay+'" r="3.2" style="fill:var(--text)"/><g class="bm-lab"><rect x="'+px+'" y="'+py+'" width="'+pw+'" height="'+ph+'" rx="12"/><text x="'+(px+pw/2)+'" y="'+(py+16)+'" text-anchor="middle">'+esc(o.n)+'</text><text class="bm-pc" x="'+(px+pw/2)+'" y="'+(py+33)+'" text-anchor="middle">'+(has&&st.t>0?'<tspan style="fill:'+c+'">● </tspan>':'')+pc+'</text></g></g>'});
+  s+='</g>'+labs+'</svg>';return s}
+ function ring(grp){var all=ORG.filter(function(o){return grp.g[o.id].length}),t=all.filter(function(o){return stats(grp.g[o.id]).t>0}).length,p=all.length?Math.round(t/all.length*100):0,C=2*Math.PI*22;
+  return'<div class="bm-ring"><svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="22" fill="none" style="stroke:var(--line)" stroke-width="6"/><circle cx="28" cy="28" r="22" fill="none" style="stroke:var(--accent)" stroke-width="6" stroke-linecap="round" stroke-dasharray="'+(C*p/100).toFixed(1)+' '+C.toFixed(1)+'" transform="rotate(-90 28 28)"/><text x="28" y="32" text-anchor="middle" font-size="13" font-weight="800" style="fill:var(--text)" font-family="system-ui">'+p+'%</text></svg>TESTED</div>'}
+ function buddyHint(items){
+  var el=document.getElementById('bmBuddy');if(!el)return;
+  var tested=items.filter(function(x){return x.st.t>0}).sort(function(a,b){return a.st.m-b.st.m}),txt,mood='happy';
+  if(!items.length){el.innerHTML='';return}
+  if(!tested.length){txt='Nothing is tested yet — log an MCQ set and the map comes alive!';mood='sleepy'}
+  else{var w=tested[0];if(w.st.m<55){mood='worried';txt='Weakest spot: '+w.n+' ('+w.st.m+'%). Tap it and let’s fix it!'}else{mood='excited';txt='Looking strong! Your lowest is '+w.n+' at '+w.st.m+'%.'}}
+  var b=null;try{b=window.mhqBuddyDraw&&window.mhqBuddyDraw(mood)}catch(e){}
+  el.innerHTML='<div class="bm-buddy">'+(b&&b.on?'<div class="bm-b" aria-hidden="true">'+b.svg+'</div>':'')+'<div class="bm-bub">'+esc(txt)+'</div></div>'}
+ window.renderBodyMap=function(force){
+  var v=document.getElementById('bodyMapView');if(!v||(!force&&!v.classList.contains('active')))return;
+  if(!data.length)return;
+  var grp=groupAll(),org=useOrgans(grp),stage=document.getElementById('bmStage'),cfg=grp.cfg;
+  var modes=document.getElementById('bmModes');
+  modes.innerHTML=[['auto','Auto'],['organs','Body map'],['territories','Course map']].map(function(m){return'<button type="button" class="'+(cfg.mode===m[0]?'on':'')+'" onclick="mhqBMMode(\''+m[0]+'\')">'+m[1]+'</button>'}).join('');
+  var items;
+  if(org){
+   stage.innerHTML='<div class="bm-stage">'+orgSvg(grp)+ring(grp)+'</div>';
+   items=ORG.filter(function(o){return grp.g[o.id].length}).map(function(o){return{id:o.id,n:o.n,st:stats(grp.g[o.id])}});
+   document.getElementById('bmSub').textContent='Digestive system · '+(data.length-grp.un.length-grp.sk.length)+' of '+data.length+' lectures placed'}
+  else{
+   var tg=terrGroups();items=tg.map(function(t){return{id:t.id,n:t.n,st:stats(t.ls)}});
+   stage.innerHTML='<div class="bm-tiles">'+tg.map(function(t,i){var s=items[i].st;return'<button type="button" class="bm-tile bm-'+s.s+'" data-tid="'+esc(t.id)+'"><b>'+esc(t.icon+' '+t.n)+'</b><span>'+(s.t>0?s.m+'%':'—')+'</span><small>'+s.t+'/'+s.n+' tested</small></button>'}).join('')+'</div>';
+   document.getElementById('bmSub').textContent='Course map · '+tg.length+' areas'}
+  buddyHint(items);
+  /* unassigned / skipped (organ mode only) */
+  var ua=document.getElementById('bmUnassigned');
+  if(org&&(grp.un.length||grp.sk.length)){
+   var opt=function(cur){return'<option value="">Assign to…</option>'+ORG.map(function(o){return'<option value="'+o.id+'"'+(cur===o.id?' selected':'')+'>'+esc(o.n)+'</option>'}).join('')+'<option value="skip"'+(cur==='skip'?' selected':'')+'>Not digestive (skip)</option>'};
+   var row=function(l,cur){return'<div class="bm-lec"><div><b>L'+l.id+' · '+esc(l.title)+'</b><small>'+esc(l.territory||l.subject||'')+'</small></div><select aria-label="Assign lecture '+l.id+'" onchange="mhqBMAssign('+l.id+',this.value)">'+opt(cur)+'</select></div>'};
+   ua.innerHTML='<div class="section card"><div class="section-head"><h2>🧩 Unassigned lectures</h2><small>'+grp.un.length+' to place'+(grp.sk.length?' · '+grp.sk.length+' skipped':'')+'</small></div><div class="bm-sub">I couldn’t match these by name. Choose an organ for each — your choice is saved for this course.</div>'+grp.un.map(function(l){return row(l,'')}).join('')+(grp.sk.length?'<details style="margin-top:8px"><summary>Skipped ('+grp.sk.length+')</summary>'+grp.sk.map(function(l){return row(l,'skip')}).join('')+'</details>':'')+'</div>'}
+  else ua.innerHTML=''};
+ function closeSheet(){if(sheet){sheet.bg.remove();sheet.el.remove();sheet=null}sel=null;window.renderBodyMap(true)}
+ function openSheet(title,ls,orgMode){
+  if(sheet){sheet.bg.remove();sheet.el.remove()}
+  var st=stats(ls),cfg=KEY();
+  var rows=st.prof.slice().sort(function(a,b){return a.m-b.m}).map(function(p){var l=p.l,r=reviewStatus(l);
+   return'<div class="bm-lec"><div><b>L'+l.id+' · '+esc(l.title)+'</b><small>'+(p.a>0?'Mastery '+p.m+'%':'Not tested yet')+' · '+esc(r.label||'')+'</small></div>'+(orgMode?'<select aria-label="Move lecture '+l.id+'" onchange="mhqBMAssign('+l.id+',this.value)"><option value="">Move to…</option>'+ORG.map(function(o){return'<option value="'+o.id+'">'+esc(o.n)+'</option>'}).join('')+'<option value="skip">Not digestive (skip)</option></select>':'')+'<button type="button" class="primary" onclick="mhqBMStudy('+l.id+')">Study</button></div>'}).join('');
+  var bg=document.createElement('div');bg.className='bm-sheetbg';bg.onclick=closeSheet;
+  var el=document.createElement('div');el.className='bm-sheet';el.setAttribute('role','dialog');el.setAttribute('aria-label',title);
+  el.innerHTML='<div class="bm-sh-h"><b>'+esc(title)+'</b><span style="color:'+colv(st.s)+'">'+(st.t>0?st.m+'%':'Not tested')+'</span><button type="button" class="bm-x" onclick="mhqBMClose()" aria-label="Close">✕</button></div><div class="bm-sub">'+st.t+' of '+st.n+' lectures tested · weakest first</div>'+rows;
+  document.body.appendChild(bg);document.body.appendChild(el);sheet={bg:bg,el:el}}
+ window.mhqBMClose=closeSheet;
+ window.mhqBMStudy=function(id){var s=sheet;sel=null;if(s){s.bg.remove();s.el.remove();sheet=null}openLecture(id)};
+ window.mhqBMMode=function(m){var S=window.mhqBodyMapStore,c=S.get();S.set(c.assign,m);window.renderBodyMap(true)};
+ window.mhqBMAssign=function(id,v){var S=window.mhqBodyMapStore,c=S.get(),a=c.assign;if(v)a[String(id)]=v;else delete a[String(id)];S.set(a,c.mode);var was=sheet;if(was){was.bg.remove();was.el.remove();sheet=null;sel=null}window.renderBodyMap(true);try{toast(v==='skip'?'Skipped for the map':v?'Moved on the map':'Back to automatic')}catch(e){}};
+ document.addEventListener('click',function(e){
+  var o=e.target.closest&&e.target.closest('#bmStage [data-oid]'),t=e.target.closest&&e.target.closest('#bmStage [data-tid]');
+  if(o){var id=o.dataset.oid,grp=groupAll(),org=ORG.filter(function(x){return x.id===id})[0];sel=id;window.renderBodyMap(true);if(grp.g[id].length)openSheet(org.n,grp.g[id],true);else try{toast(org.n+': no lectures matched yet')}catch(x){}}
+  else if(t){var id2=t.dataset.tid,g=terrGroups().filter(function(x){return String(x.id)===id2})[0];if(g)openSheet(g.n,g.ls,false)}});
+ document.addEventListener('keydown',function(e){if(e.key==='Escape'&&sheet)closeSheet();if((e.key==='Enter'||e.key===' ')&&e.target&&e.target.matches&&e.target.matches('#bmStage .bm-org')){e.preventDefault();e.target.dispatchEvent(new MouseEvent('click',{bubbles:true}))}});
+ var sv=window.showView;window.showView=function(id,b){var r=sv.apply(this,arguments);if(id==='bodyMapView')window.renderBodyMap(true);return r};
 })();
 </script>
 </body>
