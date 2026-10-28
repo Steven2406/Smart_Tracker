@@ -895,12 +895,29 @@ html:not([data-fx=off]):not([data-fx=subtle]):not([data-intensity=calm]) .bm-str
 .bm-sub{margin:4px 0 6px;font-size:12px;color:var(--muted)}
 .bm-lec{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line);font-size:13.5px}.bm-lec>div{flex:1;min-width:0}.bm-lec small{display:block;color:var(--muted);font-size:11.5px}
 .bm-lec button{flex:none;min-height:36px;padding:0 12px}.bm-lec select{flex:none;max-width:132px;min-height:36px;font-size:12px}
+
+/* ---- v7.7.0 mistake notebook + study calendar ---- */
+.mn-row{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:13px}.mn-row .mn-l{flex:0 0 118px;font-weight:700}.mn-bar{flex:1;height:14px;border-radius:7px;background:var(--surface2);overflow:hidden}.mn-bar i{display:block;height:100%;border-radius:7px}.mn-row .mn-v{flex:0 0 44px;text-align:right;font-weight:800}
+.mn-spark{display:flex;align-items:flex-end;gap:2px;height:16px;flex:0 0 34px}.mn-spark i{flex:1;min-height:2px;border-radius:2px;background:var(--muted);opacity:.7}
+.mn-tip{margin:10px 0;padding:10px 12px;border-radius:12px;background:var(--surface2);border-left:4px solid var(--gold);font-size:13px;line-height:1.45}
+.mn-chip{display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:800;color:#fff}
+.mn-set{padding:10px 0;border-top:1px solid var(--line);font-size:13px}.mn-set b{font-size:13.5px}.mn-set .mn-ed{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}.mn-set select{flex:1 1 130px;min-height:36px;font-size:12px}.mn-set input{flex:2 1 160px;min-height:36px;font-size:12.5px;min-width:0}.mn-set button{min-height:36px;padding:0 12px}
+.mn-note{margin-top:4px;font-size:12.5px;color:var(--muted)}
+.cl-wrap{position:relative;overflow-x:auto;padding:0 0 6px;-webkit-overflow-scrolling:touch}.cl-flex{display:flex;align-items:flex-start;gap:2px}.cl-dwcol{position:relative;flex:0 0 28px;height:calc(16px + 7*(var(--cs) + 3px))}.cl-wrap{flex:1;min-width:0}.cl-in{position:relative;display:inline-block}
+.cl-mo{position:relative;height:16px;font-size:10.5px;font-weight:700;color:var(--muted)}.cl-mo span{position:absolute;top:0}
+.cl-dw{position:absolute;left:0;font-size:10px;color:var(--muted);line-height:1}
+.cl-grid{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,var(--cs));grid-auto-columns:var(--cs);gap:3px}
+.cl-c{display:inline-block;width:var(--cs,12px);height:var(--cs,12px);border-radius:3px;background:var(--surface2);border:1px solid var(--line);box-sizing:border-box}
+.cl-1{background:color-mix(in srgb,var(--accent) 28%,var(--surface2));border-color:transparent}.cl-2{background:color-mix(in srgb,var(--accent) 50%,var(--surface2));border-color:transparent}.cl-3{background:color-mix(in srgb,var(--accent) 75%,var(--surface2));border-color:transparent}.cl-4{background:var(--accent);border-color:transparent}
+.cl-t{outline:2px solid var(--text);outline-offset:1px}.cl-x{box-shadow:inset 0 0 0 2px var(--gold)}.cl-f{visibility:hidden}
+.cl-leg{display:flex;align-items:center;gap:4px;margin-top:10px;font-size:11px;color:var(--muted)}.cl-leg .cl-c{--cs:12px}.cl-leg .cl-key{margin-left:auto;display:flex;align-items:center;gap:5px}
+.cl-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}.cl-stats div{padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}.cl-stats small{display:block;font-size:10.5px;font-weight:800;letter-spacing:.07em;color:var(--muted)}.cl-stats b{font-size:20px;font-family:var(--serif)}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v7.6.0</small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v7.7.0</small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -1137,6 +1154,28 @@ html:not([data-fx=off]):not([data-fx=subtle]):not([data-intensity=calm]) .bm-str
   </div>
 
   <div id="reviewView" class="view"><div class="hero"><div class="label">SPACED REVIEW ENGINE</div><h1>🧠 Review Queue</h1><div class="sub">Your next review is calculated from MCQ performance and mastery. Weak topics return sooner; stronger topics get more spacing.</div></div><div class="card"><h3 style="margin-top:0">Due & Upcoming Reviews</h3><div id="reviewQueue"></div></div></div>
+  <div id="mistakesView" class="view">
+    <div class="section card">
+      <div class="section-head"><h2>📓 Mistake notebook</h2><small id="mnSub">Learn from every mistake</small></div>
+      <div id="mnBuddy"></div>
+      <div class="bm-modes" id="mnWin"></div>
+      <div id="mnBody"></div>
+    </div>
+    <div id="mnSets"></div>
+  </div>
+
+  <div id="calendarView" class="view">
+    <div class="section card">
+      <div class="section-head"><h2>🗓 Study calendar</h2><small id="clSub"></small></div>
+      <div class="bm-modes" id="clMetric"></div>
+      <div class="bm-modes" id="clRange"></div>
+      <div class="bm-modes" id="clWs"></div>
+      <div id="clGrid"></div>
+      <div class="cl-leg"><span>Less</span><i class="cl-c"></i><i class="cl-c cl-1"></i><i class="cl-c cl-2"></i><i class="cl-c cl-3"></i><i class="cl-c cl-4"></i><span>More</span><span class="cl-key"><i class="cl-c cl-x"></i>Exam day</span></div>
+      <div id="clStats" class="cl-stats"></div>
+    </div>
+  </div>
+
   <div id="bodyMapView" class="view">
     <div class="section card">
       <div class="section-head"><h2>🫀 Body Map</h2><small id="bmSub">Your mastery, organ by organ</small></div>
@@ -1278,6 +1317,7 @@ html:not([data-fx=off]):not([data-fx=subtle]):not([data-intensity=calm]) .bm-str
     <div class="mcq" style="margin-top:8px">
       <input id="mcqScore" placeholder="Score e.g. 8/10">
       <input id="mcqSource" placeholder="Source (optional)">
+      <input id="mcqNote" maxlength="160" placeholder="One-line lesson (optional)" aria-label="One-line lesson">
       <select id="mcqConfidence" aria-label="Confidence">
         <option value="">Confidence</option><option value="1">1 · Guessing</option><option value="2">2 · Low</option><option value="3">3 · Moderate</option><option value="4">4 · High</option><option value="5">5 · Certain</option>
       </select>
@@ -1483,6 +1523,7 @@ function normalizeSavedLecture(x){
     percent:typeof m?.percent==="number"?m.percent:null,
     confidence:typeof m?.confidence==="number"?m.confidence:null,
     errorType:typeof m?.errorType==="string"?m.errorType:"",
+    note:typeof m?.note==="string"?m.note.slice(0,160):"",
     reviewDue:m?.reviewDue===true
   })):[];
   const cards=Array.isArray(x?.cards)?x.cards.map(c=>({
@@ -2246,7 +2287,7 @@ const VIEW_SECTIONS={
   homeView:"home",
   curriculumView:"study",todayView:"study",weaknessView:"study",reviewView:"study",examsView:"study",
   clinicalView:"testing",externalTestsView:"testing",
-  campaignView:"campaign",bossView:"campaign",bodyMapView:"campaign",
+  campaignView:"campaign",bossView:"campaign",bodyMapView:"campaign",mistakesView:"study",calendarView:"progress",
   studyView:"focus",
   rpgView:"progress",achievementsView:"progress",statsView:"progress",dataView:"progress"
 };
@@ -2753,7 +2794,7 @@ function openCampaignTerritory(id){
 }
 function renderExtraViews(){
   if(window.mhqMotivationRender)window.mhqMotivationRender();
-  renderExams();renderHomeExam();try{renderUrgency()}catch(e){}try{renderTrophies()}catch(e){}try{mhqWatchTerritories()}catch(e){}try{renderRhythm()}catch(e){}try{renderRounds()}catch(e){}try{renderBuddy()}catch(e){}try{renderGauntlet()}catch(e){}try{renderBodyMap()}catch(e){}
+  renderExams();renderHomeExam();try{renderUrgency()}catch(e){}try{renderTrophies()}catch(e){}try{mhqWatchTerritories()}catch(e){}try{renderRhythm()}catch(e){}try{renderRounds()}catch(e){}try{renderBuddy()}catch(e){}try{renderGauntlet()}catch(e){}try{renderBodyMap()}catch(e){}try{renderMistakes()}catch(e){}try{renderCalendar()}catch(e){}
   populateStudyLectures();
   renderCampaignMap();
   renderRpg();
@@ -2901,7 +2942,7 @@ function openLecture(id){
    ? `<div class="label" style="margin-top:14px">Attempt history</div>` + current.mcqs.slice().reverse().map((m,ri)=>{
        const parsed=parseMCQScore(m.score);
        const xp=(mcqXpRows[current.mcqs.length-1-ri]||{xp:5}).xp;
-       return `<div class="mcq-item"><div><div class="score">${m.score} · ${m.percent??parsed?.percent??"—"}%</div><div class="meta">${escapeHtml(m.date)}${m.source?" · "+escapeHtml(m.source):""}${m.confidence?` · confidence ${m.confidence}/5`:''}${m.errorType?` · ${escapeHtml(m.errorType)}`:''}</div></div><div style="text-align:right"><b>+${xp} XP</b><br><button type="button" class="row-del" aria-label="Delete this MCQ set" onclick="deleteMcq(${current.mcqs.length-1-ri})">🗑 Delete</button></div></div>`;
+       return `<div class="mcq-item"><div><div class="score">${m.score} · ${m.percent??parsed?.percent??"—"}%</div><div class="meta">${escapeHtml(m.date)}${m.source?" · "+escapeHtml(m.source):""}${m.confidence?` · confidence ${m.confidence}/5`:''}${m.errorType?` · ${escapeHtml(m.errorType)}`:''}</div>${m.note?`<div class="meta">📝 ${escapeHtml(m.note)}</div>`:''}</div><div style="text-align:right"><b>+${xp} XP</b><br><button type="button" class="row-del" aria-label="Delete this MCQ set" onclick="deleteMcq(${current.mcqs.length-1-ri})">🗑 Delete</button></div></div>`;
      }).join("")
    : '<div class="empty">No MCQ attempts yet. Your attempts will appear here.</div>';
 
@@ -3237,10 +3278,11 @@ function addMcq(){
  const source=document.getElementById("mcqSource").value.trim();
  const confidence=Number(document.getElementById("mcqConfidence").value)||null;
  const errorType=document.getElementById("mcqError").value||"";
+ const note=(document.getElementById("mcqNote")?.value||"").trim().slice(0,160);
  const parsed=parseMCQScore(score);
  if(!parsed){toast("Enter a valid score, e.g. 7/10");return;}
  const wasDue=(()=>{try{return reviewStatus(current).state==="due"}catch(e){return false}})();
- current.mcqs.push({score,source,date:new Date().toLocaleDateString(),dateKey:todayKey,percent:parsed.percent,confidence,errorType,reviewDue:wasDue});
+ current.mcqs.push({score,source,date:new Date().toLocaleDateString(),dateKey:todayKey,percent:parsed.percent,confidence,errorType,note,reviewDue:wasDue});{const ni=document.getElementById("mcqNote");if(ni)ni.value="";}
  if(parsed.percent<55){
    // Your real voice recording becomes the low-score "chief complaint" alert.
    playSfx("mcq_low_voice",.86);
@@ -3527,6 +3569,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
  window.mhqBodyMapStore={
   get:function(){const b=(M.bodymap&&typeof M.bodymap==='object')?M.bodymap:{};const a={};if(b.assign&&typeof b.assign==='object')Object.keys(b.assign).forEach(k=>{if(/^\d+$/.test(k)&&typeof b.assign[k]==='string')a[k]=b.assign[k]});return{assign:a,mode:['organs','territories'].indexOf(b.mode)>=0?b.mode:'auto'}},
   set:function(assign,mode){M.bodymap={assign:assign||{},mode:mode||'auto'};saveM()}};
+ window.mhqV77Store={get:function(){const b=(M.v77&&typeof M.v77==='object')?M.v77:{};return{ws:[6,0,1].indexOf(b.ws)>=0?b.ws:6,range:[13,26,53].indexOf(b.range)>=0?b.range:26,metric:b.metric==='focus'?'focus':'xp',win:b.win==='all'?'all':'30'}},set:function(p){const c=window.mhqV77Store.get();M.v77=Object.assign(c,p);saveM()}};
  window.mhqSetFx=function(m){M.equipped.fx=['full','subtle','off'].includes(m)?m:'full';saveM();applyAppearance();render();playSfx('ui_click',.5)};
  function styleControlsHTML(){
   const sid=M.equipped.skin||'clinical',vs=VARIANTS[sid]||[],cur=(M.equipped.vmap||{})[sid]||'',fx=M.equipped.fx||'full';
@@ -3594,7 +3637,7 @@ window.mhqMotivationRender=()=>{reconcileWallet();render()};
  observer.observe(document.body,{childList:true,subtree:true});
  // Keep navigation state accurate when inner routes are opened by quick actions.
  const originalShow=window.showView;
- if(typeof originalShow==='function')window.showView=function(id,button){originalShow(id,button);document.querySelectorAll('.nav button').forEach(b=>{const sec=({homeView:'home',curriculumView:'study',todayView:'study',weaknessView:'study',reviewView:'study',examsView:'study',clinicalView:'testing',externalTestsView:'testing',campaignView:'campaign',bossView:'campaign',bodyMapView:'campaign',studyView:'focus',rpgView:'progress',achievementsView:'progress',statsView:'progress',dataView:'progress'})[id]||'home';b.classList.toggle('active',b.dataset.section===sec)});};
+ if(typeof originalShow==='function')window.showView=function(id,button){originalShow(id,button);document.querySelectorAll('.nav button').forEach(b=>{const sec=({homeView:'home',curriculumView:'study',todayView:'study',weaknessView:'study',reviewView:'study',examsView:'study',clinicalView:'testing',externalTestsView:'testing',campaignView:'campaign',bossView:'campaign',bodyMapView:'campaign',mistakesView:'study',calendarView:'progress',studyView:'focus',rpgView:'progress',achievementsView:'progress',statsView:'progress',dataView:'progress'})[id]||'home';b.classList.toggle('active',b.dataset.section===sec)});};
 })();
 </script>
 <script>
@@ -3602,10 +3645,10 @@ window.mhqMotivationRender=()=>{reconcileWallet();render()};
 /* V5.6 canonical section switchers: each secondary destination lives in one place only. */
 (function(){
  const groups={
-  curriculumView:[['curriculumView','📚 Curriculum'],['weaknessView','🎯 Weak Topics'],['reviewView','🧠 Reviews'],['todayView','⚡ Today'],['examsView','📅 Exams']],
+  curriculumView:[['curriculumView','📚 Curriculum'],['weaknessView','🎯 Weak Topics'],['reviewView','🧠 Reviews'],['todayView','⚡ Today'],['examsView','📅 Exams'],['mistakesView','📓 Mistakes']],
   clinicalView:[['clinicalView','🩺 Clinical Cases'],['externalTestsView','🧪 External Tests']],
   campaignView:[['campaignView','🗺️ Campaign Map'],['bossView','🐉 Boss Battles'],['bodyMapView','🫀 Body Map']],
-  rpgView:[['rpgView','🏆 RPG Profile'],['achievementsView','🏅 Achievements'],['statsView','📊 Weekly Stats'],['dataView','⚙️ Data & Backup']]
+  rpgView:[['rpgView','🏆 RPG Profile'],['achievementsView','🏅 Achievements'],['statsView','📊 Weekly Stats'],['calendarView','🗓 Calendar'],['dataView','⚙️ Data & Backup']]
  };
  const mainIds=new Set(['homeView','curriculumView','clinicalView','campaignView','studyView','rpgView']);
  function build(){
@@ -3638,7 +3681,7 @@ window.mhqMotivationRender=()=>{reconcileWallet();render()};
  window.mhqToggleTheme=function(){applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark',{animate:true,save:true})};
  let saved=null;try{saved=localStorage.getItem(THEME_KEY)}catch(e){}applyTheme(saved||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
  const original=window.showView;const historyStack=[];let restoring=false;
- const labels={homeView:'HQ',curriculumView:'Study',todayView:'Today',weaknessView:'Weak Topics',reviewView:'Reviews',examsView:'Exams',clinicalView:'Testing',externalTestsView:'External Tests',campaignView:'Campaign',bossView:'Boss Battles',bodyMapView:'Body Map',studyView:'Focus',rpgView:'Progress',achievementsView:'Achievements',statsView:'Weekly Stats',dataView:'Data & Backup'};
+ const labels={homeView:'HQ',curriculumView:'Study',todayView:'Today',weaknessView:'Weak Topics',reviewView:'Reviews',examsView:'Exams',clinicalView:'Testing',externalTestsView:'External Tests',campaignView:'Campaign',bossView:'Boss Battles',bodyMapView:'Body Map',mistakesView:'Mistakes',calendarView:'Calendar',studyView:'Focus',rpgView:'Progress',achievementsView:'Achievements',statsView:'Weekly Stats',dataView:'Data & Backup'};
  function activeId(){return document.querySelector('.view.active')?.id||'homeView'}
  function syncBack(){const id=activeId();document.querySelectorAll('.mhq-back-row').forEach(row=>{const b=row.querySelector('button');const hint=row.querySelector('.mhq-back-hint');const prev=historyStack.length>1?historyStack[historyStack.length-2]:'';row.hidden=id==='homeView';if(b)b.disabled=!prev;if(hint)hint.textContent=prev?'Back to '+(labels[prev]||'previous page'):'You are at the start'});}
  window.mhqGoBack=function(){if(historyStack.length>1){historyStack.pop();const prev=historyStack[historyStack.length-1];restoring=true;original?.(prev);restoring=false;syncBack()}else if(activeId()!=='homeView'){restoring=true;original?.('homeView');restoring=false;historyStack.splice(0,historyStack.length,'homeView');syncBack()}};
@@ -4777,6 +4820,129 @@ function buddy(sp,mo,sk,stg,anim){
   else if(t){var id2=t.dataset.tid,g=terrGroups().filter(function(x){return String(x.id)===id2})[0];if(g)openSheet(g.n,g.ls,false)}});
  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&sheet)closeSheet();if((e.key==='Enter'||e.key===' ')&&e.target&&e.target.matches&&e.target.matches('#bmStage .bm-org')){e.preventDefault();e.target.dispatchEvent(new MouseEvent('click',{bubbles:true}))}});
  var sv=window.showView;window.showView=function(id,b){var r=sv.apply(this,arguments);if(id==='bodyMapView')window.renderBodyMap(true);return r};
+})();
+</script>
+<script>
+/* v7.7.0 Mistake notebook (from your MCQ error tags) + Study calendar heatmap */
+(function(){
+ var ET={'did-not-know':{n:'Didn’t know',c:'#e5484d',t:'A knowledge gap: go back to the source, then test again in 2 days.'},
+  'forgot':{n:'Forgot',c:'#f0a020',t:'A retrieval problem: use spaced reviews and a 2-minute brain-dump after studying.'},
+  'misread':{n:'Misread',c:'#7c5cff',t:'Slow down on the stem: underline what is asked and watch for NOT / EXCEPT.'},
+  'confused':{n:'Confused concepts',c:'#2f8fe5',t:'A concept mix-up: build a small compare-and-contrast table for the pair.'},
+  'changed-answer':{n:'Changed answer',c:'#d6639a',t:'Trust your first instinct unless you can name a concrete reason to change.'},
+  'clinical-reasoning':{n:'Clinical reasoning',c:'#1fa08a',t:'Practice case questions: state the likely diagnosis before looking at the options.'},
+  'careless':{n:'Careless',c:'#8a6d3b',t:'Read the stem twice, flag-and-return, and check your final pick before moving on.'}};
+ var TK=Object.keys(ET),sheet=null;
+ function S(){return window.mhqV77Store?window.mhqV77Store.get():{ws:6,range:26,metric:'xp',win:'30'}}
+ function esc(s){return escapeHtml(String(s))}
+ function active(v){var x=document.getElementById(v);return x&&x.classList.contains('active')}
+ function chips(host,items,cur,fn){var el=document.getElementById(host);if(el)el.innerHTML=items.map(function(i){return'<button type="button" class="'+(String(cur)===String(i[0])?'on':'')+'" onclick="'+fn+'(\''+i[0]+'\')">'+i[1]+'</button>'}).join('')}
+ /* ---------- Mistake notebook ---------- */
+ function sets(){var o=[];data.forEach(function(l){(l.mcqs||[]).forEach(function(m,i){var p=parseMCQScore(m.score);o.push({l:l,i:i,m:m,miss:p?Math.max(0,p.max-p.got):0,dk:m.dateKey||''})})});return o}
+ function inWin(dk,win){return win==='all'||(dk&&dk>=dateKeyOffset(-29))}
+ function renderMN(){
+  var pref=S(),all=sets().filter(function(x){return inWin(x.dk,pref.win)}),wrong=all.filter(function(x){return x.miss>0}),tagged=wrong.filter(function(x){return ET[x.m.errorType]});
+  chips('mnWin',[['30','Last 30 days'],['all','All time']],pref.win,'mhqMNWin');
+  var body='',byT={},tot=0;TK.forEach(function(k){byT[k]=0});
+  tagged.forEach(function(x){byT[x.m.errorType]+=x.miss;tot+=x.miss});
+  var lastW=TK.reduce(function(o,k){o[k]=[0,0,0,0];return o},{});
+  sets().filter(function(x){return ET[x.m.errorType]&&x.miss>0}).forEach(function(x){for(var k=0;k<4;k++){if(x.dk>=dateKeyOffset(-(7*k+6))&&x.dk<=dateKeyOffset(-7*k)){lastW[x.m.errorType][3-k]+=x.miss;break}}});
+  var order=TK.slice().sort(function(a,b){return byT[b]-byT[a]}),top=order[0];
+  if(!all.length){body='<div class="empty">No MCQ sets logged '+(pref.win==='30'?'in the last 30 days':'yet')+'. Log a set with an error type and your notebook fills up.</div>'}
+  else{
+   body+='<div class="mn-sub bm-sub">'+wrong.reduce(function(a,x){return a+x.miss},0)+' missed questions in '+wrong.length+' sets · you tagged '+tagged.length+' of '+wrong.length+' ('+(wrong.length?Math.round(tagged.length/wrong.length*100):0)+'%). Tagging more makes this smarter.</div>';
+   if(tot>0){
+    body+=order.filter(function(k){return byT[k]>0}).map(function(k){var pc=Math.round(byT[k]/tot*100),mx=Math.max.apply(null,lastW[k].concat([1]));
+     return'<div class="mn-row"><span class="mn-l">'+ET[k].n+'</span><span class="mn-bar"><i style="width:'+pc+'%;background:'+ET[k].c+'"></i></span><span class="mn-spark" title="Last 4 weeks">'+lastW[k].map(function(v){return'<i style="height:'+Math.max(2,Math.round(v/mx*16))+'px"></i>'}).join('')+'</span><span class="mn-v">'+pc+'%</span></div>'}).join('');
+    body+='<div class="mn-tip"><b>Your top mistake: '+ET[top].n+' ('+Math.round(byT[top]/tot*100)+'%).</b><br>'+ET[top].t+'</div>';
+    /* fix this first */
+    var perL={};tagged.forEach(function(x){var r=perL[x.l.id]=perL[x.l.id]||{l:x.l,w:0,t:{}};r.w+=x.miss;r.t[x.m.errorType]=(r.t[x.m.errorType]||0)+x.miss});
+    var fl=Object.keys(perL).map(function(k){var r=perL[k];r.score=r.w*3+Math.max(0,70-inferredMastery(r.l))/5;r.dom=Object.keys(r.t).sort(function(a,b){return r.t[b]-r.t[a]})[0];return r}).sort(function(a,b){return b.score-a.score});
+    body+='<h3 style="margin:14px 0 4px;font-size:15px">🎯 Fix this first</h3>'+fl.slice(0,3).map(function(r){return'<div class="bm-lec"><div><b>L'+r.l.id+' · '+esc(r.l.title)+'</b><small><span class="mn-chip" style="background:'+ET[r.dom].c+'">'+ET[r.dom].n+'</span> · '+r.w+' missed · mastery '+inferredMastery(r.l)+'%</small></div><button type="button" class="primary" onclick="openLecture('+r.l.id+')">Review</button></div>'}).join('');
+    if(fl.length>3)body+='<details style="margin-top:8px"><summary>More lectures with mistakes ('+(fl.length-3)+')</summary>'+fl.slice(3,12).map(function(r){return'<div class="bm-lec"><div><b>L'+r.l.id+' · '+esc(r.l.title)+'</b><small>'+ET[r.dom].n+' · '+r.w+' missed</small></div><button type="button" onclick="openLecture('+r.l.id+')">Open</button></div>'}).join('')+'</details>'}
+   else body+='<div class="mn-tip">No tagged mistakes yet. When you log an MCQ set, pick an <b>error type</b> to see your patterns here.</div>'}
+  document.getElementById('mnBody').innerHTML=body;
+  document.getElementById('mnSub').textContent=tagged.length?TK.filter(function(k){return byT[k]>0}).length+' error types found':'Tag your mistakes to begin';
+  /* buddy */
+  var bh=document.getElementById('mnBuddy');if(bh){var b=null,mood=tot>0?'worried':'happy';try{b=window.mhqBuddyDraw&&window.mhqBuddyDraw(mood)}catch(e){}
+   var txt=tot>0?('Most of your misses are “'+ET[top].n+'”. Let’s work on that together!'):'Every mistake is a clue. Tag them and I’ll help you spot the pattern.';
+   bh.innerHTML='<div class="bm-buddy">'+(b&&b.on?'<div class="bm-b" aria-hidden="true">'+b.svg+'</div>':'')+'<div class="bm-bub">'+esc(txt)+'</div></div>'}
+  /* recent sets editor + lessons */
+  var rec=sets().filter(function(x){return x.dk}).sort(function(a,b){return a.dk===b.dk?b.i-a.i:(a.dk<b.dk?1:-1)}).slice(0,10);
+  var lessons=sets().filter(function(x){return x.m.note}).sort(function(a,b){return a.dk<b.dk?1:-1}).slice(0,8);
+  var opt=function(cur){return'<option value="">Error type…</option>'+TK.map(function(k){return'<option value="'+k+'"'+(cur===k?' selected':'')+'>'+ET[k].n+'</option>'}).join('')};
+  var h2='';
+  if(lessons.length)h2+='<div class="section card"><div class="section-head"><h2>📝 My lessons</h2><small>'+lessons.length+' saved</small></div>'+lessons.map(function(x){return'<div class="mn-set"><b>L'+x.l.id+' · '+esc(x.l.title)+'</b><div class="mn-note">“'+esc(x.m.note)+'”'+(ET[x.m.errorType]?' · '+ET[x.m.errorType].n:'')+'</div></div>'}).join('')+'</div>';
+  if(rec.length)h2+='<div class="section card"><div class="section-head"><h2>🧾 Recent sets</h2><small>tag and annotate</small></div>'+rec.map(function(x){var id=x.l.id+'-'+x.i;
+   return'<div class="mn-set"><b>L'+x.l.id+' · '+esc(x.l.title)+'</b><div class="mn-note">'+esc(x.m.score)+' · '+esc(x.m.date||x.dk)+'</div><div class="mn-ed"><select aria-label="Error type" onchange="mhqMNType('+x.l.id+','+x.i+',this.value)">'+opt(x.m.errorType)+'</select><input id="mn-'+id+'" maxlength="160" value="'+esc(x.m.note||'')+'" placeholder="One-line lesson" aria-label="One-line lesson"><button type="button" onclick="mhqMNNote('+x.l.id+','+x.i+')">Save</button></div></div>'}).join('')+'</div>';
+  document.getElementById('mnSets').innerHTML=h2}
+ window.renderMistakes=function(force){if(!force&&!active('mistakesView'))return;if(!data.length)return;renderMN()};
+ window.mhqMNWin=function(v){window.mhqV77Store.set({win:v});window.renderMistakes(true)};
+ function mc(l,i){var L=data.find(function(x){return x.id===l});return L&&L.mcqs[i]}
+ window.mhqMNType=function(l,i,v){var m=mc(l,i);if(!m)return;m.errorType=ET[v]?v:'';save();window.renderMistakes(true);try{toast(m.errorType?'Tagged: '+ET[v].n:'Tag removed')}catch(e){}};
+ window.mhqMNNote=function(l,i){var m=mc(l,i),el=document.getElementById('mn-'+l+'-'+i);if(!m||!el)return;m.note=el.value.replace(/[<>]/g,'').trim().slice(0,160);save();window.renderMistakes(true);try{toast(m.note?'Lesson saved':'Lesson cleared')}catch(e){}};
+ /* ---------- Study calendar ---------- */
+ function dayMap(from,to){
+  var map={},d=new Date(from+'T12:00:00'),end=new Date(to+'T12:00:00');
+  function key(x){return localDateKey(x)}
+  for(var x=new Date(d);x<=end;x.setDate(x.getDate()+1))map[key(x)]={key:key(x),steps:0,mcqs:0,correct:0,questions:0,focus:0,xp:0,cleared:[],exam:null};
+  data.forEach(function(l){
+   l.steps.forEach(function(done,i){var k=l.stepDates&&l.stepDates[i];if(done&&k&&map[k]){map[k].steps++;map[k].xp+=10}});
+   if(l.completionDate&&map[l.completionDate]){map[l.completionDate].xp+=30;map[l.completionDate].cleared.push(l)}
+   l.mcqs.forEach(function(m){if(m.dateKey&&map[m.dateKey]){var q=parseMCQScore(m.score);if(q){map[m.dateKey].mcqs++;map[m.dateKey].correct+=q.got;map[m.dateKey].questions+=q.max}}});
+   lectureMcqXp(l).forEach(function(o){if(o.m.dateKey&&map[o.m.dateKey])map[o.m.dateKey].xp+=o.xp})});
+  studySessions.forEach(function(s){if(map[s.dateKey])map[s.dateKey].focus+=Number(s.minutes)||0});
+  sessionXpList().forEach(function(o){if(map[o.s.dateKey])map[o.s.dateKey].xp+=o.xp});
+  dailyGoalDays().forEach(function(k){if(map[k])map[k].xp+=XP2.goal});
+  cardXpList().forEach(function(o){if(map[o.c.dateKey])map[o.c.dateKey].xp+=o.xp});
+  externalTests.forEach(function(t){if(t.dateKey&&map[t.dateKey])map[t.dateKey].xp+=safeNumber(t.xp,0)});
+  Object.values(bossVictories).forEach(function(v){if(v&&v.date&&map[v.date])map[v.date].xp+=safeNumber(v.xp,0)});
+  (typeof exams!=='undefined'?exams:[]).forEach(function(e){if(e.date&&map[e.date])map[e.date].exam=e.name});
+  return map}
+ var DN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+ window.renderCalendar=function(force){
+  var v=document.getElementById('calendarView');if(!v||(!force&&!active('calendarView')))return;if(!data.length)return;
+  var p=S(),weeks=p.range,td=new Date(todayKey+'T12:00:00'),back=(td.getDay()-p.ws+7)%7,last=new Date(td);last.setDate(td.getDate()-back);
+  var first=new Date(last);first.setDate(last.getDate()-(weeks-1)*7);var lastEnd=new Date(last);lastEnd.setDate(last.getDate()+6);var fk=localDateKey(first),map=dayMap(fk,localDateKey(lastEnd));
+  var val=function(d){return p.metric==='focus'?d.focus:d.xp},vals=Object.keys(map).map(function(k){return val(map[k])}).filter(function(x){return x>0}).sort(function(a,b){return a-b});
+  var q=function(f){return vals.length?vals[Math.min(vals.length-1,Math.floor(vals.length*f))]:0},q1=q(.25),q2=q(.5),q3=q(.75);
+  var lv=function(x){return x<=0?0:x<=q1?1:x<=q2?2:x<=q3?3:4};
+  chips('clMetric',[['xp','XP'],['focus','Focus minutes']],p.metric,'mhqCLSet.bind(null,\'metric\')');
+  document.getElementById('clMetric').innerHTML=[['xp','XP'],['focus','Focus minutes']].map(function(i){return'<button type="button" class="'+(p.metric===i[0]?'on':'')+'" onclick="mhqCLSet(\'metric\',\''+i[0]+'\')">'+i[1]+'</button>'}).join('');
+  document.getElementById('clRange').innerHTML=[[13,'3 months'],[26,'6 months'],[53,'1 year']].map(function(i){return'<button type="button" class="'+(p.range===i[0]?'on':'')+'" onclick="mhqCLSet(\'range\','+i[0]+')">'+i[1]+'</button>'}).join('');
+  document.getElementById('clWs').innerHTML='<span style="align-self:center;font-size:12px;color:var(--muted)">Week starts</span>'+[[6,'Sat'],[0,'Sun'],[1,'Mon']].map(function(i){return'<button type="button" class="'+(p.ws===i[0]?'on':'')+'" onclick="mhqCLSet(\'ws\','+i[0]+')">'+i[1]+'</button>'}).join('');
+  var host=document.getElementById('clGrid'),W=Math.max(260,(host.clientWidth||340)-34),cs=Math.max(9,Math.min(16,Math.floor(W/weeks)-3));
+  var cells='',mo='',lastM=-1;
+  for(var c=0;c<weeks;c++){for(var r=0;r<7;r++){var dt=new Date(first);dt.setDate(first.getDate()+c*7+r);var k=localDateKey(dt),fut=k>todayKey,d=map[k];
+    if(!d||(fut&&!d.exam)){cells+='<div class="cl-c cl-f"></div>';continue}
+    if(fut){cells+='<div class="cl-c cl-x" data-d="'+k+'" role="button" aria-label="'+k+': exam '+esc(d.exam)+'"></div>';continue}
+    var L=lv(val(d)),cls='cl-c'+(L?' cl-'+L:'')+(k===todayKey?' cl-t':'')+(d.exam?' cl-x':'');
+    cells+='<div class="'+cls+'" data-d="'+k+'" role="button" aria-label="'+k+': '+d.xp+' XP, '+d.focus+' focus minutes"></div>';
+    if(r===0){var m=dt.getMonth();if(m!==lastM){lastM=m;mo+='<span style="left:'+(c*(cs+3))+'px">'+dt.toLocaleDateString(undefined,{month:'short'})+'</span>'}}}}
+  var dw='';[1,3,5].forEach(function(r){dw+='<span class="cl-dw" style="top:'+(16+r*(cs+3)+(cs/2-5))+'px">'+DN[(p.ws+r)%7]+'</span>'});
+  host.innerHTML='<div class="cl-flex" style="--cs:'+cs+'px"><div class="cl-dwcol">'+dw+'</div><div class="cl-wrap" id="clWrap"><div class="cl-in"><div class="cl-mo">'+mo+'</div><div class="cl-grid">'+cells+'</div></div></div></div>';
+  var wr=document.getElementById('clWrap');wr.scrollLeft=wr.scrollWidth;
+  /* stats */
+  var days=Object.keys(map).sort(),act=function(d){return d.steps+d.mcqs+d.focus>0||d.xp>0},run=0,best=0,bd=null,bv=0,tot=0,mAct=0,mk=todayKey.slice(0,7);
+  days.forEach(function(k){var d=map[k];if(act(d)){run++;if(run>best)best=run}else run=0;var x=val(d);tot+=x;if(x>bv){bv=x;bd=k}if(k.slice(0,7)===mk&&act(d))mAct++});
+  var unit=p.metric==='focus'?' min':' XP',fmtD=function(k){return new Date(k+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric'})};
+  document.getElementById('clStats').innerHTML='<div><small>CURRENT STREAK</small><b>🔥 '+appStreak+' day'+(appStreak===1?'':'s')+'</b></div><div><small>LONGEST IN VIEW</small><b>🏆 '+best+' day'+(best===1?'':'s')+'</b></div><div><small>ACTIVE THIS MONTH</small><b>'+mAct+' day'+(mAct===1?'':'s')+'</b></div><div><small>BEST DAY</small><b>'+(bd?bv+unit:'—')+'</b>'+(bd?'<small style="margin-top:2px">'+fmtD(bd)+'</small>':'')+'</div><div style="grid-column:1/-1"><small>TOTAL IN VIEW</small><b>'+tot.toLocaleString()+unit+'</b></div>';
+  document.getElementById('clSub').textContent=(p.metric==='focus'?'Focus minutes':'Study XP')+' · '+(weeks===13?'3 months':weeks===26?'6 months':'1 year');
+  window.__clMap=map};
+ window.mhqCLSet=function(k,v){var o={};o[k]=(k==='metric')?v:Number(v);window.mhqV77Store.set(o);window.renderCalendar(true)};
+ function closeSheet(){if(sheet){sheet.bg.remove();sheet.el.remove();sheet=null}}
+ document.addEventListener('click',function(e){
+  var c=e.target.closest&&e.target.closest('#clGrid [data-d]');if(!c)return;
+  var d=window.__clMap&&window.__clMap[c.dataset.d];if(!d)return;closeSheet();
+  var acc=d.questions?Math.round(d.correct/d.questions*100)+'% accuracy':'';
+  var bg=document.createElement('div');bg.className='bm-sheetbg';bg.onclick=closeSheet;var el=document.createElement('div');el.className='bm-sheet';el.setAttribute('role','dialog');
+  el.innerHTML='<div class="bm-sh-h"><b>'+new Date(d.key+'T12:00:00').toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'})+'</b><button type="button" class="bm-x" aria-label="Close" onclick="mhqCLClose()">✕</button></div>'+(d.exam?'<div class="mn-tip">🚩 Exam: '+esc(d.exam)+'</div>':'')+
+   (d.steps+d.mcqs+d.focus+d.xp>0?'<div class="bm-lec"><div><b>'+d.xp+' XP</b><small>earned this day</small></div></div><div class="bm-lec"><div><b>'+d.steps+' study step'+(d.steps===1?'':'s')+'</b></div></div><div class="bm-lec"><div><b>'+d.mcqs+' MCQ set'+(d.mcqs===1?'':'s')+'</b>'+(acc?'<small>'+acc+'</small>':'')+'</div></div><div class="bm-lec"><div><b>'+d.focus+' focus minute'+(d.focus===1?'':'s')+'</b></div></div>'+(d.cleared.length?'<div class="bm-lec"><div><b>Lectures cleared</b><small>'+d.cleared.map(function(l){return'L'+l.id+' · '+esc(l.title)}).join('<br>')+'</small></div></div>':''):'<div class="empty">No study logged on this day.</div>');
+  document.body.appendChild(bg);document.body.appendChild(el);sheet={bg:bg,el:el}});
+ window.mhqCLClose=closeSheet;
+ document.addEventListener('keydown',function(e){if(e.key==='Escape'&&sheet)closeSheet()});
+ var sv=window.showView;window.showView=function(id,b){var r=sv.apply(this,arguments);if(id==='mistakesView')window.renderMistakes(true);if(id==='calendarView')window.renderCalendar(true);return r};
+ window.addEventListener('resize',function(){if(active('calendarView'))window.renderCalendar(true)});
 })();
 </script>
 </body>
