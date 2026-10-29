@@ -947,12 +947,37 @@ html:not([data-fx=off]):not([data-fx=subtle]):not([data-intensity=calm]) .bm-str
 .en-bar{height:10px;border-radius:6px;background:var(--surface2);overflow:hidden}.en-bar i{display:block;height:100%;background:var(--accent);border-radius:6px}
 .en-row.best .en-bar i{background:var(--gold)}.en-row.best>span:first-child{font-weight:700}
 .wq-fg.z{stroke-opacity:0}
+/* ---- v7.9.0 seasons ---- */
+.ss-card .ban{margin-top:0}
+.ss-ban b{font-size:22px}
+.ss-sc{overflow-x:auto;margin-top:10px;-webkit-overflow-scrolling:touch}
+.ss-trk{display:flex;gap:8px;min-width:max-content;padding-bottom:4px}
+.ss-t{width:62px;text-align:center;font-size:11px;color:var(--muted)}
+.ss-t small{display:block;font-size:10px}
+.ss-t .ic{position:relative;width:48px;height:48px;margin:0 auto 3px;border-radius:14px;border:2px solid var(--line);display:grid;place-items:center;font-size:22px;background:var(--surface2);opacity:.75}
+.ss-t.got .ic{border-color:var(--good);opacity:1}.ss-t.next .ic{border-color:var(--accent);opacity:1}
+.ss-t.fin .ic{border-color:var(--gold)}
+.ss-t .ic b{position:absolute;right:-5px;top:-6px;width:18px;height:18px;border-radius:50%;background:var(--good);color:#fff;font-size:11px;display:grid;place-items:center}
+.ss-fe{display:flex;align-items:center;gap:8px;margin-top:8px}.ss-fe span{font-size:22px;filter:grayscale(1);opacity:.4}.ss-fe span.on{filter:none;opacity:1}.ss-fe small{color:var(--muted);font-size:11px;flex:1}
+.ss-pz{margin-top:6px;font-size:12px;color:var(--muted)}
+.ss-rcb{width:100%;margin-bottom:10px;padding:11px;border-radius:14px;font-weight:700;background:var(--accent);color:var(--accent-ink);border:0}
+.ss-bd span{font-size:18px;margin-right:4px}
+.ss-in{width:100%;margin-top:8px;padding:9px 10px;border-radius:10px;border:1px solid var(--line);background:var(--surface2);color:var(--text);font:inherit}
+.ss-verse{text-align:center}.ss-ar{font-size:21px;line-height:1.9;margin:6px 0;direction:rtl}.ss-en{font-size:15px}
+.ss-quiet{position:fixed;inset:0;z-index:10080;display:grid;place-items:center;padding:20px;background:rgba(5,10,12,.86)}
+.ss-qc{max-width:420px;width:100%;text-align:center;background:var(--surface);color:var(--text);border-radius:20px;padding:22px;border:1px solid var(--accent)}
+html[data-sframe] .bd-card{box-shadow:0 0 0 3px var(--sframe),0 0 18px color-mix(in srgb,var(--sframe) 45%,transparent)}
+.ban{position:relative;overflow:hidden;border-radius:16px;padding:14px 14px 12px;color:#fff;min-height:118px}
+.ban svg.sym{position:absolute;right:-6px;top:-6px;width:120px;height:120px;opacity:.28;pointer-events:none}
+.ban .k{font-size:11px;letter-spacing:.08em;font-weight:700;opacity:.9}.ban b{display:block;font-size:20px;margin:2px 0;color:#fff}
+.ban .cd{font-size:13px;opacity:.95;color:#fff}
+.ban .bar{height:9px;border-radius:6px;background:rgba(255,255,255,.3);margin-top:10px;overflow:hidden}.ban .bar i{display:block;height:100%;background:#fff;border-radius:6px}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v7.8.0</small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v7.9.0</small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -994,6 +1019,8 @@ html:not([data-fx=off]):not([data-fx=subtle]):not([data-intensity=calm]) .bm-str
     </div>
   </div>
 
+  <div id="seasonCard"></div>
+  <div id="verseCard"></div>
   <div id="roundsCard"></div>
   <div id="weeklyCard"></div>
   <div id="homeExamCard"></div>
@@ -2830,7 +2857,7 @@ function openCampaignTerritory(id){
 }
 function renderExtraViews(){
   if(window.mhqMotivationRender)window.mhqMotivationRender();
-  renderExams();renderHomeExam();try{renderUrgency()}catch(e){}try{renderTrophies()}catch(e){}try{mhqWatchTerritories()}catch(e){}try{renderRhythm()}catch(e){}try{renderRounds()}catch(e){}try{renderBuddy()}catch(e){}try{renderGauntlet()}catch(e){}try{renderBodyMap()}catch(e){}try{renderMistakes()}catch(e){}try{renderCalendar()}catch(e){}try{renderWeekly()}catch(e){}try{renderEnergy()}catch(e){}
+  renderExams();renderHomeExam();try{renderUrgency()}catch(e){}try{renderTrophies()}catch(e){}try{mhqWatchTerritories()}catch(e){}try{renderRhythm()}catch(e){}try{renderRounds()}catch(e){}try{renderBuddy()}catch(e){}try{renderGauntlet()}catch(e){}try{renderBodyMap()}catch(e){}try{renderMistakes()}catch(e){}try{renderCalendar()}catch(e){}try{renderWeekly()}catch(e){}try{renderEnergy()}catch(e){}try{renderSeason()}catch(e){}
   populateStudyLectures();
   renderCampaignMap();
   renderRpg();
@@ -3606,6 +3633,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
   get:function(){const b=(M.bodymap&&typeof M.bodymap==='object')?M.bodymap:{};const a={};if(b.assign&&typeof b.assign==='object')Object.keys(b.assign).forEach(k=>{if(/^\d+$/.test(k)&&typeof b.assign[k]==='string')a[k]=b.assign[k]});return{assign:a,mode:['organs','territories'].indexOf(b.mode)>=0?b.mode:'auto'}},
   set:function(assign,mode){M.bodymap={assign:assign||{},mode:mode||'auto'};saveM()}};
  window.mhqV77Store={get:function(){const b=(M.v77&&typeof M.v77==='object')?M.v77:{};return{ws:[6,0,1].indexOf(b.ws)>=0?b.ws:6,range:[13,26,53].indexOf(b.range)>=0?b.range:26,metric:b.metric==='focus'?'focus':'xp',win:b.win==='all'?'all':'30'}},set:function(p){const c=window.mhqV77Store.get();M.v77=Object.assign(c,p);saveM()}};
+ window.mhqV79Store={get:function(){return(M.v79&&typeof M.v79==='object')?M.v79:{}},set:function(v){M.v79=v;saveM()}};
  window.mhqV78Store={get:function(){return(M.v78&&typeof M.v78==='object')?M.v78:{}},set:function(v){M.v78=v;saveM()}};
  window.mhqSetFx=function(m){M.equipped.fx=['full','subtle','off'].includes(m)?m:'full';saveM();applyAppearance();render();playSfx('ui_click',.5)};
  function styleControlsHTML(){
@@ -4998,7 +5026,7 @@ function buddy(sp,mo,sk,stg,anim){
   var b={};try{b=(window.mhqV78Store&&window.mhqV78Store.get())||{}}catch(e){}
   var o={weeks:{},acc:[],wear:'',badges:{},trophies:0,energy:{},brk:null,cyc:null,breakOn:b.breakOn!==false,energyOn:b.energyOn!==false};
   if(b.weeks&&typeof b.weeks==='object')Object.keys(b.weeks).forEach(function(k){var w=b.weeks[k];if(/^\d{4}-\d{2}-\d{2}$/.test(k)&&w&&Array.isArray(w.q)&&w.q.length===3&&Array.isArray(w.d))o.weeks[k]=w});
-  if(Array.isArray(b.acc))o.acc=b.acc.filter(function(a,i,r){return accIdx(a)>=0&&r.indexOf(a)===i});
+  if(Array.isArray(b.acc))o.acc=b.acc.filter(function(a,i,r){return(accIdx(a)>=0||/^ss:[\w-]+:[1-8]$/.test(a))&&r.indexOf(a)===i});
   o.wear=(o.acc.indexOf(b.wear)>=0)?b.wear:'';
   if(b.badges&&typeof b.badges==='object')Object.keys(KI).forEach(function(k){o.badges[k]=Math.max(0,+b.badges[k]||0)});
   o.trophies=Math.max(0,+b.trophies||0);
@@ -5061,8 +5089,8 @@ function buddy(sp,mo,sk,stg,anim){
    var o=load(),w=wkOf(todayKey),wk=o.weeks[w.a],ch=false;
    if(!wk){wk=gen(w);o.weeks[w.a]=wk;ch=true}
    var ps=wk.q.map(function(q){return prog(q,w)}),newly=[],allNow=false;
-   wk.q.forEach(function(q,i){if(!wk.d[i]&&ps[i]>=q.n){wk.d[i]=1;o.badges[q.k]=(o.badges[q.k]||0)+1;newly.push(q);ch=true}});
-   if(!wk.all&&wk.d.every(Boolean)){wk.all=1;allNow=true;ch=true;
+   wk.q.forEach(function(q,i){if(!wk.d[i]&&ps[i]>=q.n){wk.d[i]=1;if(!Array.isArray(wk.t))wk.t=[0,0,0];wk.t[i]=todayKey;o.badges[q.k]=(o.badges[q.k]||0)+1;newly.push(q);ch=true}});
+   if(!wk.all&&wk.d.every(Boolean)){wk.all=1;wk.at=todayKey;allNow=true;ch=true;
     var nx=ACCS.filter(function(a){return o.acc.indexOf(a[0])<0})[0];
     if(nx){o.acc.push(nx[0]);wk.reward=nx[0]}else{o.trophies++;wk.reward='trophy'}}
    if(ch)save(o);
@@ -5095,6 +5123,7 @@ function buddy(sp,mo,sk,stg,anim){
  window.mhqAccSvg=function(sp,mo){
   var id;try{id=load().wear}catch(e){return''}
   if(!id)return'';
+  if(id.indexOf('ss:')===0)return window.mhqSeasonAccSvg?window.mhqSeasonAccSvg(id,sp,mo):'';
   var ex=EX[sp]||24,x1=sp==='robot'?80:100-ex,x2=sp==='robot'?120:100+ex,r=sp==='owl'?21:16,ink='#1b2a3a';
   if(id==='glasses')return'<g class="b-acc"><circle cx="'+x1+'" cy="90" r="'+r+'" fill="rgba(255,255,255,.14)" stroke="'+ink+'" stroke-width="3"/><circle cx="'+x2+'" cy="90" r="'+r+'" fill="rgba(255,255,255,.14)" stroke="'+ink+'" stroke-width="3"/><path d="M'+(x1+r)+' 89 Q100 82 '+(x2-r)+' 89" stroke="'+ink+'" stroke-width="3" fill="none"/></g>';
   if(id==='bow')return'<g class="b-acc"><path d="M100 133 l-17 -10 v20z M100 133 l17 -10 v20z" fill="#d4543a" stroke="#9c3220" stroke-width="1.5" stroke-linejoin="round"/><circle cx="100" cy="133" r="4.5" fill="#b13a24"/></g>';
@@ -5175,6 +5204,263 @@ function buddy(sp,mo,sk,stg,anim){
  /* ---------- restore break after reload ---------- */
  setTimeout(function(){try{var o=load();if(o.brk){if(Date.now()-o.brk.e>10*60000){o.brk=null;save(o)}else showBreak()}}catch(e){}},900);
  try{window.renderWeekly();window.renderEnergy()}catch(e){}
+})();
+
+</script>
+<script>
+/* v7.9.0 Seasons: Season Points track, event seasons, recap card, faith encouragement (opt-in) */
+(function(){
+ var root=document.documentElement;
+ var EPOCH='2026-10-24',DAYS=28,BASE=[50,150,280,430,600,780,980,1200],REG=['ember','tide','grove','gale'];
+ var TH={
+  ember:{n:'Ember',c1:'#8f2d12',c2:'#c2531a',ac:'#e0622a',i:'🔥',sy:'<path fill="#fff" d="M50 6c4 18 26 30 26 54a26 26 0 0 1-52 0c0-14 8-20 12-30 6 8 8 12 14 14-2-14 4-24 0-38z"/>'},
+  tide:{n:'Tide',c1:'#0b4f78',c2:'#1587a8',ac:'#2aa5c9',i:'💧',sy:'<path fill="#fff" d="M50 8C34 32 22 46 22 62a28 28 0 0 0 56 0C78 46 66 32 50 8z"/>'},
+  grove:{n:'Grove',c1:'#1d5a33',c2:'#3d8a4a',ac:'#4aa35a',i:'🌿',sy:'<path fill="#fff" d="M50 8 78 52H62l16 26H22l16-26H22z"/><rect x="45" y="78" width="10" height="14" fill="#fff"/>'},
+  gale:{n:'Gale',c1:'#33516e',c2:'#5d86a8',ac:'#7fa6c8',i:'🌬️',sy:'<g fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"><path d="M10 34h52a12 12 0 1 0-12-12M10 54h72a12 12 0 1 1-12 12M10 74h40"/></g>'},
+  xmas:{n:'Christmas Light',c1:'#0d2a4a',c2:'#1f5a7a',ac:'#e8c44a',i:'⭐',sy:'<path fill="#fff" d="M50 4l8 34 34 12-34 12-8 34-8-34-34-12 34-12z"/>'},
+  holy:{n:'Holy Week',c1:'#4a2a52',c2:'#7a4a6a',ac:'#b784a7',i:'✝️',sy:'<path fill="#fff" d="M44 8h12v28h28v12H56v44H44V48H16V36h28z"/>'},
+  res:{n:'Dawn of Light',c1:'#8a5a10',c2:'#c08a20',ac:'#f0b840',i:'☀️',sy:'<g fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"><circle cx="50" cy="62" r="18" fill="#fff"/><path d="M50 8v18M16 30l12 12M84 30L72 42M8 62h18M74 62h18"/></g>'}};
+ var RL=['Badge','Scarf','Medal','Frame','Beanie','Banner','Aura','Prize crown'];
+ var VERSES={
+  daily:[
+   ['Proverbs 3:5','Trust in the Lord with all thine heart; and lean not unto thine own understanding.','تَوَكَّلْ عَلَى الرَّبِّ بِكُلِّ قَلْبِكَ، وَعَلَى فَهْمِكَ لاَ تَعْتَمِدْ.'],
+   ['Philippians 4:13','I can do all things through Christ which strengtheneth me.','أَسْتَطِيعُ كُلَّ شَيْءٍ فِي الْمَسِيحِ الَّذِي يُقَوِّينِي.'],
+   ['Isaiah 40:31','But they that wait upon the Lord shall renew their strength; they shall mount up with wings as eagles; they shall run, and not be weary; and they shall walk, and not faint.','وَأَمَّا مُنْتَظِرُو الرَّبِّ فَيُجَدِّدُونَ قُوَّةً. يَرْفَعُونَ أَجْنِحَةً كَالنُّسُورِ. يَرْكُضُونَ وَلاَ يَتْعَبُونَ، يَمْشُونَ وَلاَ يُعْيُونَ.'],
+   ['Joshua 1:9','Be strong and of a good courage; be not afraid, neither be thou dismayed: for the Lord thy God is with thee whithersoever thou goest.','تَشَدَّدْ وَتَشَجَّعْ. لاَ تَرْهَبْ وَلاَ تَرْتَعِبْ، لأَنَّ الرَّبَّ إِلهَكَ مَعَكَ حَيْثُمَا تَذْهَبُ.'],
+   ['Psalm 119:105','Thy word is a lamp unto my feet, and a light unto my path.','سِرَاجٌ لِرِجْلِي كَلاَمُكَ وَنُورٌ لِسَبِيلِي.'],
+   ['James 1:5','If any of you lack wisdom, let him ask of God, that giveth to all men liberally, and upbraideth not; and it shall be given him.','وَإِنَّمَا إِنْ كَانَ أَحَدُكُمْ تُعْوِزُهُ حِكْمَةٌ، فَلْيَطْلُبْ مِنَ اللهِ الَّذِي يُعْطِي الْجَمِيعَ بِسَخَاءٍ وَلاَ يُعَيِّرُ، فَسَيُعْطَى لَهُ.'],
+   ['Colossians 3:23','And whatsoever ye do, do it heartily, as to the Lord, and not unto men.','وَكُلُّ مَا عَمِلْتُمْ فَاعْمَلُوا مِنَ الْقَلْبِ، كَمَا لِلرَّبِّ لَيْسَ لِلنَّاسِ.'],
+   ['Psalm 46:1','God is our refuge and strength, a very present help in trouble.','اَللهُ لَنَا مَلْجَأٌ وَقُوَّةٌ، عَوْنًا فِي الضِّيقَاتِ وُجِدَ شَدِيدًا.'],
+   ['Matthew 11:28','Come unto me, all ye that labour and are heavy laden, and I will give you rest.','تَعَالَوْا إِلَيَّ يَا جَمِيعَ الْمُتْعَبِينَ وَالثَّقِيلِي الأَحْمَالِ، وَأَنَا أُرِيحُكُمْ.'],
+   ['Psalm 23:1','The Lord is my shepherd; I shall not want.','الرَّبُّ رَاعِيَّ فَلاَ يُعْوِزُنِي شَيْءٌ.'],
+   ['Psalm 121:1–2','I will lift up mine eyes unto the hills, from whence cometh my help. My help cometh from the Lord, which made heaven and earth.','أَرْفَعُ عَيْنَيَّ إِلَى الْجِبَالِ، مِنْ حَيْثُ يَأْتِي عَوْنِي. مَعُونَتِي مِنْ عِنْدِ الرَّبِّ، صَانِعِ السَّمَاوَاتِ وَالأَرْضِ.'],
+   ['Galatians 6:9','And let us not be weary in well doing: for in due season we shall reap, if we faint not.','فَلاَ نَفْشَلْ فِي عَمَلِ الْخَيْرِ، لأَنَّنَا سَنَحْصُدُ فِي وَقْتِهِ إِنْ كُنَّا لاَ نَكِلُّ.']],
+  xmas:[
+   ['Luke 2:11','For unto you is born this day in the city of David a Saviour, which is Christ the Lord.','أَنَّهُ وُلِدَ لَكُمُ الْيَوْمَ فِي مَدِينَةِ دَاوُدَ مُخَلِّصٌ هُوَ الْمَسِيحُ الرَّبُّ.'],
+   ['John 1:5','And the light shineth in darkness; and the darkness comprehended it not.','وَالنُّورُ يُضِيءُ فِي الظُّلْمَةِ، وَالظُّلْمَةُ لَمْ تُدْرِكْهُ.']],
+  palm:['Matthew 21:9','Hosanna to the Son of David: Blessed is he that cometh in the name of the Lord; Hosanna in the highest.','أُوصَنَّا لاِبْنِ دَاوُدَ! مُبَارَكٌ الآتِي بِاسْمِ الرَّبِّ! أُوصَنَّا فِي الأَعَالِي!'],
+  cov:['John 13:34','A new commandment I give unto you, That ye love one another; as I have loved you, that ye also love one another.','وَصِيَّةً جَدِيدَةً أَنَا أُعْطِيكُمْ: أَنْ تُحِبُّوا بَعْضُكُمْ بَعْضًا. كَمَا أَحْبَبْتُكُمْ أَنَا تُحِبُّونَ أَنْتُمْ أَيْضًا بَعْضُكُمْ بَعْضًا.'],
+  fri:['Isaiah 53:5','But he was wounded for our transgressions, he was bruised for our iniquities: the chastisement of our peace was upon him; and with his stripes we are healed.','وَهُوَ مَجْرُوحٌ لأَجْلِ مَعَاصِينَا، مَسْحُوقٌ لأَجْلِ آثَامِنَا. تَأْدِيبُ سَلاَمِنَا عَلَيْهِ، وَبِحُبُرِهِ شُفِينَا.'],
+  res:['Matthew 28:6','He is not here: for he is risen, as he said. Come, see the place where the Lord lay.','لَيْسَ هُوَ ههُنَا، لأَنَّهُ قَامَ كَمَا قَالَ. هَلُمُّوا انْظُرُوا الْمَوْضِعَ الَّذِي كَانَ مَوْضُوعًا فِيهِ الرَّبُّ.']};
+ function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+ /* ---------- dates ---------- */
+ function addDays(k,n){var d=new Date(k+'T12:00:00');d.setDate(d.getDate()+n);return localDateKey(d)}
+ function diff(a,b){return Math.round((new Date(b+'T12:00:00')-new Date(a+'T12:00:00'))/864e5)}
+ function easter(y){var a=y%4,b=y%7,c=y%19,d=(19*c+15)%30,e=(2*a+4*b-d+34)%7,t=d+e+114,m=Math.floor(t/31),dd=t%31+1;return localDateKey(new Date(y,m-1,dd+13,12))}
+ window.mhqOrthodoxEaster=easter;
+ function evList(y){var E=easter(y);return[
+  {id:'xmas'+y,key:'e-xmas-'+y,name:'Christmas Light',theme:'xmas',a:y+'-12-30',b:(y+1)+'-01-07'},
+  {id:'holy'+y,key:'e-holy-'+y,name:'Holy Week',theme:'holy',a:addDays(E,-7),b:E,easter:E}]}
+ function eventFor(d,faith){
+  if(!faith)return null;var Y=+d.slice(0,4),L=evList(Y-1).concat(evList(Y));
+  for(var i=0;i<L.length;i++)if(d>=L[i].a&&d<=L[i].b)return L[i];return null}
+ function regular(today,faith){
+  if(today<EPOCH)return{idx:1,a:EPOCH,b:addDays(EPOCH,DAYS-1)};
+  var d=EPOCH,idx=1,used=0,start=EPOCH,last=EPOCH;
+  while(d<=today){if(!eventFor(d,faith)){used++;if(used>DAYS){idx++;used=1}if(used===1)start=d;last=d}d=addDays(d,1)}
+  var end=last,u=used,x=today;
+  if(u<DAYS){end=today;while(u<DAYS){x=addDays(x,1);if(!eventFor(x,faith)){u++;end=x}}}
+  return{idx:idx,a:start,b:end}}
+ function current(faith){
+  var t=todayKey,ev=eventFor(t,faith),rg=regular(t,faith);
+  var R={kind:'reg',key:'r'+rg.idx,num:rg.idx,theme:REG[(rg.idx-1)%4],a:rg.a,b:rg.b,days:DAYS};R.name=TH[R.theme].n;
+  if(!ev)return{cur:R,reg:R,ev:null};
+  var th=ev.theme==='holy'&&t===ev.easter?'res':ev.theme;
+  return{cur:{kind:'event',key:ev.key,theme:th,name:TH[th].n,a:ev.a,b:ev.b,days:diff(ev.a,ev.b)+1,ev:ev},reg:R,ev:ev}}
+ /* ---------- store ---------- */
+ function load(){
+  var b={};try{b=(window.mhqV79Store&&window.mhqV79Store.get())||{}}catch(e){}
+  var o={on:b.on===true,quiet:b.quiet===true,qtext:typeof b.qtext==='string'?b.qtext.slice(0,160):'',own:[],badges:[],claimed:{},meta:{},chests:{},feast:{},frame:typeof b.frame==='string'?b.frame:'',last:null,recap:null};
+  if(Array.isArray(b.own))o.own=b.own.filter(function(x){return/^ss:[\w-]+:[1-8]$/.test(x)});
+  if(Array.isArray(b.badges))o.badges=b.badges.filter(function(x){return x&&typeof x.l==='string'}).slice(-200);
+  ['claimed','meta','chests','feast'].forEach(function(k){if(b[k]&&typeof b[k]==='object')o[k]=b[k]});
+  if(b.last&&b.last.key)o.last=b.last;if(b.recap&&b.recap.key)o.recap=b.recap;
+  if(o.frame&&o.own.indexOf(o.frame)<0)o.frame='';
+  return o}
+ function save(o){try{window.mhqV79Store.set(o)}catch(e){}}
+ /* ---------- points ---------- */
+ function dayData(){
+  var cl={},fc={},qs={},qa={},act={};
+  data.forEach(function(l){
+   (l.stepDates||[]).forEach(function(k){if(k)act[k]=1});
+   (l.mcqs||[]).forEach(function(m){if(m&&m.dateKey)act[m.dateKey]=1});
+   if(l.steps.every(Boolean)){var m=(l.stepDates||[]).filter(Boolean).sort().pop();if(m)cl[m]=(cl[m]||0)+1}});
+  studySessions.forEach(function(s){if(s&&s.dateKey){fc[s.dateKey]=(fc[s.dateKey]||0)+Math.max(0,+s.minutes||0);act[s.dateKey]=1}});
+  activityLedger.forEach(function(e){if(e&&e.dateKey&&/^(study-step|mcq|flashcards|clinical-case|focus-session)$/.test(e.type))act[e.dateKey]=1});
+  try{var W=(window.mhqV78Store.get().weeks)||{};Object.keys(W).forEach(function(k){var w=W[k];if(!w||!Array.isArray(w.d))return;
+   w.d.forEach(function(v,i){if(v){var d=(w.t&&w.t[i])||k;qs[d]=(qs[d]||0)+1}});if(w.all){var d2=w.at||(w.t&&w.t.filter(Boolean).sort().pop())||k;qa[d2]=1}})}catch(e){}
+  return{cl:cl,fc:fc,qs:qs,qa:qa,act:act}}
+ function points(S,o,faith,DD){
+  DD=DD||dayData();var t=0,d=S.a,end=S.b<todayKey?S.b:todayKey;
+  while(d<=end){
+   if(!(S.kind==='reg'&&eventFor(d,faith))){
+    var p=Math.min(3,DD.cl[d]||0)*25+Math.min(40,Math.floor((DD.fc[d]||0)/3))+(o.chests[d]?30:0)+Math.min(3,DD.qs[d]||0)*50+(DD.qa[d]?50:0);
+    t+=Math.min(150,p)}
+   d=addDays(d,1)}
+  return t}
+ function thr(S){var sc=Math.min(1,S.days/DAYS);return BASE.map(function(v){return Math.max(10,Math.round(v*sc/10)*10)})}
+ function tierIcon(th,i,kind){return i===0?TH[th].i:['','🧣','🏅','🖼️',kind==='event'?'🌿':'🎩','🚩','✨','🏆'][i]}
+ function rlabel(i,kind){return i===4&&kind==='event'?'Wreath':RL[i]}
+ /* ---------- grants ---------- */
+ function grant(S,o,pts){
+  var T=thr(S),cl=o.claimed[S.key]||[],got=[];
+  o.meta[S.key]={theme:S.theme,name:S.name,num:S.num||0,a:S.a,b:S.b,kind:S.kind};
+  T.forEach(function(v,i){var tier=i+1;if(pts>=v&&cl.indexOf(tier)<0){cl.push(tier);got.push(tier);
+   var id='ss:'+S.key+':'+tier;
+   if(tier===1||tier===3||tier===6)o.badges.push({k:S.key,t:tier,i:tierIcon(S.theme,i,S.kind),l:S.name+' '+RL[i],n:S.name});
+   else{if(o.own.indexOf(id)<0)o.own.push(id);
+    if(tier!==4){try{var v8=window.mhqV78Store.get();v8.acc=Array.isArray(v8.acc)?v8.acc:[];if(v8.acc.indexOf(id)<0){v8.acc.push(id);window.mhqV78Store.set(v8)}}catch(e){}}}}});
+  o.claimed[S.key]=cl;return got}
+ function announce(S,got){
+  if(!got.length)return;var top=got[got.length-1];
+  try{playSfx('achievement',.6)}catch(e){}
+  try{toast('🏆 '+S.name+' · Tier '+top+' reached — '+rlabel(top-1,S.kind))}catch(e){}
+  if(got.indexOf(8)>=0)try{celebrate({kind:'season',icon:'🏆',kicker:'SEASON TRACK COMPLETE',title:S.name,sub:'All 8 tiers unlocked',color:TH[S.theme].ac})}catch(e){}}
+ function feasts(o,E){
+  var y=E.slice(0,4),L=[['palm',addDays(E,-7),'🌿','Palm Sunday'],['cov',addDays(E,-3),'🕯️','Covenant Thursday'],['fri',addDays(E,-2),'✝️','Good Friday'],['res',E,'☀️','Resurrection Sunday']];
+  return L.map(function(f){return{id:f[0],d:f[1],i:f[2],n:f[3],k:'f-'+f[0]+'-'+y}})}
+ /* ---------- accessories ---------- */
+ window.mhqSeasonAccSvg=function(id,sp,mo){
+  var m=id.split(':'),key=m[1],tier=+m[2],o=load(),mt=o.meta[key];if(!mt)return'';
+  var ac=TH[mt.theme].ac,dk=TH[mt.theme].c1;
+  if(tier===2)return'<g class="b-acc"><path d="M62 126Q100 146 138 126L138 138Q100 158 62 138Z" fill="'+ac+'" stroke="'+dk+'" stroke-width="1.5" stroke-linejoin="round"/><path d="M116 142l12 24-14 0z" fill="'+ac+'" stroke="'+dk+'" stroke-width="1.5" stroke-linejoin="round"/><path d="M70 133Q100 150 130 133" stroke="#fff" stroke-width="2" fill="none" opacity=".55" stroke-dasharray="4 6"/></g>';
+  if(tier===5&&mt.kind!=='event')return'<g class="b-acc"><path d="M66 54Q66 22 100 22Q134 22 134 54Z" fill="'+ac+'" stroke="'+dk+'" stroke-width="1.5"/><rect x="63" y="50" width="74" height="9" rx="4" fill="'+dk+'"/><circle cx="100" cy="19" r="6" fill="#fff" stroke="'+dk+'" stroke-width="1.2"/></g>';
+  if(tier===5){var L='';for(var i=0;i<9;i++){var a=(-160+i*17.5)*Math.PI/180,x=100+44*Math.cos(a),y=64+44*Math.sin(a);L+='<ellipse cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" rx="8" ry="4" transform="rotate('+(-160+i*17.5+90)+' '+x.toFixed(1)+' '+y.toFixed(1)+')" fill="'+ac+'" stroke="'+dk+'" stroke-width="1"/>'}return'<g class="b-acc">'+L+'</g>'}
+  if(tier===7)return'<g class="b-acc"><ellipse cx="100" cy="98" rx="74" ry="80" fill="none" stroke="'+ac+'" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="2 9" opacity=".8"/><path class="b-tw" d="M34 70l2 6 6 2-6 2-2 6-2-6-6-2 6-2z" fill="'+ac+'"/><path class="b-tw" style="animation-delay:.6s" d="M168 120l2 6 6 2-6 2-2 6-2-6-6-2 6-2z" fill="'+ac+'"/></g>';
+  if(tier===8)return'<g class="b-acc"><path d="M70 54L74 27L89 42L100 22L111 42L126 27L130 54z" fill="#f2c038" stroke="'+ac+'" stroke-width="3" stroke-linejoin="round"/><circle cx="100" cy="42" r="3.4" fill="#fff"/><circle cx="80" cy="46" r="2.4" fill="'+ac+'"/><circle cx="120" cy="46" r="2.4" fill="'+ac+'"/></g>';
+  return''};
+ function applyFrame(o){
+  var mt=o.frame&&o.meta[o.frame.split(':')[1]];
+  if(mt){root.setAttribute('data-sframe','1');root.style.setProperty('--sframe',TH[mt.theme].ac)}
+  else{root.removeAttribute('data-sframe');root.style.removeProperty('--sframe')}}
+ window.mhqWearFrame=function(id){var o=load();if(id&&o.own.indexOf(id)<0)return;o.frame=id||'';save(o);applyFrame(o);try{playSfx('ui_click',.5)}catch(e){}paintReset();window.renderSeason()};
+ window.mhqV79Set=function(k,v){var o=load();if(k==='on'||k==='quiet')o[k]=!!v;else if(k==='qtext')o.qtext=String(v||'').replace(/[<>]/g,'').slice(0,160);save(o);try{playSfx('ui_click',.5)}catch(e){}paintReset();window.renderSeason();try{window.renderVerse()}catch(e){}};
+ function paintReset(){['seasonCard','verseCard'].forEach(function(i){var e=document.getElementById(i);if(e)e.dataset.h=''})}
+ /* ---------- recap stats ---------- */
+ function recapStats(mt,o,faith){
+  var DD=dayData(),n=0,f=0,days=0,d=mt.a;
+  while(d<=mt.b){n+=DD.cl[d]||0;f+=DD.fc[d]||0;if(DD.act[d])days++;d=addDays(d,1)}
+  var tr=0,W={};try{W=window.mhqV78Store.get().weeks||{}}catch(e){}
+  Object.keys(W).forEach(function(k){var w=W[k];if(w&&w.all){var at=w.at||k;if(at>=mt.a&&at<=mt.b)tr++}});
+  var S={kind:mt.kind,a:mt.a,b:mt.b,days:diff(mt.a,mt.b)+1,theme:mt.theme,key:mt.key},p=points(S,o,faith,DD),T=thr(S),tier=T.filter(function(v){return p>=v}).length;
+  return{n:n,h:Math.round(f/6)/10,days:days,tr:tr,p:p,tier:tier}}
+ /* ---------- card ---------- */
+ var busy=false;
+ function cdText(S){
+  var end=new Date(S.b+'T23:59:59').getTime()+1000,ms=end-Date.now();if(ms<=0)return'ending';
+  var d=Math.floor(ms/864e5),h=Math.floor(ms%864e5/36e5),m=Math.floor(ms%36e5/6e4);
+  return d>0?d+'d '+h+'h left':h+'h '+m+'m left'}
+ var shown=null;
+ window.renderSeason=function(){
+  var el=document.getElementById('seasonCard');if(!el||!data.length||busy)return;
+  busy=true;
+  try{
+   var o=load(),faith=o.on,C=current(faith),S=C.cur,DD=dayData(),ch=false;
+   if(!o.last)o.last={key:S.key,theme:S.theme,name:S.name,num:S.num||0,a:S.a,b:S.b,kind:S.kind,days:S.days},ch=true;
+   else if(o.last.key!==S.key){
+    var pv=o.last,PS={kind:pv.kind,key:pv.key,theme:pv.theme,name:pv.name,num:pv.num,a:pv.a,b:pv.b,days:pv.days||diff(pv.a,pv.b)+1};
+    try{var pp=points(PS,o,faith,DD);grant(PS,o,pp)}catch(e){}
+    o.recap=pv;o.last={key:S.key,theme:S.theme,name:S.name,num:S.num||0,a:S.a,b:S.b,kind:S.kind,days:S.days};ch=true}
+   else if(o.last.b!==S.b||o.last.a!==S.a){o.last.a=S.a;o.last.b=S.b;ch=true}
+   var pts=points(S,o,faith,DD),got=grant(S,o,pts);
+   /* feast days */
+   var fe=[];
+   if(C.ev&&C.ev.theme==='holy'){fe=feasts(o,C.ev.easter);fe.forEach(function(f){if(f.d<=todayKey&&DD.act[f.d]&&!o.feast[f.k]){o.feast[f.k]=1;o.badges.push({k:C.ev.key,t:0,i:f.i,l:f.n,n:'Holy Week'});got.push(0);ch=true}})}
+   if(got.length)ch=true;
+   if(ch)save(o);
+   var T=thr(S),tier=T.filter(function(v){return pts>=v}).length,th=TH[S.theme];
+   var nextT=T[tier]||T[7],prevT=tier?T[tier-1]:0,f=tier>=8?1:Math.min(1,(pts-prevT)/(nextT-prevT));
+   var track=T.map(function(v,i){var st=i<tier?'got':i===tier?'next':'';return'<div class="ss-t '+st+(i===7?' fin':'')+'"><div class="ic">'+(i<tier?'<b>✓</b>':'')+tierIcon(S.theme,i,S.kind)+'</div>T'+(i+1)+'<small>'+v+'</small></div>'}).join('');
+   var feRow=fe.length?'<div class="ss-fe">'+fe.map(function(x){return'<span class="'+(o.feast[x.k]?'on':'')+'" title="'+x.n+'">'+x.i+'</span>'}).join('')+'<small>Feast days: study on each day to earn its badge</small></div>':'';
+   var pause=(C.ev&&C.reg)?'<div class="ss-pz">'+esc(C.reg.name)+' (Season '+C.reg.num+') is paused during this event and ends '+C.reg.b+'.</div>':'';
+   var rc=o.recap?'<button type="button" class="ss-rcb" onclick="mhqSeasonRecap()">🏁 '+esc(o.recap.name)+' recap is ready · View</button>':'';
+   var chips=o.own.map(function(id){var k=id.split(':'),mt=o.meta[k[1]];if(!mt)return'';var t=+k[2],lab=TH[mt.theme].i+' '+esc(mt.name)+' '+rlabel(t-1,mt.kind);
+    if(t===4)return'<button type="button" class="'+(o.frame===id?'on':'')+'" onclick="mhqWearFrame(\''+id+'\')">'+lab+'</button>';
+    var w8='';try{w8=window.mhqV78Store.get().wear}catch(e){}
+    return'<button type="button" class="'+(w8===id?'on':'')+'" onclick="mhqWearAcc(\''+id+'\')">'+lab+'</button>'}).join('');
+   var bd=o.badges.slice(-24).map(function(b){return'<span title="'+esc(b.l)+'">'+b.i+'</span>'}).join('');
+   var det='<details class="wq-det"><summary>🎁 Season rewards &amp; faith settings</summary>'+
+    (chips?'<div class="meta" style="margin-top:8px">Wear your season rewards (the buddy wears one accessory at a time):</div><div class="sty-chips" style="margin-top:6px"><button type="button" class="'+(o.frame?'':'on')+'" onclick="mhqWearFrame(\'\')">No frame</button>'+chips+'</div>':'<div class="meta" style="margin-top:8px">Reward tiers unlock buddy accessories, frames and badges.</div>')+
+    (bd?'<div class="meta" style="margin-top:8px">Badges: <span class="ss-bd">'+bd+'</span></div>':'')+
+    '<div class="sty-row" style="margin-top:10px"><b>🕊️ Faith encouragement</b><div class="sty-chips"><button type="button" class="'+(o.on?'on':'')+'" onclick="mhqV79Set(\'on\',true)">On</button><button type="button" class="'+(o.on?'':'on')+'" onclick="mhqV79Set(\'on\',false)">Off</button></div><div class="meta" style="font-size:11px;margin-top:6px">Verse of the day (Arabic and English) and the feast-day event seasons: Christmas and Holy Week.</div></div>'+
+    (o.on?'<div class="sty-row"><b>🕯️ Quiet moment before focus and the Exam Gauntlet</b><div class="sty-chips"><button type="button" class="'+(o.quiet?'on':'')+'" onclick="mhqV79Set(\'quiet\',true)">On</button><button type="button" class="'+(o.quiet?'':'on')+'" onclick="mhqV79Set(\'quiet\',false)">Off</button></div><input type="text" maxlength="160" class="ss-in" placeholder="Your own line (leave empty to show the verse of the day)" value="'+esc(o.qtext)+'" onchange="mhqV79Set(\'qtext\',this.value)" aria-label="Your own quiet-moment text"></div>':'')+'</details>';
+   var sy='<svg class="sym" viewBox="0 0 100 100" aria-hidden="true">'+th.sy+'</svg>';
+   var html=rc+'<div class="section card ss-card"><div class="ban ss-ban" style="background:linear-gradient(135deg,'+th.c1+','+th.c2+')">'+sy+'<div class="k">'+(S.kind==='event'?'EVENT SEASON':'SEASON '+S.num)+'</div><b>'+esc(S.name)+'</b><div class="cd">⏳ <span class="ss-cd" data-b="'+S.b+'">'+cdText(S)+'</span> · '+pts+' / '+T[7]+' pts · Tier '+tier+'/8</div><div class="bar"><i style="width:'+Math.round(f*100)+'%"></i></div></div>'+
+    '<div class="ss-sc"><div class="ss-trk">'+track+'</div></div>'+feRow+
+    '<div class="meta" style="margin-top:8px">'+(tier>=8?'🏆 Track complete — all 8 rewards unlocked':'Next: '+tierIcon(S.theme,tier,S.kind)+' <b>'+esc(S.name)+' '+rlabel(tier,S.kind)+'</b> at '+T[tier]+' pts')+'</div>'+
+    '<div class="meta" style="font-size:11px">Points: lectures cleared, focus minutes, Rounds chests and Weekly Quests (daily caps apply). No effect on XP.</div>'+pause+det+'</div>';
+   var open=el.querySelector('.wq-det')&&el.querySelector('.wq-det').open,sc=el.querySelector('.ss-sc')?el.querySelector('.ss-sc').scrollLeft:0;
+   if(el.dataset.h!==html){el.innerHTML=html;el.dataset.h=html;var d=el.querySelector('.wq-det');if(d&&open)d.open=true;var s2=el.querySelector('.ss-sc');if(s2)s2.scrollLeft=sc}
+   applyFrame(o);
+   var real=got.filter(function(x){return x>0});if(real.length)announce(S,real);else if(got.length){try{playSfx('achievement',.5);toast('🕯️ Feast-day badge earned')}catch(e){}}
+   try{window.renderVerse()}catch(e){}
+  }finally{busy=false}};
+ setInterval(function(){document.querySelectorAll('.ss-cd').forEach(function(e){var b=e.dataset.b;if(b)e.textContent=cdText({b:b})})},30000);
+ /* ---------- verse of the day ---------- */
+ function verseFor(o){
+  var C=current(true),t=todayKey;
+  if(C.ev){
+   if(C.ev.theme==='xmas')return VERSES.xmas[Math.abs(diff(C.ev.a,t))%2];
+   var E=C.ev.easter,m={};m[addDays(E,-7)]='palm';m[addDays(E,-3)]='cov';m[addDays(E,-2)]='fri';m[E]='res';if(m[t])return VERSES[m[t]]}
+  return VERSES.daily[((diff(EPOCH,t)%12)+12)%12]}
+ window.renderVerse=function(){
+  var el=document.getElementById('verseCard');if(!el)return;var o=load();
+  if(!o.on){el.innerHTML='';el.dataset.h='';return}
+  var v=verseFor(o),h='<div class="section card ss-verse"><div class="label">VERSE OF THE DAY</div><div class="ss-ar" dir="rtl" lang="ar">'+v[2]+'</div><div class="ss-en">'+esc(v[1])+'</div><div class="meta">'+esc(v[0])+'</div></div>';
+  if(el.dataset.h!==h){el.innerHTML=h;el.dataset.h=h}};
+ /* ---------- quiet moment ---------- */
+ var qov=null;
+ function quiet(next){
+  var o=load();if(!o.on||!o.quiet){next();return}
+  if(qov)qov.remove();var v=verseFor(o);
+  qov=document.createElement('div');qov.className='ss-quiet';qov.setAttribute('role','dialog');qov.setAttribute('aria-label','Quiet moment');
+  qov.innerHTML='<div class="ss-qc"><div style="font-size:34px">🕯️</div><h2>Quiet moment</h2>'+(o.qtext?'<div class="ss-en" style="font-size:18px;margin:12px 0">'+esc(o.qtext)+'</div>':'<div class="ss-ar" dir="rtl" lang="ar">'+v[2]+'</div><div class="ss-en">'+esc(v[1])+'</div><div class="meta">'+esc(v[0])+'</div>')+'<div class="v78-yn" style="margin-top:16px"><button type="button" class="no">Not now</button><button type="button" class="yes">Begin</button></div></div>';
+  document.body.appendChild(qov);
+  qov.querySelector('.yes').onclick=function(){qov.remove();qov=null;next()};
+  qov.querySelector('.no').onclick=function(){qov.remove();qov=null}}
+ (function(){var t0=window.toggleStudyTimer;if(typeof t0!=='function')return;
+  window.toggleStudyTimer=function(){
+   var self=this,args=arguments;
+   if(!studyRunning&&studyRemaining>=studyTotal&&!qov){quiet(function(){t0.apply(self,args)});return}
+   return t0.apply(self,args)}})();
+ (function(){var g0=window.mhqGauntlet;if(typeof g0!=='function')return;
+  window.mhqGauntlet=function(id,go){var self=this,args=arguments;if(go&&!qov){quiet(function(){g0.apply(self,args)});return}return g0.apply(self,args)}})();
+ /* ---------- Rounds chest log ---------- */
+ (function(){var S=window.mhqRoundsStore;if(!S||!S.claim)return;var c0=S.claim;
+  S.claim=function(){var r=c0.apply(this,arguments);try{var o=load();o.chests[todayKey]=1;var ks=Object.keys(o.chests).sort();while(ks.length>200)delete o.chests[ks.shift()];save(o);window.renderSeason()}catch(e){}return r}})();
+ /* ---------- recap card ---------- */
+ var rov=null,ropts={size:'portrait',hide:false},rcv=null,rmt=null;
+ function draw(){
+  var o=load(),mt=rmt,st=recapStats(mt,o,o.on),th=TH[mt.theme],story=ropts.size==='story',W=1080,H=story?1920:1350;
+  var c=document.createElement('canvas');c.width=W;c.height=H;var x=c.getContext('2d'),F='system-ui,-apple-system,"Segoe UI",Roboto,sans-serif';
+  var g=x.createLinearGradient(0,0,W*.6,H);g.addColorStop(0,th.c1);g.addColorStop(1,th.c2);x.fillStyle=g;x.fillRect(0,0,W,H);
+  x.globalAlpha=.12;x.fillStyle='#fff';x.beginPath();x.arc(W-120,170,300,0,7);x.fill();x.globalAlpha=1;
+  x.fillStyle='#fff';x.textAlign='center';var y0=story?260:170;
+  x.font='700 34px '+F;x.globalAlpha=.85;x.fillText((mt.kind==='event'?'EVENT SEASON':'SEASON '+mt.num)+' · RECAP',W/2,y0);x.globalAlpha=1;
+  x.font='700 160px '+F;x.fillText(th.i,W/2,y0+190);
+  x.font='800 84px '+F;x.fillText(mt.name,W/2,y0+310);
+  x.font='600 46px '+F;x.fillText(st.tier>=8?'All 8 tiers unlocked 🏆':'Tier '+st.tier+' of 8 reached',W/2,y0+385);
+  var cells=[[st.n,'lectures cleared'],[st.h+'h','focus time'],[st.tr,'weekly trophies'],[st.days,'days studied']],cw=420,ch=story?230:190,gx=(W-cw*2-40)/2,gy=y0+470;
+  cells.forEach(function(v,i){var cx=gx+(i%2)*(cw+40),cy=gy+Math.floor(i/2)*(ch+36);x.fillStyle='rgba(255,255,255,.16)';x.beginPath();x.roundRect?x.roundRect(cx,cy,cw,ch,32):x.rect(cx,cy,cw,ch);x.fill();x.fillStyle='#fff';x.font='800 84px '+F;x.fillText(v[0],cx+cw/2,cy+ch/2+14);x.font='600 30px '+F;x.globalAlpha=.9;x.fillText(v[1],cx+cw/2,cy+ch/2+64);x.globalAlpha=1});
+  x.font='600 28px '+F;x.globalAlpha=.8;x.fillText('Medical HQ'+(ropts.hide?'':' · '+(typeof COURSE!=='undefined'&&COURSE.short||'')),W/2,H-(story?90:60));x.globalAlpha=1;
+  return c}
+ function build(){rcv=draw();var im=document.getElementById('srImg');if(im)im.src=rcv.toDataURL('image/png')}
+ function opt(on,fn,t){return'<button type="button" class="'+(on?'on':'')+'" onclick="'+fn+'">'+t+'</button>'}
+ function paintOpts(){var e=document.getElementById('srOpts');if(e)e.innerHTML=opt(ropts.size==='portrait',"mhqSeasonOpt('size','portrait')",'Portrait 1080×1350')+opt(ropts.size==='story',"mhqSeasonOpt('size','story')",'Story 1080×1920')+opt(ropts.hide,"mhqSeasonOpt('hide')",ropts.hide?'Course hidden':'Hide course')}
+ window.mhqSeasonOpt=function(k,v){if(k==='size')ropts.size=v;else ropts.hide=!ropts.hide;paintOpts();build()};
+ window.mhqSeasonRecap=function(){
+  var o=load();if(!o.recap)return;rmt=o.recap;if(rov)rov.remove();
+  rov=document.createElement('div');rov.className='rc-ov';rov.setAttribute('role','dialog');rov.setAttribute('aria-label','Season recap');
+  rov.innerHTML='<div class="rc-panel"><div class="rc-head"><h2>🏁 Season recap</h2><button type="button" class="rc-x" onclick="mhqSeasonRecapClose()">Close</button></div><div class="rc-opts" id="srOpts"></div><img id="srImg" class="rc-img" alt="Your season recap card"><div class="rc-act"><button type="button" class="primary" onclick="mhqSeasonShare()">📤 Share</button><button type="button" onclick="mhqSeasonSave()">💾 Save image</button></div><div class="rc-act" style="margin-top:8px"><button type="button" onclick="mhqSeasonDismiss()">Dismiss this recap</button></div><div class="rc-note">If Save doesn’t start a download on your phone, press and hold the image and choose “Save image”.</div></div>';
+  document.body.appendChild(rov);paintOpts();build()};
+ window.mhqSeasonRecapClose=function(){if(rov){rov.remove();rov=null}};
+ window.mhqSeasonDismiss=function(){var o=load();o.recap=null;save(o);window.mhqSeasonRecapClose();paintReset();window.renderSeason()};
+ function blob(){return new Promise(function(r){rcv.toBlob(r,'image/png')})}
+ function fname(){return'medical-hq-season-'+(ropts.size==='story'?'story':'portrait')+'.png'}
+ window.mhqSeasonShare=async function(){try{var b=await blob(),f=new File([b],fname(),{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'My Medical HQ season'});return}}catch(e){if(e&&e.name==='AbortError')return}window.mhqSeasonSave()};
+ window.mhqSeasonSave=async function(){try{var b=await blob(),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=fname();document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000);toast('Image saved')}catch(e){toast('Press and hold the image to save it')}};
+ window.mhqSeasonDebug=function(){var o=load();return{cur:current(o.on).cur,pts:points(current(o.on).cur,o,o.on),thr:thr(current(o.on).cur)}};
+ try{window.renderSeason()}catch(e){}
 })();
 </script>
 </body>
