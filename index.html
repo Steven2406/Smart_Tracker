@@ -972,12 +972,21 @@ html[data-sframe] .bd-card{box-shadow:0 0 0 3px var(--sframe),0 0 18px color-mix
 .ban .k{font-size:11px;letter-spacing:.08em;font-weight:700;opacity:.9}.ban b{display:block;font-size:20px;margin:2px 0;color:#fff}
 .ban .cd{font-size:13px;opacity:.95;color:#fff}
 .ban .bar{height:9px;border-radius:6px;background:rgba(255,255,255,.3);margin-top:10px;overflow:hidden}.ban .bar i{display:block;height:100%;background:#fff;border-radius:6px}
+/* ---- v8.0.0 course numbers ---- */
+.pc-note{margin:0 0 10px;padding:10px 12px;border-radius:14px;border:1px solid var(--accent);background:var(--soft);font-size:13px}
+.pc-note button{margin-left:6px;padding:5px 12px;border-radius:10px;font-weight:700;background:var(--accent);color:var(--accent-ink);border:0}
+.pc-pace{margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--surface2);border:1px solid var(--line)}
+.pc-pace b{font-size:26px}.pc-pace small{display:block;color:var(--muted);font-size:12px}
+.pc-t{margin-top:10px;display:grid;gap:6px}
+.pc-r{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:8px;align-items:baseline;font-size:13px;padding:5px 0;border-bottom:1px solid var(--line)}
+.pc-r b{text-align:right}.pc-r i{font-style:normal;text-align:right;color:var(--muted);font-size:12px}
+.pc-h{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.pc-h b{font-weight:600}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v7.9.0</small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v8.0.0</small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -1002,6 +1011,7 @@ html[data-sframe] .bd-card{box-shadow:0 0 0 3px var(--sframe),0 0 18px color-mix
     <h1>Gastrointestinal Tract</h1>
   </div>
 
+  <div id="paceNote"></div>
   <div id="buddyCard"></div>
   <div id="trophyShelf"></div>
   <div class="section card next-card">
@@ -1137,6 +1147,7 @@ html[data-sframe] .bd-card{box-shadow:0 0 0 3px var(--sframe),0 0 18px color-mix
   </div>
   <div id="rpgView" class="view">
 <div id="motivationPanel" style="margin:18px 0"></div>
+<div id="paceCard"></div>
     <div class="hero"><div class="label">RPG PROGRESSION 2.0</div><h1>🆙 Medical RPG Profile</h1><div class="sub">Your level grows from real study activity: study steps, MCQ performance, focus sessions, streaks, achievements, and boss victories.</div></div>
     <div class="section card rpg-profile">
       <div class="rpg-level-orb"><div><span>LEVEL</span><b id="rpgLevelBig">1</b></div></div>
@@ -2229,12 +2240,12 @@ function render(){
  const done=data.filter(x=>x.steps.every(Boolean)).length, pct=Math.round(done/data.length*100);
  document.getElementById("done").textContent=done;document.getElementById("progressText").textContent=pct+"%";document.getElementById("progressFill").style.width=pct+"%";
  document.getElementById("xp").textContent=appXP;document.getElementById("streak").textContent=appStreak;
- const lvl=Math.floor(appXP/100)+1;
+ const lvl=Math.floor(appXP/mhqXpPerLevel())+1;
  const ranks=["Medical Student","Clinical Learner","Clinician in Training","Ward Warrior","Future Physician","Consultant Mode"];
  const rank=ranks[Math.min(ranks.length-1,Math.floor((lvl-1)/3))];
  document.getElementById("level").textContent=lvl;document.getElementById("rank").textContent=rank;
  {const setHome=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v}; setHome("todayXp",todayXp);setHome("momentum",todaySteps);}
- const next=lvl*100, remain=Math.max(0,next-appXP);
+ const next=lvl*mhqXpPerLevel(), remain=Math.max(0,next-appXP);
  document.getElementById("milestone").textContent="Level "+(lvl+1);document.getElementById("milestoneSub").textContent=remain+" XP remaining";
  const missionTarget=3, missionPct=Math.min(100,Math.round(todaySteps/missionTarget*100));
  document.getElementById("missionFill").style.width=missionPct+"%";
@@ -2298,10 +2309,11 @@ function renderResumeCard(){
   el.innerHTML=`<div class="resume-card"><div class="resume-main"><div class="label">${r.label}</div><div class="resume-title">Lecture ${x.id}: ${x.title}</div><div class="meta">${x.subject} · Next: ${nextStep} · ${p}% done</div><div class="progress"><div class="fill" style="width:${p}%"></div></div></div><button type="button" class="primary" onclick="openLecture(${x.id})">Continue</button></div>`;
 }
 
+function mhqXpPerLevel(){var v=window.__mhqXPL;return v>=20?v:100}
 function rpgInfo(){
-  const level=Math.floor(appXP/100)+1;
-  const levelStart=(level-1)*100, levelEnd=level*100;
-  const within=Math.max(0,appXP-levelStart), needed=100, pct=Math.min(100,Math.round(within/needed*100));
+  const level=Math.floor(appXP/mhqXpPerLevel())+1;
+  const levelStart=(level-1)*mhqXpPerLevel(), levelEnd=level*mhqXpPerLevel();
+  const within=Math.max(0,appXP-levelStart), needed=mhqXpPerLevel(), pct=Math.min(100,Math.round(within/needed*100));
   const ranks=[
     {name:'Medical Student',icon:'🩺',min:1,max:2,desc:'Building your foundation and study discipline.'},
     {name:'Clinical Learner',icon:'📚',min:3,max:5,desc:'Connecting core knowledge and active recall.'},
@@ -2325,9 +2337,9 @@ function rpgStats(){
 function renderRpg(){
   const info=rpgInfo(), st=rpgStats();
   const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
-  set('homeRpgLevel',info.level);set('homeRpgRank',info.rank.name);set('homeRpgXpLabel',`${info.within} / 100 XP`);set('homeRpgNext',`${info.levelEnd-appXP} XP to next level`);
+  set('homeRpgLevel',info.level);set('homeRpgRank',info.rank.name);set('homeRpgXpLabel',`${info.within} / ${mhqXpPerLevel()} XP`);set('homeRpgNext',`${info.levelEnd-appXP} XP to next level`);
   const hf=document.getElementById('homeRpgXpFill');if(hf)hf.style.width=info.pct+'%';
-  set('rpgLevelBig',info.level);set('rpgRankBig',info.rank.name);set('rpgRankSub',info.rank.desc);set('rpgXpLabel',`${info.within} / 100 XP`);set('rpgNextLabel',`${info.levelEnd-appXP} XP to next level`);
+  set('rpgLevelBig',info.level);set('rpgRankBig',info.rank.name);set('rpgRankSub',info.rank.desc);set('rpgXpLabel',`${info.within} / ${mhqXpPerLevel()} XP`);set('rpgNextLabel',`${info.levelEnd-appXP} XP to next level`);
   const rf=document.getElementById('rpgXpFill');if(rf)rf.style.width=info.pct+'%';
   const stats=[['📚','Study Power',st.steps,'completed study steps'],['🎯','Recall',st.accuracy+'%',st.mcqs?`${st.mcqs} tested question sets`:'Log your first MCQ'],['⏱️','Focus',st.focus+' min','completed focus time'],['🔥','Consistency',appStreak+' days','current study streak'],['🐉','Bosses',st.bosses+'/'+bossDefinitions.length,'victories'],['🏆','Achievements',st.achievements,'unlocked']];
   const box=document.getElementById('rpgStats');if(box)box.innerHTML=stats.map(x=>`<div class="rpg-stat"><div class="label">${x[0]} ${x[1]}</div><div class="big">${x[2]}</div><div class="meta">${x[3]}</div></div>`).join('');
@@ -2857,7 +2869,7 @@ function openCampaignTerritory(id){
 }
 function renderExtraViews(){
   if(window.mhqMotivationRender)window.mhqMotivationRender();
-  renderExams();renderHomeExam();try{renderUrgency()}catch(e){}try{renderTrophies()}catch(e){}try{mhqWatchTerritories()}catch(e){}try{renderRhythm()}catch(e){}try{renderRounds()}catch(e){}try{renderBuddy()}catch(e){}try{renderGauntlet()}catch(e){}try{renderBodyMap()}catch(e){}try{renderMistakes()}catch(e){}try{renderCalendar()}catch(e){}try{renderWeekly()}catch(e){}try{renderEnergy()}catch(e){}try{renderSeason()}catch(e){}
+  renderExams();renderHomeExam();try{renderUrgency()}catch(e){}try{renderTrophies()}catch(e){}try{mhqWatchTerritories()}catch(e){}try{renderRhythm()}catch(e){}try{renderRounds()}catch(e){}try{renderBuddy()}catch(e){}try{renderGauntlet()}catch(e){}try{renderBodyMap()}catch(e){}try{renderMistakes()}catch(e){}try{renderCalendar()}catch(e){}try{renderWeekly()}catch(e){}try{renderEnergy()}catch(e){}try{renderSeason()}catch(e){}try{renderPace()}catch(e){}
   populateStudyLectures();
   renderCampaignMap();
   renderRpg();
@@ -3545,7 +3557,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
  function studyActions(date=dayKey()){return ledger().filter(x=>x.dateKey===date&&['study-step','mcq','focus-session','boss-victory','clinical-case','external-test'].includes(x.type)).length}
  function weeklyActions(){const now=new Date();let n=0;for(let i=0;i<7;i++){const d=new Date(now);d.setDate(now.getDate()-i);n+=studyActions(dayKey(d));}return n}
  function xp(){return Number(readCore().xp||0)}
- function reconcileWallet(){const shouldHave=Math.floor(xp()/250);if(shouldHave>M.rewardCreditsEarned){M.rewardCreditsEarned=shouldHave;saveM();}}
+ function reconcileWallet(){let shouldHave=Math.floor(xp()/250);if(window.__mhqCXP&&window.__mhqBase!=null){shouldHave=window.__mhqBase+Math.floor(Math.max(0,xp()-window.__mhqXpAt)/window.__mhqCXP)}if(shouldHave>M.rewardCreditsEarned){M.rewardCreditsEarned=shouldHave;saveM();}}
  function credits(){reconcileWallet();return Math.max(0,M.rewardCreditsEarned+Math.max(0,Number(M.bonusCredits)||0)-M.rewardCreditsSpent)}
  function pct(a,b){return b?Math.min(100,Math.round(a/b*100)):0}
  const rewards=[
@@ -3633,6 +3645,8 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
   get:function(){const b=(M.bodymap&&typeof M.bodymap==='object')?M.bodymap:{};const a={};if(b.assign&&typeof b.assign==='object')Object.keys(b.assign).forEach(k=>{if(/^\d+$/.test(k)&&typeof b.assign[k]==='string')a[k]=b.assign[k]});return{assign:a,mode:['organs','territories'].indexOf(b.mode)>=0?b.mode:'auto'}},
   set:function(assign,mode){M.bodymap={assign:assign||{},mode:mode||'auto'};saveM()}};
  window.mhqV77Store={get:function(){const b=(M.v77&&typeof M.v77==='object')?M.v77:{};return{ws:[6,0,1].indexOf(b.ws)>=0?b.ws:6,range:[13,26,53].indexOf(b.range)>=0?b.range:26,metric:b.metric==='focus'?'focus':'xp',win:b.win==='all'?'all':'30'}},set:function(p){const c=window.mhqV77Store.get();M.v77=Object.assign(c,p);saveM()}};
+ window.mhqV80Store={get:function(){return(M.v80&&typeof M.v80==='object')?M.v80:{}},set:function(v){M.v80=v;saveM()},earned:function(){return M.rewardCreditsEarned},goals:{get:function(){return[M.dailyTarget,M.weeklyTarget]},set:function(d,w){M.dailyTarget=d;M.weeklyTarget=w;saveM()}}};
+ try{var _v8=M.v80;if(_v8&&_v8.applied){window.__mhqXPL=_v8.xpl;window.__mhqCXP=_v8.cxp;window.__mhqBase=_v8.baseC;window.__mhqXpAt=_v8.xpAt}}catch(e){}
  window.mhqV79Store={get:function(){return(M.v79&&typeof M.v79==='object')?M.v79:{}},set:function(v){M.v79=v;saveM()}};
  window.mhqV78Store={get:function(){return(M.v78&&typeof M.v78==='object')?M.v78:{}},set:function(v){M.v78=v;saveM()}};
  window.mhqSetFx=function(m){M.equipped.fx=['full','subtle','off'].includes(m)?m:'full';saveM();applyAppearance();render();playSfx('ui_click',.5)};
@@ -3671,7 +3685,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
  <div class="goal-card"><div class="goal-icon">🛒</div><div class="goal-label">Collection</div><div class="goal-value">${ownedCount}/${allCollectionItems().length}</div><div class="goal-foot">Cosmetics you have unlocked</div></div></div>
  <div style="margin-top:16px"><span class="reward-chip">🎯 ${M.campaignGoal}</span></div><div class="hero-actions" style="margin-top:12px"><button onclick="window.mhqSetGoal()">🎯 Edit Goals</button><button onclick="(()=>{const d=document.getElementById('rewardShopDetails');if(d)d.open=true;document.getElementById('rewardShopSection')?.scrollIntoView({behavior:'smooth',block:'start'})})()">🛒 Open Reward Shop</button></div></div></div>
  <details class="card shop-disclosure" id="appearanceDetails"><summary>🎨 Appearance <span style="float:right;color:var(--muted);font-weight:600">Skins, frames and emblems</span></summary><div style="margin-top:14px"><div class="shop-toolbar"><div><div class="eyebrow">🎨 APPEARANCE</div><h3 style="margin-bottom:3px">Choose how Medical HQ looks</h3><div style="font-size:11px;color:var(--muted)">Preview any look first, then unlock it by owning any item in its collection. You have ${credits()} 💠.</div></div></div>${appearanceHTML()}</div></details>
- <details class="card shop-disclosure" id="rewardShopDetails"><summary>🎁 Reward Shop <span style="float:right;color:var(--muted);font-weight:600">Spend your Credits</span></summary><div id="rewardShopSection" style="margin-top:14px"><div class="shop-toolbar"><div><div class="eyebrow">🎁 REWARD SHOP</div><h3 style="margin-bottom:3px">Spend what you earned</h3><div style="font-size:11px;color:var(--muted)">Every 250 XP generates 1 Credit.</div></div><div class="shop-balance">💠 <b>${c}</b> <span>Credits</span></div></div><div class="reward-shop">${rewards.map(rewardCardHTML).join('')}</div></div></details>
+ <details class="card shop-disclosure" id="rewardShopDetails"><summary>🎁 Reward Shop <span style="float:right;color:var(--muted);font-weight:600">Spend your Credits</span></summary><div id="rewardShopSection" style="margin-top:14px"><div class="shop-toolbar"><div><div class="eyebrow">🎁 REWARD SHOP</div><h3 style="margin-bottom:3px">Spend what you earned</h3><div style="font-size:11px;color:var(--muted)">Every ${window.__mhqCXP||250} XP generates 1 Credit.</div></div><div class="shop-balance">💠 <b>${c}</b> <span>Credits</span></div></div><div class="reward-shop">${rewards.map(rewardCardHTML).join('')}</div></div></details>
  <details class="card shop-disclosure" id="collectionDetails"><summary>🛒 Collections <span style="float:right;color:var(--muted);font-weight:600">Unlockable items</span></summary><div style="margin-top:14px"><div class="shop-toolbar"><div><div class="eyebrow">🛒 COLLECTIONS</div><h3 style="margin-bottom:3px">Build your Medical HQ collection</h3><div style="font-size:11px;color:var(--muted)">Original cosmetics first. More collections can be added later.</div></div><div class="shop-balance">🏆 <b>${ownedCount}</b> <span>Owned</span></div></div><div class="collection-grid">${collectionHTML()}</div></div></details>`;}
  window.mhqOpenReward=function(id){openShopConfirm(id,'reward')};window.mhqOpenCollection=function(id){openShopConfirm(id,'collection')};window.mhqRewardShop=function(){(()=>{const d=document.getElementById('rewardShopDetails');if(d)d.open=true;document.getElementById('rewardShopSection')?.scrollIntoView({behavior:'smooth',block:'start'})})()};
  window.mhqSetGoal=function(){document.getElementById('mhqGoalModal')?.remove();const b=document.createElement('div');b.className='shop-modal-backdrop';b.id='mhqGoalModal';b.innerHTML=`<form class="shop-modal" id="mhqGoalForm"><div class="shop-modal-head"><div><div class="shop-modal-icon">🎯</div><h3>Your study goals</h3><p>Set targets that encourage you without overwhelming you.</p></div><button type="button" class="shop-close" id="mhqGoalClose">✕</button></div><label class="goal-label" for="mhqDailyGoal">Daily study actions</label><input id="mhqDailyGoal" type="number" min="1" max="20" value="${M.dailyTarget}" required style="width:100%;margin:7px 0 14px"><label class="goal-label" for="mhqWeeklyGoal">Weekly study actions</label><input id="mhqWeeklyGoal" type="number" min="1" max="100" value="${M.weeklyTarget}" required style="width:100%;margin:7px 0 14px"><label class="goal-label" for="mhqCampaignGoal">Current campaign goal</label><input id="mhqCampaignGoal" maxlength="80" value="${String(M.campaignGoal).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}" required style="width:100%;margin:7px 0 0"><div class="shop-modal-actions"><button type="button" id="mhqGoalCancel">Cancel</button><button type="submit" class="primary">Save goals</button></div></form>`;document.body.appendChild(b);b.addEventListener('click',e=>{if(e.target===b)b.remove()});document.getElementById('mhqGoalClose').onclick=()=>b.remove();document.getElementById('mhqGoalCancel').onclick=()=>b.remove();document.getElementById('mhqGoalForm').onsubmit=e=>{e.preventDefault();const d=Number(document.getElementById('mhqDailyGoal').value),w=Number(document.getElementById('mhqWeeklyGoal').value),g=document.getElementById('mhqCampaignGoal').value.trim();if(!Number.isFinite(d)||d<1||d>20||!Number.isFinite(w)||w<1||w>100||!g)return;M.dailyTarget=Math.round(d);M.weeklyTarget=Math.round(w);M.campaignGoal=g.slice(0,80);saveM();b.remove();render();toast('✓ Study goals updated')};}
@@ -4305,7 +4319,7 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
  function mcqToday(l){return(l.mcqs||[]).filter(function(m){return m&&m.dateKey===todayKey}).length}
  function status(q){
   switch(q.k){
-   case 'steps3':return{t:'Complete 3 study steps',p:Math.min(todaySteps,3),n:3,go:'startMission()'};
+   case 'steps3':var sn=window.mhqRoundSteps?window.mhqRoundSteps():3;return{t:'Complete '+sn+' study steps',p:Math.min(todaySteps,sn),n:sn,go:'startMission()'};
    case 'focus':return{t:'Finish a focus session',p:Math.min(studySessions.filter(function(s){return s.dateKey===todayKey}).length,1),n:1,go:"showView('studyView',document.querySelector('[data-view=&quot;studyView&quot;]'))"};
    case 'mcq':return{t:'Log an MCQ set',p:Math.min(data.reduce(function(n,l){return n+mcqToday(l)},0),1),n:1,go:'startMission()'};
    case 'flash':return{t:'Do a flashcard session',p:Math.min(ledgerCount('flashcards'),1),n:1,go:'startMission()'};
@@ -4602,7 +4616,7 @@ function buddy(sp,mo,sk,stg,anim){
  function ensure(e){
   var S=window.mhqGauntletStore,rec=S.get(e.id),ids=examLectureIds(e);
   if(!rec||rec.date!==todayKey||!Array.isArray(rec.ids)||!rec.ids.every(function(i){return ids.indexOf(i)>=0})){
-   var rows=ids.map(function(id){return data.find(function(l){return l.id===id})}).filter(Boolean).map(function(l){return{l:l,n:need(l)}}).filter(function(o){return o.n.due||o.n.unt||o.n.m<85}).sort(function(a,b){return b.n.score-a.n.score}).slice(0,N);
+   var rows=ids.map(function(id){return data.find(function(l){return l.id===id})}).filter(Boolean).map(function(l){return{l:l,n:need(l)}}).filter(function(o){return o.n.due||o.n.unt||o.n.m<85}).sort(function(a,b){return b.n.score-a.n.score}).slice(0,(window.mhqGauntletN?window.mhqGauntletN():N));
    rec={date:todayKey,ids:rows.map(function(o){return o.l.id}),cel:false};S.set(e.id,rec)}
   return rec}
  function why(n){return n.due?'Due for review · mastery '+n.m+'%':n.unt?'Not tested yet':'Mastery '+n.m+'% · needs work'}
@@ -5041,6 +5055,7 @@ function buddy(sp,mo,sk,stg,anim){
  function wsDay(){try{return window.mhqV77Store.get().ws}catch(e){return 6}}
  function wkOf(dk){var d=new Date(dk+'T12:00:00'),df=(d.getDay()-wsDay()+7)%7;d.setDate(d.getDate()-df);var a=localDateKey(d);d.setDate(d.getDate()+6);return{a:a,b:localDateKey(d)}}
  function shiftWk(a,n){var d=new Date(a+'T12:00:00');d.setDate(d.getDate()+7*n);return wkOf(localDateKey(d))}
+ function lim(k){var L=LIM[k],p=window.mhqPaceIf?window.mhqPaceIf():null;if(!p)return L;var pw=p.perWeek,d={steps:Math.round(pw*4),clear:Math.round(pw),focus:Math.round(pw*34/10)*10,mcq:Math.round(pw*1.2),flash:Math.round(pw*.6)}[k];d=Math.max(L[1],d);return[d,L[1],Math.max(L[2],Math.ceil(d*2.5))]}
  function inR(k,w){return typeof k==='string'&&k>=w.a&&k<=w.b}
  function cnt(kind,w,scope){
   var n=0;
@@ -5061,7 +5076,7 @@ function buddy(sp,mo,sk,stg,anim){
  function gen(w){
   var ex=pickExam(),h=hash(w.a+(typeof COURSE!=='undefined'&&COURSE.name||''));
   function avg(k){var t=0;for(var i=1;i<=3;i++)t+=cnt(k,shiftWk(w.a,-i),null);return t/3}
-  function tg(k,cap){var L=LIM[k],a=avg(k),n=a>0?Math.round(a*1.15):L[0];n=Math.max(L[1],Math.min(L[2],n));if(k==='focus')n=Math.max(30,Math.round(n/10)*10);if(cap!=null)n=Math.max(1,Math.min(n,cap));return n}
+  function tg(k,cap){var L=lim(k),a=avg(k),n=a>0?Math.round(a*1.15):L[0];n=Math.max(L[1],Math.min(L[2],n));if(k==='focus')n=Math.max(30,Math.round(n/10)*10);if(cap!=null)n=Math.max(1,Math.min(n,cap));return n}
   function Q(k,cap,scoped){var q={k:k,n:tg(k,cap)};if(scoped&&ex){q.ex=ex.e.id;q.en=ex.e.name}return q}
   var q;
   if(ex&&ex.rem>0){
@@ -5291,14 +5306,15 @@ function buddy(sp,mo,sk,stg,anim){
    w.d.forEach(function(v,i){if(v){var d=(w.t&&w.t[i])||k;qs[d]=(qs[d]||0)+1}});if(w.all){var d2=w.at||(w.t&&w.t.filter(Boolean).sort().pop())||k;qa[d2]=1}})}catch(e){}
   return{cl:cl,fc:fc,qs:qs,qa:qa,act:act}}
  function points(S,o,faith,DD){
-  DD=DD||dayData();var t=0,d=S.a,end=S.b<todayKey?S.b:todayKey;
+  DD=DD||dayData();var t=0,d=S.a,end=S.b<todayKey?S.b:todayKey;var cap=SPar(S).cap;
   while(d<=end){
    if(!(S.kind==='reg'&&eventFor(d,faith))){
-    var p=Math.min(3,DD.cl[d]||0)*25+Math.min(40,Math.floor((DD.fc[d]||0)/3))+(o.chests[d]?30:0)+Math.min(3,DD.qs[d]||0)*50+(DD.qa[d]?50:0);
+    var p=Math.min(cap,DD.cl[d]||0)*25+Math.min(40,Math.floor((DD.fc[d]||0)/3))+(o.chests[d]?30:0)+Math.min(3,DD.qs[d]||0)*50+(DD.qa[d]?50:0);
     t+=Math.min(150,p)}
    d=addDays(d,1)}
   return t}
- function thr(S){var sc=Math.min(1,S.days/DAYS);return BASE.map(function(v){return Math.max(10,Math.round(v*sc/10)*10)})}
+ function SPar(S){try{return window.mhqSeasonParams?window.mhqSeasonParams(S):{total:1200,cap:3}}catch(x){return{total:1200,cap:3}}}
+ function thr(S){var sc=Math.min(1,S.days/DAYS)*(SPar(S).total/1200);return BASE.map(function(v){return Math.max(10,Math.round(v*sc/10)*10)})}
  function tierIcon(th,i,kind){return i===0?TH[th].i:['','🧣','🏅','🖼️',kind==='event'?'🌿':'🎩','🚩','✨','🏆'][i]}
  function rlabel(i,kind){return i===4&&kind==='event'?'Wreath':RL[i]}
  /* ---------- grants ---------- */
@@ -5461,6 +5477,107 @@ function buddy(sp,mo,sk,stg,anim){
  window.mhqSeasonSave=async function(){try{var b=await blob(),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=fname();document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000);toast('Image saved')}catch(e){toast('Press and hold the image to save it')}};
  window.mhqSeasonDebug=function(){var o=load();return{cur:current(o.on).cur,pts:points(current(o.on).cur,o,o.on),thr:thr(current(o.on).cur)}};
  try{window.renderSeason()}catch(e){}
+})();
+
+</script>
+<script>
+/* v8.0.0 Numbers & Pace: course-relative levels, credits, goals, Rounds, Gauntlet, Weekly Quests and Season track */
+(function(){
+ var ST=window.mhqV80Store;if(!ST)return;
+ function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+ function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+ function V(){var b=ST.get();return{applied:b.applied===true,xpl:+b.xpl||100,cxp:+b.cxp||250,baseC:+b.baseC||0,xpAt:+b.xpAt||0,lec:+b.lec||0,auto:b.auto!==false,ad:+b.ad||0,aw:+b.aw||0,gd:b.gd||'',trk:(b.trk&&typeof b.trk==='object')?b.trk:{},dis:+b.dis||0}}
+ function save(v){ST.set(v)}
+ function globals(v){if(v.applied){window.__mhqXPL=v.xpl;window.__mhqCXP=v.cxp;window.__mhqBase=v.baseC;window.__mhqXpAt=v.xpAt}else{delete window.__mhqXPL;delete window.__mhqCXP;delete window.__mhqBase;delete window.__mhqXpAt}}
+ /* ---------- pace ---------- */
+ function pace(){
+  var L=data.length,cl=0;data.forEach(function(l){if(l.steps.every(Boolean))cl++});var rem=L-cl,best=null,union={};
+  try{upcomingExams().forEach(function(e){
+   examLectureIds(e).forEach(function(id){union[id]=1});
+   var r=0;Object.keys(union).forEach(function(id){var l=data.find(function(x){return x.id==id});if(l&&!l.steps.every(Boolean))r++});
+   var days=Math.max(1,examDaysLeft(e)-2),n=r/days;if(!best||n>best.n)best={n:n,exam:e.name,days:examDaysLeft(e),rem:r}})}catch(x){}
+  var per=rem/56,src='default',ex=null;
+  if(best&&best.rem>0){per=best.n;src='exam';ex=best}
+  per=clamp(per,.25,6);
+  return{L:L,cleared:cl,rem:rem,perDay:per,perWeek:per*7,src:src,exam:ex}}
+ window.mhqPace=pace;
+ window.mhqPaceIf=function(){return V().applied?pace():null};
+ function calc(L){var P=Math.max(1,L)*70;return{xpl:clamp(Math.round(P/28/10)*10,40,600),cxp:clamp(Math.round(P/11.2/10)*10,100,1500)}}
+ function goalsFor(p){var d=clamp(Math.round(p.perDay*6),2,12);return[d,d*5]}
+ function stepsFor(p){return clamp(Math.round(p.perDay*5+.5),2,12)}
+ function trackFor(p){return{total:clamp(Math.round(28*(p.perDay*25+20)*1.15/50)*50,400,2400),cap:Math.max(3,Math.ceil(p.perDay*2))}}
+ function latestTrack(v,p){var k=Object.keys(v.trk);return k.length?v.trk[k[k.length-1]]:trackFor(p)}
+ window.mhqRoundSteps=function(){return V().applied?stepsFor(pace()):3};
+ window.mhqGauntletN=function(){return V().applied?clamp(Math.round(pace().perDay*7),3,10):5};
+ window.mhqSeasonParams=function(S){
+  var v=V();if(!v.applied)return{total:1200,cap:3};
+  var P=v.trk[S.key];if(!P){P=trackFor(pace());v.trk[S.key]=P;var ks=Object.keys(v.trk);while(ks.length>40)delete v.trk[ks.shift()];save(v)}
+  return P};
+ /* ---------- apply ---------- */
+ function apply(silent){
+  var v=V(),L=data.length,c=calc(L),p=pace(),xp=appXP,oldCx=v.applied?v.cxp:250,oldAt=v.applied?v.xpAt:0;
+  var rem=Math.max(0,xp-oldAt)%oldCx,g=ST.goals.get(),wasAuto=!v.applied?(g[0]===3&&g[1]===15):(v.auto&&g[0]===v.ad&&g[1]===v.aw);
+  try{window.mhqRewardState()}catch(e){}
+  v.baseC=ST.earned();v.xpAt=xp-Math.floor(rem/oldCx*c.cxp);v.xpl=c.xpl;v.cxp=c.cxp;v.lec=L;v.applied=true;v.trk={};v.dis=0;
+  v.auto=wasAuto;
+  if(wasAuto){var gf=goalsFor(p);ST.goals.set(gf[0],gf[1]);v.ad=gf[0];v.aw=gf[1];v.gd=todayKey}
+  save(v);globals(v);
+  try{rpgLastSeenLevel=rpgInfo().level}catch(e){}
+  try{render()}catch(e){}
+  if(!silent){try{playSfx('ui_click',.5);toast('📐 Numbers now follow your course size')}catch(e){}}}
+ window.mhqPaceApply=function(){apply(false);closeModal();window.renderPace()};
+ window.mhqPaceLater=function(){var v=V();v.dis=Date.now();save(v);closeModal();window.renderPace()};
+ window.mhqPaceAuto=function(on){var v=V();v.auto=!!on;if(on&&v.applied){var gf=goalsFor(pace());ST.goals.set(gf[0],gf[1]);v.ad=gf[0];v.aw=gf[1];v.gd=todayKey;save(v);try{render()}catch(e){}}else save(v);paint(true)};
+ /* ---------- preview modal ---------- */
+ var mov=null;
+ function closeModal(){if(mov){mov.remove();mov=null}}
+ window.mhqPaceClose=closeModal;
+ window.mhqPacePreview=function(){
+  closeModal();var v=V(),L=data.length,c=calc(L),p=pace(),xp=appXP,curX=mhqXpPerLevel(),gf=goalsFor(p),g=ST.goals.get(),tr=trackFor(p),curCx=v.applied?v.cxp:250;
+  var row=function(a,b,c2){return'<div class="pc-r"><span>'+a+'</span><b>'+b+'</b><i>'+c2+'</i></div>'};
+  mov=document.createElement('div');mov.className='ss-quiet';mov.setAttribute('role','dialog');mov.setAttribute('aria-label','Course numbers preview');
+  mov.innerHTML='<div class="ss-qc" style="text-align:left;max-height:86vh;overflow:auto"><div class="label">NUMBERS PREVIEW</div><h2 style="margin:4px 0">Scale to your course</h2><div class="meta">'+L+' lectures · about '+p.perWeek.toFixed(1)+' lectures a week needed ('+(p.src==='exam'?esc(p.exam.exam)+' in '+p.exam.days+' days':'8-week default, add an exam date to sharpen it')+')</div>'+
+   '<div class="pc-t"><div class="pc-r pc-h"><span></span><b>Now</b><i>After</i></div>'+
+   row('Level',Math.floor(xp/curX)+1,Math.floor(xp/c.xpl)+1)+row('XP per level',curX,c.xpl)+row('XP per credit',curCx,c.cxp)+
+   row('Collection unlock (15 💠)',(15*curCx).toLocaleString()+' XP',(15*c.cxp).toLocaleString()+' XP')+
+   row('Daily / 7-day mission',g[0]+' / '+g[1],gf[0]+' / '+gf[1])+row('Daily Rounds steps',mhqRoundSteps(),stepsFor(p))+row('Season track',(v.applied?latestTrack(v,p).total:1200)+' pts',tr.total+' pts')+row('Gauntlet size',mhqGauntletN()+' lectures',clamp(Math.round(p.perDay*7),3,10)+' lectures')+'</div>'+
+   '<div class="meta" style="margin-top:10px">Your XP total and your credits are never reduced. Mission targets only change if you haven’t set them yourself. To undo, restore your backup.</div>'+
+   '<div class="v78-yn" style="margin-top:14px"><button type="button" class="no" onclick="mhqPaceLater()">Not now</button><button type="button" class="yes" onclick="mhqPaceApply()">Apply</button></div></div>';
+  document.body.appendChild(mov)};
+ /* ---------- cards ---------- */
+ function paintNote(){
+  var el=document.getElementById('paceNote');if(!el)return;var v=V(),L=data.length,h='';
+  var quiet=v.dis&&Date.now()-v.dis<3*864e5;
+  if(!quiet&&!v.applied&&appXP>0)h='📐 <b>Levels and credits can now scale to your course size.</b> <button type="button" onclick="mhqPacePreview()">Preview</button>';
+  else if(!quiet&&v.applied&&v.lec&&Math.abs(L-v.lec)/v.lec>=.2)h='📐 <b>Your course size changed ('+v.lec+' → '+L+' lectures).</b> <button type="button" onclick="mhqPacePreview()">Recalibrate</button>';
+  var o=h?'<div class="pc-note">'+h+'</div>':'';if(el.dataset.h!==o){el.innerHTML=o;el.dataset.h=o}}
+ function paint(force){
+  var el=document.getElementById('paceCard');if(!el||!data.length)return;
+  var v=V(),p=pace(),g=ST.goals.get(),xp=appXP,xpl=mhqXpPerLevel();
+  var cx=v.applied?v.cxp:250,tr=v.applied?latestTrack(v,p):{total:1200};
+  var X=XP2,focusH=Math.round(60*X.focusPerMin),lecXp=4*X.step+X.lecture;
+  var guide=[['Study step',X.step+' XP each'],['Finishing a lecture (4 steps + bonus)',lecXp+' XP'],['MCQ set','from '+X.mcqBase+' XP, up to '+X.mcqCap+' with accuracy'],['Focus',X.focusPerMin+' XP/min · max '+X.focusSession+' per session · '+X.focusDay+' per day'],['Flashcards',X.cardBase+' + '+X.cardPer+'/card · up to '+X.cardCap+' per set · '+X.cardDay+'/day'],['Review done',X.review+' XP'],['Clinical case',X.clinical+' XP'],['Daily goal day',X.goal+' XP bonus']];
+  var html='<div class="section card pc-card"><div class="label">COURSE NUMBERS</div><h2 style="margin:4px 0">Built around your course</h2>'+
+   '<div class="meta">'+p.L+' lectures · '+p.cleared+' cleared · '+p.rem+' to go</div>'+
+   '<div class="pc-pace"><b>'+p.perWeek.toFixed(1)+'</b> lectures a week needed<small>'+(p.src==='exam'?'to be ready for '+esc(p.exam.exam)+' in '+p.exam.days+' days':'default 8-week plan · add an exam date for a sharper pace')+'</small></div>'+
+   '<div class="pc-t">'+
+   '<div class="pc-r"><span>Level size</span><b>'+xpl+' XP</b><i>'+(v.applied?'course-based':'classic')+'</i></div>'+
+   '<div class="pc-r"><span>Credit</span><b>'+cx+' XP</b><i>'+(v.applied?'15 💠 = '+(15*cx).toLocaleString()+' XP':'classic')+'</i></div>'+
+   '<div class="pc-r"><span>Daily / 7-day mission</span><b>'+g[0]+' / '+g[1]+'</b><i>'+(v.applied&&v.auto?'auto':'custom')+'</i></div>'+
+   '<div class="pc-r"><span>Season track</span><b>'+(tr.total||1200)+' pts</b><i>'+(v.applied?'course-based':'classic')+'</i></div></div>'+
+   (v.applied?'':'<button type="button" class="primary" style="width:100%;margin-top:10px" onclick="mhqPacePreview()">📐 Preview &amp; apply course scale</button>')+
+   '<details class="wq-det"><summary>📊 How XP is earned</summary><div class="pc-t" style="margin-top:8px">'+guide.map(function(r){return'<div class="pc-r"><span>'+r[0]+'</span><i style="grid-column:2/4;text-align:right">'+r[1]+'</i></div>'}).join('')+'</div><div class="meta" style="margin-top:8px">XP is your lifetime effort and never scales. Levels, credits, goals and seasons scale to the course around it.</div></details>'+
+   (v.applied?'<details class="wq-det"><summary>⚙ Scale settings</summary><div class="sty-row" style="margin-top:8px"><b>Auto-adjust mission targets</b><div class="sty-chips"><button type="button" class="'+(v.auto?'on':'')+'" onclick="mhqPaceAuto(true)">On</button><button type="button" class="'+(v.auto?'':'on')+'" onclick="mhqPaceAuto(false)">Off</button></div></div><button type="button" style="margin-top:8px" onclick="mhqPacePreview()">Recalibrate to '+p.L+' lectures</button></details>':'')+'</div>';
+  var open=el.querySelectorAll('details'),st=[].map.call(open,function(d){return d.open});
+  if(force||el.dataset.h!==html){el.innerHTML=html;el.dataset.h=html;el.querySelectorAll('details').forEach(function(d,i){if(st[i])d.open=true})}}
+ window.renderPace=function(){
+  if(!data.length)return;
+  var v=V();
+  if(!v.applied&&appXP===0&&!studySessions.length&&!data.some(function(l){return l.steps.some(Boolean)||(l.mcqs&&l.mcqs.length)})){apply(true);v=V()}
+  if(v.applied&&v.auto&&v.gd!==todayKey){var g=ST.goals.get();if(g[0]===v.ad&&g[1]===v.aw){var gf=goalsFor(pace());if(gf[0]!==g[0]){ST.goals.set(gf[0],gf[1]);v.ad=gf[0];v.aw=gf[1]}}else v.auto=false;v.gd=todayKey;save(v)}
+  paintNote();paint(false)};
+ globals(V());
+ try{window.renderPace();window.renderSeason&&window.renderSeason();window.renderWeekly&&window.renderWeekly();window.renderRounds&&window.renderRounds();render()}catch(e){}
 })();
 </script>
 </body>
