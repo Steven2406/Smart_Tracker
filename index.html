@@ -986,7 +986,7 @@ html[data-sframe] .bd-card{box-shadow:0 0 0 3px var(--sframe),0 0 18px color-mix
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v8.0.0</small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v8.0.1</small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -2142,11 +2142,11 @@ function load(){
       lastStudyDate=typeof s.lastStudyDate==="string"?s.lastStudyDate:null;
       todaySteps=safeNumber(s.todaySteps,0);
       rpgLastSeenLevel=Number.isFinite(Number(s.rpgLastSeenLevel))?Number(s.rpgLastSeenLevel):null;
-      legacyBonusXP=Math.max(0,savedXP-calculateBaseXP());
       reviewCards=(s.reviewCards&&typeof s.reviewCards==="object")?s.reviewCards:{};
       externalTests=Array.isArray(s.externalTests)?s.externalTests.filter(x=>x&&x.dateKey&&Number(x.total)>0):[];
       externalReviewCards=(s.externalReviewCards&&typeof s.externalReviewCards==="object")?s.externalReviewCards:{};
       clinicalState=(s.clinicalState&&typeof s.clinicalState==="object")?s.clinicalState:{};
+      legacyBonusXP=Math.max(0,savedXP-calculateBaseXP());
       if(s.audioSettings&&typeof s.audioSettings==="object"){audioSettings={enabled:s.audioSettings.enabled!==false,volume:Math.max(0,Math.min(1,safeNumber(s.audioSettings.volume,.68)))}}
       activityLedger=Array.isArray(s.activityLedger)?s.activityLedger:[];
       xpLedger=Array.isArray(s.xpLedger)?s.xpLedger:[];
@@ -5486,7 +5486,7 @@ function buddy(sp,mo,sk,stg,anim){
  var ST=window.mhqV80Store;if(!ST)return;
  function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
  function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
- function V(){var b=ST.get();return{applied:b.applied===true,xpl:+b.xpl||100,cxp:+b.cxp||250,baseC:+b.baseC||0,xpAt:+b.xpAt||0,lec:+b.lec||0,auto:b.auto!==false,ad:+b.ad||0,aw:+b.aw||0,gd:b.gd||'',trk:(b.trk&&typeof b.trk==='object')?b.trk:{},dis:+b.dis||0}}
+ function V(){var b=ST.get();return{applied:b.applied===true,xpl:+b.xpl||100,cxp:+b.cxp||250,baseC:+b.baseC||0,xpAt:+b.xpAt||0,lec:+b.lec||0,auto:b.auto!==false,ad:+b.ad||0,aw:+b.aw||0,gd:b.gd||'',trk:(b.trk&&typeof b.trk==='object')?b.trk:{},dis:+b.dis||0,xk:+b.xk||0}}
  function save(v){ST.set(v)}
  function globals(v){if(v.applied){window.__mhqXPL=v.xpl;window.__mhqCXP=v.cxp;window.__mhqBase=v.baseC;window.__mhqXpAt=v.xpAt}else{delete window.__mhqXPL;delete window.__mhqCXP;delete window.__mhqBase;delete window.__mhqXpAt}}
  /* ---------- pace ---------- */
@@ -5544,10 +5544,32 @@ function buddy(sp,mo,sk,stg,anim){
    '<div class="meta" style="margin-top:10px">Your XP total and your credits are never reduced. Mission targets only change if you haven’t set them yourself. To undo, restore your backup.</div>'+
    '<div class="v78-yn" style="margin-top:14px"><button type="button" class="no" onclick="mhqPaceLater()">Not now</button><button type="button" class="yes" onclick="mhqPaceApply()">Apply</button></div></div>';
   document.body.appendChild(mov)};
+
+ /* ---------- XP check (fixes the old refresh bug's leftovers) ---------- */
+ var xov=null;
+ function xpBonus(){try{return Math.round(legacyBonusXP||0)}catch(e){return 0}}
+ window.mhqXpReview=function(){
+  if(xov)xov.remove();var lg=xpBonus(),base=Math.round(calculateBaseXP()),now=Math.round(appXP);
+  xov=document.createElement('div');xov.className='ss-quiet';xov.setAttribute('role','dialog');xov.setAttribute('aria-label','XP check');
+  xov.innerHTML='<div class="ss-qc" style="text-align:left"><div class="label">XP CHECK</div><h2 style="margin:4px 0">Extra XP found</h2>'+
+   '<div class="pc-t"><div class="pc-r"><span>Your XP now</span><b>'+now.toLocaleString()+'</b><i></i></div><div class="pc-r"><span>Earned by your activity</span><b>'+base.toLocaleString()+'</b><i></i></div><div class="pc-r"><span>Not explained by activity</span><b>'+lg.toLocaleString()+'</b><i></i></div></div>'+
+   '<div class="meta" style="margin-top:10px">An old bug could add XP for external tests and clinical cases again on every refresh. If you never imported XP from a very old version, this extra amount is not real and can be removed. Credits you already earned stay. To undo, restore your backup.</div>'+
+   '<div class="v78-yn" style="margin-top:14px"><button type="button" class="no" onclick="mhqXpKeep()">Keep it</button><button type="button" class="yes" onclick="mhqXpRemove()">Remove extra XP</button></div></div>';
+  document.body.appendChild(xov)};
+ function xpClose(){if(xov){xov.remove();xov=null}}
+ window.mhqXpKeep=function(){var v=V();v.xk=xpBonus();save(v);xpClose();window.renderPace()};
+ window.mhqXpRemove=function(){
+  var v=V();v.xk=0;save(v);
+  try{legacyBonusXP=0;syncXP();save2()}catch(e){}
+  try{rpgLastSeenLevel=rpgInfo().level}catch(e){}
+  xpClose();try{render()}catch(e){}try{toast('🛠 Extra XP removed')}catch(e){}window.renderPace()};
+ function save2(){window.save&&window.save()}
  /* ---------- cards ---------- */
  function paintNote(){
   var el=document.getElementById('paceNote');if(!el)return;var v=V(),L=data.length,h='';
-  var quiet=v.dis&&Date.now()-v.dis<3*864e5;
+  var quiet=v.dis&&Date.now()-v.dis<864e5;
+  var xb=xpBonus();
+  if(xb>0&&v.xk<xb){var o0='<div class="pc-note">🛠 <b>XP check:</b> '+xb.toLocaleString()+' XP of your total isn’t explained by your activity. <button type="button" onclick="mhqXpReview()">Review</button></div>';if(el.dataset.h!==o0){el.innerHTML=o0;el.dataset.h=o0}return}
   if(!quiet&&!v.applied&&appXP>0)h='📐 <b>Levels and credits can now scale to your course size.</b> <button type="button" onclick="mhqPacePreview()">Preview</button>';
   else if(!quiet&&v.applied&&v.lec&&Math.abs(L-v.lec)/v.lec>=.2)h='📐 <b>Your course size changed ('+v.lec+' → '+L+' lectures).</b> <button type="button" onclick="mhqPacePreview()">Recalibrate</button>';
   var o=h?'<div class="pc-note">'+h+'</div>':'';if(el.dataset.h!==o){el.innerHTML=o;el.dataset.h=o}}
