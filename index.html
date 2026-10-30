@@ -981,12 +981,18 @@ html[data-sframe] .bd-card{box-shadow:0 0 0 3px var(--sframe),0 0 18px color-mix
 .pc-r{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:8px;align-items:baseline;font-size:13px;padding:5px 0;border-bottom:1px solid var(--line)}
 .pc-r b{text-align:right}.pc-r i{font-style:normal;text-align:right;color:var(--muted);font-size:12px}
 .pc-h{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.pc-h b{font-weight:600}
+/* ---- v8.0.2 narrow-phone fix: stat grids kept 4 columns below 480px (later rule overrode the media query) ---- */
+.rpg-stats,.clinical-stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:480px){.rpg-stats,.clinical-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* the elite skin's header sweep animation briefly widened the page (sideways scroll flicker) */
+html,body{overflow-x:clip}
+.top{overflow-x:clip}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v8.0.1</small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v8.0.2</small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -1518,7 +1524,7 @@ html[data-sframe] .bd-card{box-shadow:0 0 0 3px var(--sframe),0 0 18px color-mix
             if(j.backupType==="medical-hq-all"){if(typeof mhqRestoreAllObject==="function"){mhqRestoreAllObject(j);return}throw new Error("Please try again in a moment.")}
             if(j.backupType==="medical-hq-backup"){
               if(!j.course||!Array.isArray(j.course.lectures))throw new Error("This backup has no course in it. Import your course pack first, then import the backup from Data tools.");
-              const {course,...state}=j;if(isNew){commitNew(course,state);return}localStorage.setItem(KEY,JSON.stringify(course));localStorage.setItem("medicalHQ",JSON.stringify(state));location.reload();return;
+              const {course,motivation:bkMot,...state}=j;if(isNew){commitNew(course,state);return}localStorage.setItem(KEY,JSON.stringify(course));localStorage.setItem("medicalHQ",JSON.stringify(state));try{mhqRestoreMotivation(bkMot)}catch(e){}location.reload();return;
             }
             if(!Array.isArray(j.lectures)||!j.lectures.length)throw new Error("This file has no lectures.");
             const lectures=j.lectures.map(l=>({title:clean(l.title,220),subject:clean(l.subject,40)||"General",territory:clean(l.territory,60)})).filter(l=>l.title).slice(0,1000);
@@ -2201,7 +2207,7 @@ function renderFoundationAudit(){
 function exportBackup(){
   save();
   const courseCopy={...COURSE};delete courseCopy.voice;
-  const payload={...buildPersistedState(),backupType:"medical-hq-backup",exportedAt:new Date().toISOString(),course:courseCopy};
+  const payload={...buildPersistedState(),backupType:"medical-hq-backup",exportedAt:new Date().toISOString(),course:courseCopy,motivation:mhqMotivationRaw()};
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
   const url=URL.createObjectURL(blob); const a=document.createElement("a");
   a.href=url;a.download=`medical-hq-backup-${localDateKey()}.json`;a.click();
@@ -2218,9 +2224,10 @@ function importBackupFile(input){
       if(payload.schemaVersion && String(payload.schemaVersion)>SCHEMA_VERSION)throw new Error("Backup is newer than this app");
       const approved=await window.mhqConfirmDialog({title:"Replace current progress?",message:"This backup will replace the study data currently saved in this browser. Export a backup first if you want to keep it.",confirmText:"Import backup",icon:"📦",danger:true});
       if(!approved)return;
-      const {course:bkCourse,...state}=payload;
+      const {course:bkCourse,motivation:bkMot,...state}=payload;
       if(bkCourse&&Array.isArray(bkCourse.lectures)&&bkCourse.lectures.length){const prev=readCourse(),c={...bkCourse};if(prev&&prev.voice&&!c.voice)c.voice=prev.voice;localStorage.setItem(COURSE_KEY,JSON.stringify(c))}
       localStorage.setItem("medicalHQ",JSON.stringify(state));
+      mhqRestoreMotivation(bkMot);
       location.reload();
     }catch(e){toast(`❌ ${e.message||'Invalid Medical HQ backup'}`);}
     finally{input.value="";}
@@ -2309,7 +2316,8 @@ function renderResumeCard(){
   el.innerHTML=`<div class="resume-card"><div class="resume-main"><div class="label">${r.label}</div><div class="resume-title">Lecture ${x.id}: ${x.title}</div><div class="meta">${x.subject} · Next: ${nextStep} · ${p}% done</div><div class="progress"><div class="fill" style="width:${p}%"></div></div></div><button type="button" class="primary" onclick="openLecture(${x.id})">Continue</button></div>`;
 }
 
-function mhqXpPerLevel(){var v=window.__mhqXPL;return v>=20?v:100}
+function mhqNumsInit(){if(window.__mhqNI)return;window.__mhqNI=1;try{var m=JSON.parse(localStorage.getItem('mhqMotivationV52')||'null'),v=m&&m.v80;if(v&&v.applied){window.__mhqXPL=v.xpl;window.__mhqCXP=v.cxp;window.__mhqBase=v.baseC;window.__mhqXpAt=v.xpAt}}catch(e){}}
+function mhqXpPerLevel(){mhqNumsInit();var v=window.__mhqXPL;return v>=20?v:100}
 function rpgInfo(){
   const level=Math.floor(appXP/mhqXpPerLevel())+1;
   const levelStart=(level-1)*mhqXpPerLevel(), levelEnd=level*mhqXpPerLevel();
@@ -2386,6 +2394,8 @@ function openDataTools(){
   if(details)details.open=true;
   renderFoundationAudit();
 }
+function mhqMotivationRaw(){try{return localStorage.getItem("mhqMotivationV52")}catch(e){return null}}
+function mhqRestoreMotivation(s){try{if(typeof s==="string"&&s&&typeof JSON.parse(s)==="object")localStorage.setItem("mhqMotivationV52",s)}catch(e){}}
 function validateBackupPayload(payload){
   return !!(payload && Array.isArray(payload.data) && payload.data.length>0 && payload.data.every(x=>x&&typeof x.title==="string"&&typeof x.subject==="string"&&Array.isArray(x.steps)));
 }
@@ -2869,7 +2879,7 @@ function openCampaignTerritory(id){
 }
 function renderExtraViews(){
   if(window.mhqMotivationRender)window.mhqMotivationRender();
-  renderExams();renderHomeExam();try{renderUrgency()}catch(e){}try{renderTrophies()}catch(e){}try{mhqWatchTerritories()}catch(e){}try{renderRhythm()}catch(e){}try{renderRounds()}catch(e){}try{renderBuddy()}catch(e){}try{renderGauntlet()}catch(e){}try{renderBodyMap()}catch(e){}try{renderMistakes()}catch(e){}try{renderCalendar()}catch(e){}try{renderWeekly()}catch(e){}try{renderEnergy()}catch(e){}try{renderSeason()}catch(e){}try{renderPace()}catch(e){}
+  renderExams();renderHomeExam();try{renderUrgency()}catch(e){}try{renderTrophies()}catch(e){}try{mhqWatchTerritories()}catch(e){}try{renderRhythm()}catch(e){}try{renderRounds()}catch(e){}try{renderBuddy()}catch(e){}try{renderGauntlet()}catch(e){}try{renderBodyMap()}catch(e){}try{renderMistakes()}catch(e){}try{renderCalendar()}catch(e){}try{renderPace()}catch(e){}try{renderWeekly()}catch(e){}try{renderEnergy()}catch(e){}try{renderSeason()}catch(e){}
   populateStudyLectures();
   renderCampaignMap();
   renderRpg();
@@ -3557,7 +3567,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
  function studyActions(date=dayKey()){return ledger().filter(x=>x.dateKey===date&&['study-step','mcq','focus-session','boss-victory','clinical-case','external-test'].includes(x.type)).length}
  function weeklyActions(){const now=new Date();let n=0;for(let i=0;i<7;i++){const d=new Date(now);d.setDate(now.getDate()-i);n+=studyActions(dayKey(d));}return n}
  function xp(){return Number(readCore().xp||0)}
- function reconcileWallet(){let shouldHave=Math.floor(xp()/250);if(window.__mhqCXP&&window.__mhqBase!=null){shouldHave=window.__mhqBase+Math.floor(Math.max(0,xp()-window.__mhqXpAt)/window.__mhqCXP)}if(shouldHave>M.rewardCreditsEarned){M.rewardCreditsEarned=shouldHave;saveM();}}
+ function reconcileWallet(){mhqNumsInit();let shouldHave=Math.floor(xp()/250);if(window.__mhqCXP&&window.__mhqBase!=null){shouldHave=window.__mhqBase+Math.floor(Math.max(0,xp()-window.__mhqXpAt)/window.__mhqCXP)}if(shouldHave>M.rewardCreditsEarned){M.rewardCreditsEarned=shouldHave;saveM();}}
  function credits(){reconcileWallet();return Math.max(0,M.rewardCreditsEarned+Math.max(0,Number(M.bonusCredits)||0)-M.rewardCreditsSpent)}
  function pct(a,b){return b?Math.min(100,Math.round(a/b*100)):0}
  const rewards=[
@@ -3815,7 +3825,7 @@ window.mhqMotivationRender=()=>{reconcileWallet();render()};
   window.mhqShareBackup=async function(){
     try{
       save();const c={...COURSE};delete c.voice;
-      const payload={...buildPersistedState(),backupType:"medical-hq-backup",exportedAt:new Date().toISOString(),course:c};
+      const payload={...buildPersistedState(),backupType:"medical-hq-backup",exportedAt:new Date().toISOString(),course:c,motivation:mhqMotivationRaw()};
       const file=new File([JSON.stringify(payload,null,2)],`medical-hq-backup-${localDateKey()}.json`,{type:"application/json"});
       if(navigator.canShare&&navigator.canShare({files:[file]})){
         try{await navigator.share({files:[file],title:"Medical HQ backup"});markBackupDone();say("💾 Backup shared");return}
@@ -5098,7 +5108,7 @@ function buddy(sp,mo,sk,stg,anim){
  /* ---------- weekly card ---------- */
  var rendering=false;
  window.renderWeekly=function(){
-  var el=document.getElementById('weeklyCard');if(!el||!data.length||rendering)return;
+  var el=document.getElementById('weeklyCard');if(!el||!data.length||rendering||!window.mhqV80Ready)return;
   rendering=true;
   try{
    var o=load(),w=wkOf(todayKey),wk=o.weeks[w.a],ch=false;
@@ -5218,7 +5228,7 @@ function buddy(sp,mo,sk,stg,anim){
   host.innerHTML='<div class="section card"><div class="label">ENERGY LOG</div><h2 style="margin:6px 0">When you feel your best</h2><div class="sub" style="margin:0">'+line+'</div><div class="en-rows">'+rows+'</div><div class="meta" style="margin-top:8px">Based on '+tot+' rating'+(tot===1?'':'s')+' (by the time each session finished).</div></div>'};
  /* ---------- restore break after reload ---------- */
  setTimeout(function(){try{var o=load();if(o.brk){if(Date.now()-o.brk.e>10*60000){o.brk=null;save(o)}else showBreak()}}catch(e){}},900);
- try{window.renderWeekly();window.renderEnergy()}catch(e){}
+ try{window.renderEnergy()}catch(e){}
 })();
 
 </script>
@@ -5368,7 +5378,7 @@ function buddy(sp,mo,sk,stg,anim){
   return d>0?d+'d '+h+'h left':h+'h '+m+'m left'}
  var shown=null;
  window.renderSeason=function(){
-  var el=document.getElementById('seasonCard');if(!el||!data.length||busy)return;
+  var el=document.getElementById('seasonCard');if(!el||!data.length||busy||!window.mhqV80Ready)return;
   busy=true;
   try{
    var o=load(),faith=o.on,C=current(faith),S=C.cur,DD=dayData(),ch=false;
@@ -5476,19 +5486,20 @@ function buddy(sp,mo,sk,stg,anim){
  window.mhqSeasonShare=async function(){try{var b=await blob(),f=new File([b],fname(),{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'My Medical HQ season'});return}}catch(e){if(e&&e.name==='AbortError')return}window.mhqSeasonSave()};
  window.mhqSeasonSave=async function(){try{var b=await blob(),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=fname();document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000);toast('Image saved')}catch(e){toast('Press and hold the image to save it')}};
  window.mhqSeasonDebug=function(){var o=load();return{cur:current(o.on).cur,pts:points(current(o.on).cur,o,o.on),thr:thr(current(o.on).cur)}};
- try{window.renderSeason()}catch(e){}
+ 
 })();
 
 </script>
 <script>
 /* v8.0.0 Numbers & Pace: course-relative levels, credits, goals, Rounds, Gauntlet, Weekly Quests and Season track */
 (function(){
- var ST=window.mhqV80Store;if(!ST)return;
+ var ST=window.mhqV80Store;if(!ST){window.mhqV80Ready=true;return}
+ window.mhqV80Ready=true;
  function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
  function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
  function V(){var b=ST.get();return{applied:b.applied===true,xpl:+b.xpl||100,cxp:+b.cxp||250,baseC:+b.baseC||0,xpAt:+b.xpAt||0,lec:+b.lec||0,auto:b.auto!==false,ad:+b.ad||0,aw:+b.aw||0,gd:b.gd||'',trk:(b.trk&&typeof b.trk==='object')?b.trk:{},dis:+b.dis||0,xk:+b.xk||0}}
  function save(v){ST.set(v)}
- function globals(v){if(v.applied){window.__mhqXPL=v.xpl;window.__mhqCXP=v.cxp;window.__mhqBase=v.baseC;window.__mhqXpAt=v.xpAt}else{delete window.__mhqXPL;delete window.__mhqCXP;delete window.__mhqBase;delete window.__mhqXpAt}}
+ function globals(v){window.__mhqNI=1;if(v.applied){window.__mhqXPL=v.xpl;window.__mhqCXP=v.cxp;window.__mhqBase=v.baseC;window.__mhqXpAt=v.xpAt}else{delete window.__mhqXPL;delete window.__mhqCXP;delete window.__mhqBase;delete window.__mhqXpAt}}
  /* ---------- pace ---------- */
  function pace(){
   var L=data.length,cl=0;data.forEach(function(l){if(l.steps.every(Boolean))cl++});var rem=L-cl,best=null,union={};
