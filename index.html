@@ -992,7 +992,7 @@ html,body{overflow-x:clip}
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v8.0.2</small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v8.0.3</small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -5609,6 +5609,9 @@ function buddy(sp,mo,sk,stg,anim){
   if(!v.applied&&appXP===0&&!studySessions.length&&!data.some(function(l){return l.steps.some(Boolean)||(l.mcqs&&l.mcqs.length)})){apply(true);v=V()}
   if(v.applied&&v.auto&&v.gd!==todayKey){var g=ST.goals.get();if(g[0]===v.ad&&g[1]===v.aw){var gf=goalsFor(pace());if(gf[0]!==g[0]){ST.goals.set(gf[0],gf[1]);v.ad=gf[0];v.aw=gf[1]}}else v.auto=false;v.gd=todayKey;save(v)}
   paintNote();paint(false)};
+ /* new day while the app stays open: refresh without waiting for a tap */
+ function dayCheck(){try{if(typeof localDateKey==='function'&&localDateKey()!==todayKey&&!studyRunning)render()}catch(e){}}
+ setInterval(dayCheck,30000);document.addEventListener('visibilitychange',function(){if(!document.hidden)dayCheck()});window.addEventListener('focus',dayCheck);
  globals(V());
  try{window.renderPace();window.renderSeason&&window.renderSeason();window.renderWeekly&&window.renderWeekly();window.renderRounds&&window.renderRounds();render()}catch(e){}
 })();
