@@ -987,12 +987,59 @@ html[data-sframe] .bd-card{box-shadow:0 0 0 3px var(--sframe),0 0 18px color-mix
 /* the elite skin's header sweep animation briefly widened the page (sideways scroll flicker) */
 html,body{overflow-x:clip}
 .top{overflow-x:clip}
+/* ---- v8.1.0 layout, priority, college marking and charts ---- */
+:root{--v-prog:#2f7fd1;--v-watch:#8a5ad0}
+html[data-theme="dark"]{--v-prog:#6fb0f0;--v-watch:#b794f0}
+.next-card{padding:12px 14px}
+.next-card .progress,.next-card .next-links,.next-card .next-goal{display:none}
+.next-card #missionText{font-size:16px;margin:2px 0}
+.next-card .label{font-size:10px}
+.v81-more>summary{cursor:pointer;font-weight:700;color:var(--muted)}
+.v81-more[open]>summary{margin-bottom:10px}
+.v81-more>div>.section{margin-top:0}
+.v81-rs{display:flex;gap:8px;justify-content:space-between;margin-top:8px}
+.v81-rc{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 2px;background:var(--surface2);border:1px solid var(--line);border-radius:12px;color:var(--text);font-weight:400}
+.v81-rc span{font-size:11px;line-height:1.2;text-align:center;color:var(--muted);max-width:100%;overflow:hidden}
+.v81-r{width:46px;height:46px}
+.v81-xg{display:flex;gap:12px;align-items:center;margin-top:12px}
+.v81-gauge{width:96px;height:96px;flex:none}
+.v81-xt{font-size:13px;line-height:1.4}.v81-xt b{font-size:15px}.v81-mu{color:var(--muted);font-size:12px}
+.v81-seg{display:flex;gap:2px;height:10px;margin-top:10px;border-radius:6px;overflow:hidden;background:var(--line)}.v81-seg i{display:block;height:100%}
+.v81-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(20px,1fr));gap:4px;margin-top:8px}
+.v81-t{position:relative;aspect-ratio:1;min-height:20px;padding:0;border-radius:5px;border:2px solid transparent}
+.v81-t.col{border-color:var(--text)}.v81-t.ex::after{content:"";position:absolute;right:-2px;top:-2px;width:7px;height:7px;border-radius:50%;background:var(--gold);border:1px solid var(--surface)}
+.v81-lg{display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:8px}.v81-lg span:before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;background:var(--k);vertical-align:-1px}
+.v81-bl{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:13px}.v81-bl span{flex:none;width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.v81-bl b{flex:none;min-width:44px;text-align:right}
+.v81-b{flex:1;height:10px;border-radius:6px;background:var(--line);overflow:hidden}.v81-b i{display:block;height:100%;background:var(--accent);border-radius:6px}
+.v81-svg{width:100%;max-width:340px;display:block;margin:6px auto 0}.v81-svg text{fill:var(--muted);font-size:8px}
+.v81-don{display:flex;gap:14px;align-items:center;margin-top:8px}.v81-ring{width:86px;height:86px;border-radius:50%;flex:none;display:grid;place-items:center}.v81-ring i{width:52px;height:52px;border-radius:50%;background:var(--surface)}
+.v81-ft{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.v81-ft button{padding:7px 12px;border-radius:14px;font-size:13px;font-weight:600;background:var(--surface2);border:1px solid var(--line);color:var(--text)}
+.v81-ft button.active,.v81-ft button.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.v81-ft .v81-sel{margin-left:auto}
+.lecture .v81-col{padding:6px 8px;border-radius:10px;background:var(--surface2);border:1px solid var(--line);opacity:.55;font-weight:400}
+.lecture .v81-col.on{opacity:1;border-color:var(--accent);background:var(--soft)}
+.lecture.v81-taken{border-left:3px solid var(--accent)}
+.lecture .v81-ck{width:22px;height:22px;flex:none;margin-right:8px}
+.v81-bar{position:fixed;left:8px;right:8px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:300;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;background:var(--surface);color:var(--text);border:1px solid var(--accent);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.v81-bar>div{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.v81-bar button{padding:8px 10px;border-radius:10px;font-size:12px;font-weight:700;background:var(--surface2);border:1px solid var(--line);color:var(--text)}.v81-bar button.p{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}.v81-bar button:disabled{opacity:.45}
+.v81-toast{position:fixed;left:12px;right:12px;bottom:calc(150px + env(safe-area-inset-bottom));z-index:310;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 14px;border-radius:14px;background:#0f2420;color:#e5f3ee;font-size:13px}
+.v81-toast button{background:none;border:0;color:#7fe0b8;font-weight:800;padding:4px 8px}
+.v81-colrow{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;margin:0 0 10px;border-radius:14px;background:var(--surface2);border:1px solid var(--line);font-weight:600}
+.v81-colrow input{width:22px;height:22px}
+.v81-q{display:flex;gap:10px;align-items:center;width:100%;text-align:left;padding:9px 0;background:none;border:0;border-bottom:1px solid var(--line);border-radius:0;color:var(--text);font-weight:400}
+.v81-q span{flex:1;min-width:0}.v81-q b{display:block;font-size:14px}.v81-q small{display:block;color:var(--muted);font-size:12px}
+.v81-n{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:12px;font-weight:800;font-style:normal}
+.v81-chips{margin-top:10px;font-size:12px;color:var(--muted)}.v81-chip{display:inline-block;margin-left:6px;padding:2px 9px;border-radius:10px;border:1px solid var(--accent);color:var(--accent);font-weight:700}
+.v81-mapd>summary{cursor:pointer;font-size:14px}.v81-mapd[open]>summary{margin-bottom:6px}
+.v81-radar{max-width:250px}.v81-wk{max-width:320px}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v8.0.3</small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v8.1.0</small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -1560,7 +1607,7 @@ const raw=COURSE.lectures.map(l=>[String(l.title),String(l.subject||"General")])
   document.title="Medical HQ — "+COURSE.short;
 })();
 const SCHEMA_VERSION="5.0.0";
-const makeFreshData=()=>raw.map((x,i)=>({id:i+1,title:x[0],subject:x[1],steps:[false,false,false,false],stepDates:[null,null,null,null],completionDate:null,mastery:0,importance:"B",masteryProfile:{knowledge:0,retention:0,coverage:0,application:null,confidence:null,recency:0},mcqs:[],cards:[]}));
+const makeFreshData=()=>raw.map((x,i)=>({id:i+1,title:x[0],subject:x[1],steps:[false,false,false,false],stepDates:[null,null,null,null],completionDate:null,mastery:0,importance:"B",college:null,masteryProfile:{knowledge:0,retention:0,coverage:0,application:null,confidence:null,recency:0},mcqs:[],cards:[]}));
 let data=makeFreshData();
 let activeFilter="All", current=null;
 let appXP=0, appStreak=0, todayXp=0, todaySteps=0, legacyBonusXP=0;
@@ -1625,7 +1672,8 @@ function normalizeSavedLecture(x){
     mastery:Math.max(0,Math.min(100,safeNumber(x?.mastery,0))),
     importance:["A","B","C"].includes(x?.importance)?x.importance:"B",
     mcqs,
-    cards
+    cards,
+    college:(typeof x?.college==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(x.college))?x.college:null
   };
 }
 function migrateData(saved){
@@ -1642,7 +1690,7 @@ function migrateData(saved){
     const key=item.title+"\u0000"+item.subject;
     const old=buckets.get(key)?.shift();
     if(!old)return item;
-    const migrated={...item,steps:old.steps,stepDates:old.stepDates,completionDate:old.completionDate,mastery:old.mastery,mcqs:old.mcqs,cards:old.cards,importance:old.importance};
+    const migrated={...item,steps:old.steps,stepDates:old.stepDates,completionDate:old.completionDate,mastery:old.mastery,mcqs:old.mcqs,cards:old.cards,importance:old.importance,college:old.college||null};
     // V1.3 had no per-action dates. If its saved session was from today,
     // attach today's date to the already-completed actions so they can be undone correctly.
     return migrated;
@@ -2567,6 +2615,7 @@ function lecturePriority(lecture){
   return Math.round((weakness+overdue+uncertainty+stale+untested+importanceBonus)*10)/10;
 }
 function getPriorityLecture(){
+  if(window.mhqPrioTop){try{const t=window.mhqPrioTop();if(t)return t}catch(e){}}
   return data.slice().sort((a,b)=>lecturePriority(b)-lecturePriority(a))[0]||null;
 }
 function renderWeaknessView(){
@@ -2879,7 +2928,7 @@ function openCampaignTerritory(id){
 }
 function renderExtraViews(){
   if(window.mhqMotivationRender)window.mhqMotivationRender();
-  renderExams();renderHomeExam();try{renderUrgency()}catch(e){}try{renderTrophies()}catch(e){}try{mhqWatchTerritories()}catch(e){}try{renderRhythm()}catch(e){}try{renderRounds()}catch(e){}try{renderBuddy()}catch(e){}try{renderGauntlet()}catch(e){}try{renderBodyMap()}catch(e){}try{renderMistakes()}catch(e){}try{renderCalendar()}catch(e){}try{renderPace()}catch(e){}try{renderWeekly()}catch(e){}try{renderEnergy()}catch(e){}try{renderSeason()}catch(e){}
+  renderExams();renderHomeExam();try{renderUrgency()}catch(e){}try{renderTrophies()}catch(e){}try{mhqWatchTerritories()}catch(e){}try{renderRhythm()}catch(e){}try{renderRounds()}catch(e){}try{renderBuddy()}catch(e){}try{renderGauntlet()}catch(e){}try{renderBodyMap()}catch(e){}try{renderMistakes()}catch(e){}try{renderCalendar()}catch(e){}try{renderPace()}catch(e){}try{renderWeekly()}catch(e){}try{renderEnergy()}catch(e){}try{renderSeason()}catch(e){}try{renderV81()}catch(e){}
   populateStudyLectures();
   renderCampaignMap();
   renderRpg();
@@ -4341,7 +4390,7 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
   var el=document.getElementById('roundsCard'),S=window.mhqRoundsStore;if(!el||!S||!data.length)return;
   var st=S.get(),r=st.rounds;
   if(!r||r.date!==todayKey||!Array.isArray(r.q)||r.q.length!==3){r=generate();S.setRounds(r)}
-  var md=mode(),items=r.q.map(status),done=items.filter(function(i){return i.p>=i.n}).length,all=done===3;
+  var md=mode(),items=window.__mhqRounds=r.q.map(status),done=items.filter(function(i){return i.p>=i.n}).length,all=done===3;
   var sv=st.streak,live=sv.last===todayKey||sv.last===prevKey()?(sv.n||0):0;
   var end=new Date();end.setHours(24,0,0,0);var ms=end.getTime()-Date.now(),hh=Math.floor(ms/3600000),mm=Math.floor(ms%3600000/60000);
   var rows=items.map(function(i){var d=i.p>=i.n;return'<button type="button" class="rd-row'+(d?' done':'')+'" onclick="'+i.go+'"><span class="rd-chk" aria-hidden="true">'+(d?'✓':'')+'</span><span class="rd-tx"><b>'+i.t+'</b><small>'+(i.sub?i.sub+' · ':'')+(d?'Done':i.p+'/'+i.n)+'</small></span><span class="rd-go" aria-hidden="true">›</span></button>'}).join('');
@@ -5614,6 +5663,188 @@ function buddy(sp,mo,sk,stg,anim){
  setInterval(dayCheck,30000);document.addEventListener('visibilitychange',function(){if(!document.hidden)dayCheck()});window.addEventListener('focus',dayCheck);
  globals(V());
  try{window.renderPace();window.renderSeason&&window.renderSeason();window.renderWeekly&&window.renderWeekly();window.renderRounds&&window.renderRounds();render()}catch(e){}
+})();
+
+</script>
+<script>
+/* v8.1.0 Layout & UX: priority order, "taken in college", reorganised home, visual charts */
+(function(){
+ function $(i){return document.getElementById(i)}
+ function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+ function cleared(l){return l.steps.every(Boolean)}
+ /* 0 untouched, 1 only listened/watched, 2 in progress, 3 cleared */
+ function stage(l){var n=l.steps.filter(Boolean).length;if(n===4)return 3;if(n===0)return(l.mcqs&&l.mcqs.length)?2:0;if(n===1&&l.steps[0])return 1;return 2}
+ function nearest(){try{var u=upcomingExams();for(var i=0;i<u.length;i++){var ids=examLectureIds(u[i]);if(ids.length){var set={};ids.forEach(function(x){set[x]=1});return{e:u[i],set:set}}}}catch(x){}return null}
+ /* ---------- priority order ---------- */
+ var pc=null,pk='';
+ function sig(ne){return todayKey+'|'+(ne?ne.e.id+':'+ne.e.date:'')+'|'+data.map(function(l){return l.steps.map(function(s){return s?1:0}).join('')+(l.college?'c':'')+(l.mcqs?l.mcqs.length+':'+(l.mcqs.length?l.mcqs[l.mcqs.length-1].score:''):'')+(l.cards?l.cards.length:0)}).join(',')}
+ function prio(){
+  var ne=nearest(),k=sig(ne);if(pc&&pk===k)return pc;
+  var set=ne?ne.set:{};
+  var rows=data.map(function(l,i){
+   var st=stage(l),inEx=!!set[l.id],col=!!l.college,g;
+   if(inEx)g=(st===0&&col)?1:(st===1?2:3);else g=(st===0&&col)?4:(st===1?5:6);
+   return{l:l,g:g,i:i,m:inferredMastery(l),st:st,inEx:inEx,col:col}});
+  rows.sort(function(a,b){if(a.g!==b.g)return a.g-b.g;if((a.g===3||a.g===6)&&a.m!==b.m)return a.m-b.m;return a.i-b.i});
+  var nm=ne?ne.e.name:'';
+  rows.forEach(function(r){r.why=[,'In '+nm+' · taken in college · untouched','In '+nm+' · only listened or watched','In '+nm+' · mastery '+r.m+'%','Taken in college · untouched','Only listened or watched','Mastery '+r.m+'%'][r.g]});
+  pc=rows;pk=k;return rows}
+ window.mhqPrio=prio;
+ window.mhqPrioTop=function(){var p=prio();return p.length?p[0].l:null};
+ /* ---------- taken in college ---------- */
+ var toastEl=null,toastT=null;
+ function undoToast(msg,fn){
+  if(toastEl)toastEl.remove();clearTimeout(toastT);
+  toastEl=document.createElement('div');toastEl.className='v81-toast';toastEl.innerHTML='<span>'+esc(msg)+'</span><button type="button">Undo</button>';
+  document.body.appendChild(toastEl);toastEl.querySelector('button').onclick=function(){fn();toastEl.remove();toastEl=null};
+  toastT=setTimeout(function(){if(toastEl){toastEl.remove();toastEl=null}},6000)}
+ window.mhqSetCollege=function(ids,on){
+  ids=[].concat(ids);var prev=[];
+  data.forEach(function(l){if(ids.indexOf(l.id)>=0&&(!!l.college)!==on){prev.push([l,l.college||null]);l.college=on?todayKey:null}});
+  if(!prev.length)return;
+  try{save()}catch(e){}try{render()}catch(e){}
+  undoToast(prev.length+' lecture'+(prev.length===1?'':'s')+(on?' marked as taken in college':' unmarked'),function(){prev.forEach(function(p){p[0].college=p[1]});try{save();render()}catch(e){}})};
+ var sel={},selMode=false,colFilter='all',mapOpen=false;
+ window.mhqColFilter=function(v){colFilter=v;paintTools();try{renderLectureList()}catch(e){}};
+ window.mhqSelMode=function(on){selMode=on;sel={};paintTools();try{renderLectureList()}catch(e){}};
+ window.mhqSelToggle=function(id){if(sel[id])delete sel[id];else sel[id]=1;paintBar();var r=document.querySelector('#list .lecture[data-lid="'+id+'"] .v81-ck');if(r)r.checked=!!sel[id]};
+ window.mhqSelApply=function(mode){
+  var ids=Object.keys(sel).map(Number);if(!ids.length)return;
+  if(mode==='upto'){var mx=Math.max.apply(null,ids);ids=data.filter(function(l){return l.id<=mx}).map(function(l){return l.id});mhqSetCollege(ids,true)}
+  else mhqSetCollege(ids,mode==='mark');
+  sel={};selMode=false;paintTools();paintBar();try{renderLectureList()}catch(e){}};
+ var mm0=window.lectureMatches;
+ if(typeof mm0==='function')window.lectureMatches=function(x){
+  if(colFilter==='taken'&&!x.college)return false;
+  if(colFilter==='catch'&&!(x.college&&!cleared(x)))return false;
+  return mm0(x)};
+ var rl0=window.renderLectureList;
+ if(typeof rl0==='function')window.renderLectureList=function(){
+  var r=rl0.apply(this,arguments);try{enhanceList()}catch(e){}return r};
+ function enhanceList(){
+  document.querySelectorAll('#list .lecture').forEach(function(row){
+   var n=row.querySelector('.num');if(!n)return;var id=parseInt(n.textContent,10),l=data.find(function(x){return x.id===id});if(!l)return;
+   row.setAttribute('data-lid',id);row.classList.toggle('v81-taken',!!l.college);
+   var side=row.lastElementChild;
+   if(side&&!side.querySelector('.v81-col')){var b=document.createElement('button');b.type='button';b.className='v81-col'+(l.college?' on':'');b.title=l.college?'Taken in college (tap to unmark)':'Mark as taken in college';b.setAttribute('aria-pressed',l.college?'true':'false');b.textContent='🏫';b.onclick=function(ev){ev.stopPropagation();mhqSetCollege(id,!l.college)};side.insertBefore(b,side.firstChild)}
+   if(selMode&&!row.querySelector('.v81-ck')){var c=document.createElement('input');c.type='checkbox';c.className='v81-ck';c.checked=!!sel[id];c.setAttribute('aria-label','Select lecture '+id);c.onchange=function(){mhqSelToggle(id)};side.insertBefore(c,side.firstChild)}})}
+ function paintTools(){
+  var el=$('v81Tools');if(!el)return;
+  var chip=function(v,t){return'<button type="button" class="'+(colFilter===v?'active':'')+'" onclick="mhqColFilter(\''+v+'\')">'+t+'</button>'};
+  el.innerHTML='<div class="v81-ft">'+chip('all','All')+chip('taken','🏫 Taken')+chip('catch','🏫 Not cleared yet')+'<button type="button" class="v81-sel'+(selMode?' on':'')+'" onclick="mhqSelMode('+(!selMode)+')">'+(selMode?'✕ Cancel':'☑ Select')+'</button></div>'}
+ function paintBar(){
+  var b=$('v81Bar');if(!selMode){if(b)b.remove();return}
+  if(!b){b=document.createElement('div');b.id='v81Bar';b.className='v81-bar';document.body.appendChild(b)}
+  var n=Object.keys(sel).length;
+  b.innerHTML='<b>'+n+' selected</b><div><button type="button" class="p" onclick="mhqSelApply(\'mark\')"'+(n?'':' disabled')+'>🏫 Mark taken</button><button type="button" onclick="mhqSelApply(\'upto\')"'+(n?'':' disabled')+'>Up to last</button><button type="button" onclick="mhqSelApply(\'un\')"'+(n?'':' disabled')+'>Unmark</button></div>'}
+ /* ---------- chart helpers ---------- */
+ var STC=['var(--line)','var(--v-watch)','var(--v-prog)','var(--good)'];
+ function counts(){var N=data.length,t=0,y=0,ah=0,bh=0;data.forEach(function(l){var c=cleared(l);if(l.college)t++;if(c)y++;if(c&&!l.college)ah++;if(l.college&&!c)bh++});return{N:N,t:t,y:y,ahead:ah,behind:bh}}
+ function cvyHTML(){
+  var c=counts(),p=function(v){return c.N?Math.round(v/c.N*100):0};
+  return'<div class="v81-cvy" role="img" aria-label="College has taken '+c.t+' of '+c.N+' lectures, you cleared '+c.y+'"><div class="v81-bl"><span>College</span><div class="v81-b"><i style="width:'+p(c.t)+'%;background:var(--v-prog)"></i></div><b>'+c.t+'/'+c.N+'</b></div><div class="v81-bl"><span>You</span><div class="v81-b"><i style="width:'+p(c.y)+'%;background:var(--good)"></i></div><b>'+c.y+'/'+c.N+'</b></div><div class="meta">'+(c.t?(c.behind?c.behind+' taken lecture'+(c.behind===1?'':'s')+' still to clear':'You’re caught up with the college')+(c.ahead?' · '+c.ahead+' ahead of it':''):'Mark lectures as taken in college (🏫) to compare your pace.')+'</div></div>'}
+ function mapHTML(){
+  var ne=nearest(),set=ne?ne.set:{},cs={0:0,1:0,2:0,3:0};
+  var tiles=data.map(function(l){var s=stage(l);cs[s]++;return'<button type="button" class="v81-t'+(l.college?' col':'')+(set[l.id]?' ex':'')+'" style="background:'+STC[s]+'" onclick="openLecture('+l.id+')" aria-label="Lecture '+l.id+', '+['untouched','listened or watched only','in progress','cleared'][s]+(l.college?', taken in college':'')+'" title="L'+l.id+' · '+esc(l.title)+'"></button>'}).join('');
+  return'<div class="v81-tiles">'+tiles+'</div><div class="v81-lg"><span style="--k:var(--good)">cleared '+cs[3]+'</span><span style="--k:var(--v-prog)">in progress '+cs[2]+'</span><span style="--k:var(--v-watch)">watched '+cs[1]+'</span><span style="--k:var(--line)">untouched '+cs[0]+'</span></div><div class="meta" style="margin-top:4px">Outlined = taken in college'+(ne?' · gold dot = in '+esc(ne.e.name):'')+'</div>'}
+ function radarHTML(){
+  var subj={};data.forEach(function(l){(subj[l.subject]=subj[l.subject]||[]).push(inferredMastery(l))});
+  var K=Object.keys(subj);if(K.length<2)return'';
+  var V=K.map(function(k){var a=subj[k];return Math.round(a.reduce(function(x,y){return x+y},0)/a.length)});
+  if(K.length>8){return'<div class="v81-rows">'+K.map(function(k,i){return'<div class="v81-bl"><span>'+esc(k)+'</span><div class="v81-b"><i style="width:'+V[i]+'%"></i></div><b>'+V[i]+'%</b></div>'}).join('')+'</div>'}
+  var C=70,R=48,n=K.length,pts=[],ax='';
+  K.forEach(function(k,i){var a=-Math.PI/2+i*2*Math.PI/n,x=C+R*Math.cos(a),y=C+R*Math.sin(a);ax+='<line x1="'+C+'" y1="'+C+'" x2="'+x.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="var(--line)"/><text x="'+(C+(R+11)*Math.cos(a)).toFixed(1)+'" y="'+(C+(R+11)*Math.sin(a)+3).toFixed(1)+'" text-anchor="middle">'+esc(k.length>8?k.slice(0,7)+'…':k)+'</text>';pts.push((C+R*V[i]/100*Math.cos(a)).toFixed(1)+','+(C+R*V[i]/100*Math.sin(a)).toFixed(1))});
+  return'<svg viewBox="-16 -4 172 148" class="v81-svg v81-radar" role="img" aria-label="Mastery by subject: '+K.map(function(k,i){return k+' '+V[i]+'%'}).join(', ')+'"><circle cx="70" cy="70" r="48" fill="none" stroke="var(--line)"/><circle cx="70" cy="70" r="24" fill="none" stroke="var(--line)"/>'+ax+'<polygon points="'+pts.join(' ')+'" fill="var(--accent)" fill-opacity=".25" stroke="var(--accent)" stroke-width="2"/></svg>'}
+ function weekHTML(){
+  var days=[],i;for(i=6;i>=0;i--){var d=new Date();d.setDate(d.getDate()-i);days.push(localDateKey(d))}
+  var st={},fc={};data.forEach(function(l){(l.stepDates||[]).forEach(function(k,j){if(k&&l.steps[j])st[k]=(st[k]||0)+1})});
+  studySessions.forEach(function(s){if(s&&s.dateKey)fc[s.dateKey]=(fc[s.dateKey]||0)+(+s.minutes||0)});
+  var mx=Math.max(4,Math.max.apply(null,days.map(function(k){return st[k]||0}))),B='',L=['Su','Mo','Tu','We','Th','Fr','Sa'];
+  days.forEach(function(k,j){var v=st[k]||0,h=Math.round(v/mx*56);B+='<rect x="'+(8+j*19)+'" y="'+(64-h)+'" width="13" height="'+Math.max(h,v?3:1)+'" rx="3" fill="'+(j===6?'var(--accent)':'var(--v-prog)')+'"/><text x="'+(14.5+j*19)+'" y="76" text-anchor="middle">'+L[new Date(k+'T12:00:00').getDay()]+'</text><text x="'+(14.5+j*19)+'" y="'+(60-h)+'" text-anchor="middle">'+(v||'')+'</text><text x="'+(14.5+j*19)+'" y="86" text-anchor="middle">'+(fc[k]?fc[k]+'m':'')+'</text>'});
+  var tot=days.reduce(function(a,k){return a+(st[k]||0)},0),ft=days.reduce(function(a,k){return a+(fc[k]||0)},0);
+  return'<svg viewBox="0 -8 142 100" class="v81-svg v81-wk" role="img" aria-label="Study steps per day in the last 7 days, total '+tot+' steps and '+ft+' focus minutes"><line x1="4" y1="64" x2="138" y2="64" stroke="var(--line)"/>'+B+'</svg><div class="meta">Bars: study steps · under each day: focus minutes</div>'}
+ function donutHTML(){
+  var c={};data.forEach(function(l){(l.mcqs||[]).forEach(function(m){if(m&&m.errorType){var k=m.errorType;c[k]=(c[k]||0)+1}})});
+  var K=Object.keys(c).sort(function(a,b){return c[b]-c[a]}),tot=K.reduce(function(a,k){return a+c[k]},0);if(!tot)return'';
+  var top=K.slice(0,4),other=tot-top.reduce(function(a,k){return a+c[k]},0),COL=['var(--danger)','var(--gold)','var(--v-prog)','var(--v-watch)','var(--muted)'],parts=[],acc=0;
+  var items=top.map(function(k){return[k,c[k]]});if(other)items.push(['Other',other]);
+  items.forEach(function(it,i){var p=it[1]/tot*100;parts.push(COL[i]+' '+acc.toFixed(1)+'% '+(acc+p).toFixed(1)+'%');acc+=p});
+  return'<div class="v81-don"><div class="v81-ring" style="background:conic-gradient('+parts.join(',')+')" role="img" aria-label="Mistakes by type: '+items.map(function(it){return it[0]+' '+Math.round(it[1]/tot*100)+'%'}).join(', ')+'"><i></i></div><div class="v81-lg" style="flex-direction:column;gap:3px">'+items.map(function(it,i){return'<span style="--k:'+COL[i]+'">'+esc(it[0])+' '+Math.round(it[1]/tot*100)+'%</span>'}).join('')+'</div></div>'}
+ /* ---------- hosts & cards ---------- */
+ function host(id,after,mk){var e=$(id);if(!e){e=document.createElement('div');e.id=id;var a=typeof after==='string'?$(after):after;if(a&&a.parentNode)a.parentNode.insertBefore(e,a.nextSibling);else return null}return e}
+ function put(el,html){if(el&&el.dataset.h!==html){el.innerHTML=html;el.dataset.h=html}}
+ function paintCurr(){
+  var hm=host('v81Map','resumeCard'),c=counts();
+  put(hm,'<details class="section card v81-mapd"'+(mapOpen?' open':'')+'><summary><b>Lecture map</b> · '+c.y+' cleared · '+c.t+' taken in college</summary>'+mapHTML()+'<div class="label" style="margin-top:12px">COLLEGE vs YOU</div>'+cvyHTML()+'</details>');
+  var md=hm&&hm.querySelector('details');if(md)md.ontoggle=function(){mapOpen=md.open};
+  var lt=document.querySelector('#curriculumView .lecture-tools');if(lt&&!$('v81Tools')){var t=document.createElement('div');t.id='v81Tools';lt.parentNode.insertBefore(t,lt.nextSibling);paintTools()}}
+ function paintOver(){
+  var h=host('v81Over','paceCard');if(!h)return;
+  var rd=radarHTML(),dn=donutHTML();
+  put(h,'<div class="section card"><div class="label">LECTURE MAP</div>'+mapHTML()+'</div><div class="section card"><div class="label">COLLEGE vs YOU</div>'+cvyHTML()+'</div>'+(rd?'<div class="section card"><div class="label">MASTERY BY SUBJECT</div>'+rd+'</div>':'')+'<div class="section card"><div class="label">LAST 7 DAYS</div>'+weekHTML()+'</div>'+(dn?'<div class="section card"><div class="label">MISTAKES BY TYPE</div>'+dn+'</div>':''))}
+ function chipsFor(r){
+  var c=[];try{var it=window.__mhqRounds||[];if(it.some(function(i){return i.p<i.n&&/step|lecture|study/i.test(i.t)}))c.push('Round')}catch(e){}
+  try{var W=window.mhqV78Store.get().weeks,k=Object.keys(W).sort().pop(),w=W[k];if(w&&w.q.some(function(q,i){return!w.d[i]&&(q.k==='clear'||q.k==='steps')}))c.push('Quest')}catch(e){}
+  c.push('Season');return c.map(function(x){return'<span class="v81-chip">'+x+'</span>'}).join('')}
+ function paintQueue(){
+  var tv=$('todayView');if(!tv)return;var h=$('v81Queue');
+  if(!h){h=document.createElement('div');h.id='v81Queue';tv.insertBefore(h,tv.firstChild)}
+  var p=prio().filter(function(r){return!(r.st===3&&r.m>=75)}).slice(0,8),ne=nearest();
+  var COLS=['','#c0392b','#d9822b','#c9921a','#2f7fd1','#6f7fd1','#6b7f78'];
+  put(h,'<div class="section card"><div class="section-head"><h2>Study queue</h2><small>'+(ne?'📅 '+esc(ne.e.name):'No exam dates yet')+'</small></div>'+(p.length?p.map(function(r){return'<button type="button" class="v81-q" onclick="openLecture('+r.l.id+')"><i class="v81-n" style="background:'+COLS[r.g]+'" title="Priority group '+r.g+'">'+r.g+'</i><span><b>L'+r.l.id+' · '+esc(r.l.title)+'</b><small>'+esc(r.why)+'</small></span>'+(r.col?'<em title="Taken in college">🏫</em>':'')+'</button>'}).join('')+'<div class="v81-chips">Also counts toward: '+chipsFor()+'</div>':'<div class="empty">Everything is cleared and strong. Great work!</div>')+'<div class="meta" style="margin-top:8px">Order: 1 exam · taken · untouched → 2 exam · only watched → 3 rest of exam by mastery → 4 taken · untouched → 5 only watched → 6 the rest by mastery.</div></div>')}
+ /* ---------- exam gauge ---------- */
+ function gauge(){
+  var card=document.querySelector('#homeExamCard .exam-home');if(!card||card.querySelector('.v81-xg'))return;
+  var up=upcomingExams();if(!up.length)return;var e=up[0],s=examStats(e),ids=examLectureIds(e),L=ids.map(function(id){return data.find(function(x){return x.id===id})}).filter(Boolean);
+  if(!L.length)return;
+  var now=Math.max(0,Math.min(100,Math.round(s.mastery||0))),c=[0,0,0,0];L.forEach(function(l){c[stage(l)]++});
+  var left=L.filter(function(l){return!cleared(l)}),since=new Date();since.setDate(since.getDate()-14);var sk=localDateKey(since),rec=0;
+  data.forEach(function(l){if(cleared(l)){var m=(l.stepDates||[]).filter(Boolean).sort().pop();if(m&&m>=sk)rec++}});
+  var perDay=rec/14,days=Math.max(0,s.days),extra=Math.min(left.length,Math.round(perDay*days));
+  var tgt=Math.max(60,Math.round(L.filter(cleared).reduce(function(a,l){return a+inferredMastery(l)},0)/Math.max(1,L.filter(cleared).length))||70);
+  var order=left.slice().sort(function(a,b){return inferredMastery(a)-inferredMastery(b)}).slice(0,extra),gain=order.reduce(function(a,l){return a+Math.max(0,tgt-inferredMastery(l))},0)/L.length;
+  var proj=Math.min(100,Math.round(now+gain)),colr=now<50?'var(--danger)':now<75?'var(--gold)':'var(--good)',need=days>1?(left.length/(days-1)):left.length;
+  var seg=function(n,k){return n?'<i style="flex:'+n+';background:'+k+'"></i>':''};
+  var html='<div class="v81-xg"><svg viewBox="0 0 100 100" class="v81-gauge" role="img" aria-label="Readiness '+now+' percent'+(proj>now?', about '+proj+' percent on exam day at your current pace':'')+'"><circle cx="50" cy="50" r="40" fill="none" stroke="var(--line)" stroke-width="10"/>'+(proj>now?'<circle cx="50" cy="50" r="40" fill="none" stroke="'+colr+'" stroke-opacity=".35" stroke-width="10" pathLength="100" stroke-dasharray="0 '+now+' '+(proj-now)+' '+(100-proj)+'" transform="rotate(-90 50 50)"/>':'')+'<circle cx="50" cy="50" r="40" fill="none" stroke="'+colr+'" stroke-width="10" stroke-linecap="round" pathLength="100" stroke-dasharray="'+now+' '+(100-now)+'" transform="rotate(-90 50 50)"/><text x="50" y="55" text-anchor="middle" style="font-size:22px;font-weight:800;fill:var(--text)">'+now+'%</text></svg><div class="v81-xt"><b>Ready '+now+'%</b><div>'+s.cleared+'/'+s.total+' cleared · '+left.length+' to go</div>'+(days>0?(perDay>0?'<div>At your pace ≈ <b>'+proj+'%</b> on exam day</div>':'<div>Clear lectures to raise this by exam day</div>')+(left.length?'<div class="v81-mu">Needs ≈ '+(need<1?need.toFixed(1):Math.ceil(need))+' lecture'+(need===1?'':'s')+'/day</div>':''):'')+'</div></div><div class="v81-seg" role="img" aria-label="'+c[3]+' cleared, '+(c[1]+c[2])+' in progress, '+c[0]+' untouched">'+seg(c[3],'var(--good)')+seg(c[2],'var(--v-prog)')+seg(c[1],'var(--v-watch)')+seg(c[0],'var(--line)')+'</div>';
+  var head=card.querySelector('.exam-card-head');if(head)head.insertAdjacentHTML('afterend',html);
+  var pb=card.querySelector('.progress');if(pb)pb.style.display='none'}
+ var rhe=window.renderHomeExam;
+ if(typeof rhe==='function')window.renderHomeExam=function(){var r=rhe.apply(this,arguments);try{gauge()}catch(e){}return r};
+ /* ---------- home layout ---------- */
+ function ringSVG(p,n,col){var f=n?Math.min(1,p/n):0;return'<svg viewBox="0 0 44 44" class="v81-r"><circle cx="22" cy="22" r="17" fill="none" stroke="var(--line)" stroke-width="6"/>'+(f>0?'<circle cx="22" cy="22" r="17" fill="none" stroke="'+(col||'var(--accent)')+'" stroke-width="6" stroke-linecap="round" pathLength="100" stroke-dasharray="'+Math.round(f*100)+' '+(100-Math.round(f*100))+'" transform="rotate(-90 22 22)"/>':'')+'<text x="22" y="26" text-anchor="middle" style="font-size:11px;font-weight:700;fill:var(--text)">'+(f>=1?'✓':p+'/'+n)+'</text></svg>'}
+ function paintRings(){
+  var h=$('todayRings');if(!h)return;
+  var it=window.__mhqRounds||[],goal=(typeof XP2!=='undefined'&&XP2.goalSteps)||3,short=function(t){t=String(t).replace(/^(Complete|Finish a|Log an|Do a|Solve a|Test yourself on)\s*/i,'');return t.length>16?t.slice(0,15)+'…':t};
+  var cells='<button type="button" class="v81-rc" onclick="startMission()">'+ringSVG(Math.min(todaySteps,goal),goal,'var(--accent)')+'<span>Study steps</span></button>'+it.map(function(i){return'<button type="button" class="v81-rc" onclick="'+i.go+'">'+ringSVG(i.p,i.n,i.p>=i.n?'var(--good)':'var(--v-prog)')+'<span>'+esc(short(i.t))+'</span></button>'}).join('');
+  put(h,'<div class="section card"><div class="label">TODAY</div><div class="v81-rs">'+cells+'</div></div>')}
+ var laid=false;
+ function layout(){
+  if(laid)return;var hv=$('homeView');if(!hv)return;
+  if(!$('todayRings')){var tr=document.createElement('div');tr.id='todayRings';hv.appendChild(tr)}
+  var more=$('homeMore');if(!more){more=document.createElement('details');more.id='homeMore';more.className='section card v81-more';more.innerHTML='<summary>More · Season &amp; verse</summary>';hv.appendChild(more)}
+  ['seasonCard','verseCard'].forEach(function(i){var e=$(i);if(e)more.appendChild(e)});
+  var order=['protectCard','cloudNotice','urgencyBox','.hero-slim','paceNote','homeExamCard','vitalsBox','todayRings','roundsCard','weeklyCard','.next-card','buddyCard','trophyShelf','homeMore','.adaptive-review-card','.home-stats'];
+  order.forEach(function(sel){var e=sel.charAt(0)==='.'?hv.querySelector(sel):$(sel);if(e)hv.appendChild(e)});
+  laid=true}
+ /* ---------- lecture sheet toggle ---------- */
+ var ol0=window.openLecture;
+ if(typeof ol0==='function')window.openLecture=function(id){
+  var r=ol0.apply(this,arguments);
+  try{var st=$('mSteps');if(st&&current){var row=$('v81ColRow');if(!row){row=document.createElement('label');row.id='v81ColRow';row.className='v81-colrow';st.parentNode.insertBefore(row,st)}
+   row.innerHTML='<span>🏫 Taken in college</span><input type="checkbox" '+(current.college?'checked':'')+' aria-label="Taken in college">';
+   row.querySelector('input').onchange=function(){var l=current;if(l){l.college=this.checked?todayKey:null;try{save();render()}catch(e){}}}}}catch(e){}
+  return r};
+ /* ---------- main ---------- */
+ window.renderV81=function(){
+  if(!data.length)return;
+  try{layout()}catch(e){}
+  try{paintRings()}catch(e){}
+  try{paintCurr()}catch(e){}
+  try{paintOver()}catch(e){}
+  try{paintQueue()}catch(e){}
+  try{gauge()}catch(e){}
+  try{enhanceList()}catch(e){}};
+ try{window.renderV81()}catch(e){}
 })();
 </script>
 </body>
