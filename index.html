@@ -1105,73 +1105,22 @@ html[data-theme="dark"]{--v-prog:#6fb0f0;--v-watch:#b794f0}
 #protectCard .protect-actions button{padding:7px 11px;font-size:12px;min-height:34px;margin:0}
 #protectCard .protect-actions button{white-space:nowrap}
 
-/* ---- v8.1.2 Enhanced One-Screen HUD + Verse & Trophy Split ---- */
-#homeView #vitalsBox{display:none!important}
-.app:has(#homeView.view.active){padding-bottom:calc(72px + env(safe-area-inset-bottom))}
-#homeView.view.active{gap:6px}
-#hq81{display:grid;gap:clamp(5px,1.05dvh,8px);margin:0}
-#hqTop{display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:16px;background:linear-gradient(145deg,color-mix(in srgb,var(--surface) 92%,var(--accent)),var(--surface));border:1px solid color-mix(in srgb,var(--accent) 22%,var(--line));box-shadow:var(--shadow)}
-.hq-av{width:46px;height:46px;border:2.5px solid var(--accent);box-shadow:0 0 12px var(--glow)}
-.hq-bub{padding:6px 10px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);font-size:12px;line-height:1.25;max-height:44px}
-.hq-bub::before{left:-6px;top:14px;width:10px;height:10px;background:var(--surface2)}
-.hq-st{padding:2px 8px}
-.hq-st .fl{font-size:24px}
-.hq-st b{font-size:22px}
-.hq-season{padding:8px 11px;border-radius:15px;box-shadow:0 6px 20px -6px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.22)}
-.hq-tier{width:42px;height:44px;border-radius:11px;background:rgba(0,0,0,.32)}
-.hq-tier b{font-size:20px}
-.hq-sn b{font-size:14.5px;letter-spacing:-.01em}
-.hq-bar{height:15px;border-radius:99px;background:rgba(0,0,0,.4);box-shadow:inset 0 1px 3px rgba(0,0,0,.45)}
-.hq-bar i{background:linear-gradient(90deg,#ffe066,#ff9f1c);box-shadow:0 0 10px rgba(255,190,40,.65)}
-.hq-bar u{font-size:10.5px}
-.hq-nx{width:36px;height:36px;font-size:18px;box-shadow:0 0 12px rgba(255,210,74,.4)}
-.hq-card{padding:8px 11px;border-radius:14px;background:linear-gradient(165deg,color-mix(in srgb,var(--surface) 95%,var(--accent)),var(--surface));border:1px solid color-mix(in srgb,var(--line) 85%,var(--accent))}
-.hq-empty{padding:7px 10px;font-size:12px;border-style:dashed}
-.hq-exam{padding:6px 10px;gap:8px}
-.hq-gauge{width:40px;height:40px}
-.hq-ex b{font-size:13.5px}
-.hq-ex small,.hq-dd small{font-size:10.5px}
-.hq-dd b{font-size:19px}
-.hq-row{padding:6px 6px;gap:3px}
-.hq-rg{width:38px;height:38px;filter:drop-shadow(0 0 4px var(--glow))}
-.hq-chest{font-size:24px;line-height:38px}
-.hq-c span{font-size:9.5px;font-weight:600}
-.hq-qs{padding:7px 11px;gap:4px}
-.hq-qh b{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em}
-.hq-q{font-size:11.5px;gap:7px}
-.hq-qb{height:7px;border-radius:99px;background:var(--surface2)}
-.hq-qb i{background:linear-gradient(90deg,var(--accent),var(--accent2));box-shadow:0 0 8px var(--glow)}
-.hq-nx2{padding:7px 10px;gap:8px;background:linear-gradient(135deg,color-mix(in srgb,var(--surface) 84%,var(--accent)),var(--surface));border-color:color-mix(in srgb,var(--accent) 45%,var(--line));box-shadow:var(--shadow),0 0 18px -6px var(--glow)}
-.hq-n{width:24px;height:24px;font-size:11.5px;box-shadow:0 0 8px var(--glow)}
-.hq-nt small{font-size:8.5px;font-weight:800;color:var(--accent);letter-spacing:.1em}
-.hq-nt b{font-size:12.5px}
-.hq-nx2 button{padding:6px 15px;min-height:32px;border-radius:99px;font-size:11.5px;letter-spacing:.04em;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--accent-ink);box-shadow:0 2px 10px var(--glow)}
-#hqSplit{display:grid;grid-template-columns:1.08fr .92fr;gap:8px;align-items:stretch}
-.hq-verse-card,.hq-trophy-card{display:flex;flex-direction:column;justify-content:space-between;align-items:stretch;padding:9px 10px 8px;min-height:112px;max-height:122px;position:relative;overflow:hidden;border-radius:15px}
-.hq-verse-card{background:radial-gradient(120% 120% at 10% 0%,color-mix(in srgb,#8b5cf6 18%,var(--surface)),var(--surface) 75%);border:1px solid color-mix(in srgb,#a78bfa 45%,var(--line));box-shadow:var(--shadow),0 0 18px -8px rgba(139,92,246,.45)}
-.hq-trophy-card{background:radial-gradient(120% 120% at 90% 0%,color-mix(in srgb,var(--gold) 18%,var(--surface)),var(--surface) 75%);border:1px solid color-mix(in srgb,var(--gold) 50%,var(--line));box-shadow:var(--shadow),0 0 18px -8px rgba(230,195,108,.4)}
-.hq-vh,.hq-th{display:flex;align-items:center;gap:5px;font-size:9.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
-.hq-vh{color:color-mix(in srgb,#c4b5fd 80%,var(--text))}
-.hq-th{color:var(--gold)}
-.hq-vi,.hq-ti2{font-size:12px;line-height:1}
-.hq-var{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:13px;font-weight:700;line-height:1.35;color:var(--text);text-align:right;margin-top:3px}
-.hq-verse-card.is-long .hq-var{font-size:11.5px;line-height:1.3}
-.hq-ven{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:10.5px;line-height:1.28;color:var(--muted);margin-top:2px}
-.hq-verse-card.is-long .hq-ven{font-size:9.8px}
-.hq-vref{font-size:9.5px;font-weight:700;color:color-mix(in srgb,#c4b5fd 75%,var(--muted));margin-top:2px}
-.hq-tr-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;align-items:end;margin:auto 0 4px;width:100%}
-.hq-tr-it{display:flex;flex-direction:column;align-items:center;text-align:center;gap:3px;min-width:0}
-.hq-tr-it.is-locked{opacity:.48;filter:grayscale(.7)}
-.hq-tr-ic{font-style:normal;font-size:22px;line-height:1;filter:drop-shadow(0 3px 5px rgba(0,0,0,.35))}
-.hq-tr-it b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:9.5px;font-weight:700;line-height:1.15;color:var(--text);word-break:break-word}
-.hq-shelf-bar{display:block;width:100%;height:4px;border-radius:99px;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--gold) 85%,#fff) 20%,var(--gold) 50%,color-mix(in srgb,var(--gold) 85%,#fff) 80%,transparent);box-shadow:0 2px 8px color-mix(in srgb,var(--gold) 55%,transparent)}
-@media(max-width:360px){#hqSplit{grid-template-columns:1fr 1fr;gap:6px}.hq-tr-ic{font-size:19px}.hq-var{font-size:12px}}
+/* verse + trophy shelf under Next */
+#hqBottom{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:0 0 10px;align-items:stretch}
+#hqBottom>*{margin:0!important}#hqBottom>:empty{display:none}
+#hqBottom .ss-verse{display:flex;flex-direction:column;gap:6px;cursor:pointer;padding:12px;border:2px solid var(--accent);box-shadow:0 0 16px color-mix(in srgb,var(--accent) 30%,transparent);text-align:center}
+#hqBottom .ss-verse .label{text-align:left;font-size:10px}
+#hqBottom .ss-ar{font-size:17px;line-height:1.7;margin:0}
+#hqBottom .ss-en{font-size:12.5px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+#hqBottom .ss-verse .meta{font-size:11px}
+#hqBottom #trophyShelf{min-width:0}
+#hqBottom #trophyShelf{display:flex}#hqBottom #trophyShelf>.trophy-shelf{flex:1;margin:0}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v8.1.1</small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v8.1.2</small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -4370,7 +4319,7 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
  window.renderUrgency=function(){
   var md=mode(),box=document.getElementById('urgencyBox'),vb=document.getElementById('vitalsBox');
   if(box){var html='';
-   try{if(typeof lastStudyDate==='string'&&lastStudyDate===yKey()&&appStreak>=2&&todayKey===localDateKey()){
+   try{if(typeof lastStudyDate==='string'&&lastStudyDate===yKey()&&appStreak>=2&&todayKey===localDateKey()&&new Date().getHours()>=20){
     var end=new Date();end.setHours(24,0,0,0);var u='<em data-until="'+end.getTime()+'"></em>';
     html=md==='calm'
      ?'<div class="urg-box urg-calm" role="status"><div class="urg-tx">🔥 Your '+appStreak+'-day streak continues if you study today ('+u+' left).</div><button type="button" onclick="startMission()">Start</button></div>'
@@ -4696,8 +4645,8 @@ function buddy(sp,mo,sk,stg,anim){
   if(document.querySelector('#roundsCard .rounds-chest.ready'))return{k:'excited',why:'chest'};
   try{if(bossDefinitions.some(function(b){return!bossVictories[b.id]&&bossStats(b).ready}))return{k:'excited',why:'boss'}}catch(e){}
   if(m!=='calm'){
-   try{if(typeof lastStudyDate==='string'&&lastStudyDate===yKey()&&appStreak>=2&&todayKey===localDateKey())return{k:'worried',why:'streak'}}catch(e){}
-   var f=fading();if(f.length)return{k:'worried',why:'fading',lec:f[0]}}
+   try{if(typeof lastStudyDate==='string'&&lastStudyDate===yKey()&&appStreak>=2&&todayKey===localDateKey()&&new Date().getHours()>=20)return{k:'worried',why:'streak'}}catch(e){}
+   }
   var hr=new Date().getHours();
   if(hr>=23||hr<5)return{k:'sleepy',why:'night'};
   try{if(daysSince(lastStudyDate)>=3&&data.some(function(l){return l.steps.some(Boolean)}))return{k:'sleepy',why:'away'}}catch(e){}
@@ -5477,7 +5426,7 @@ function buddy(sp,mo,sk,stg,anim){
  /* ---------- store ---------- */
  function load(){
   var b={};try{b=(window.mhqV79Store&&window.mhqV79Store.get())||{}}catch(e){}
-  var o={on:b.on!==false,quiet:b.quiet===true,qtext:typeof b.qtext==='string'?b.qtext.slice(0,160):'',own:[],badges:[],claimed:{},meta:{},chests:{},feast:{},frame:typeof b.frame==='string'?b.frame:'',last:null,recap:null};
+  var o={on:b.on===true,quiet:b.quiet===true,qtext:typeof b.qtext==='string'?b.qtext.slice(0,160):'',own:[],badges:[],claimed:{},meta:{},chests:{},feast:{},frame:typeof b.frame==='string'?b.frame:'',last:null,recap:null};
   if(Array.isArray(b.own))o.own=b.own.filter(function(x){return/^ss:[\w-]+:[1-8]$/.test(x)});
   if(Array.isArray(b.badges))o.badges=b.badges.filter(function(x){return x&&typeof x.l==='string'}).slice(-200);
   ['claimed','meta','chests','feast'].forEach(function(k){if(b[k]&&typeof b[k]==='object')o[k]=b[k]});
@@ -5669,19 +5618,9 @@ function buddy(sp,mo,sk,stg,anim){
  window.mhqSeasonSave=async function(){try{var b=await blob(),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=fname();document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000);toast('Image saved')}catch(e){toast('Press and hold the image to save it')}};
  window.mhqSeasonDebug=function(){var o=load();return{cur:current(o.on).cur,pts:points(current(o.on).cur,o,o.on),thr:thr(current(o.on).cur)}};
  
- window.mhqVerseInfo=function(){
-  var o=load(),v=verseFor(o);
-  return{on:o.on,ref:v[0],en:v[1],ar:v[2],qtext:o.qtext||''}};
- window.mhqShowVerseModal=function(){
-  var o=load(),v=verseFor(o);
-  if(qov)qov.remove();
-  qov=document.createElement('div');qov.className='ss-quiet';qov.setAttribute('role','dialog');qov.setAttribute('aria-label','Verse of the Day');
-  qov.innerHTML='<div class="ss-qc"><div style="font-size:32px;margin-bottom:4px">📖</div><div class="label" style="letter-spacing:.14em;color:var(--accent)">VERSE OF THE DAY</div><div class="ss-ar" dir="rtl" lang="ar" style="margin:12px 0 8px;font-size:21px;line-height:1.8">'+esc(v[2])+'</div><div class="ss-en" style="font-size:15px;line-height:1.5;opacity:.92">'+esc(v[1])+'</div><div class="meta" style="margin-top:8px;font-weight:700;color:var(--gold)">'+esc(v[0])+'</div><div class="v78-yn" style="margin-top:16px"><button type="button" class="yes" id="hqVerseCloseBtn">Amen · Close</button></div></div>';
-  document.body.appendChild(qov);
-  qov.onclick=function(ev){if(ev.target===qov||ev.target.id==='hqVerseCloseBtn'){qov.remove();qov=null}}};
  window.mhqSeasonInfo=function(){
   var o=load(),C=current(o.on),S=C.cur,pts=points(S,o,o.on),T=thr(S),tier=T.filter(function(v){return pts>=v}).length,th=TH[S.theme],w8={};try{w8=window.mhqV78Store.get()}catch(e){}
-  return{S:S,th:th,pts:pts,T:T,tier:tier,cd:cdText(S),own:o.own,frame:o.frame,wear:w8.wear||'',on:o.on,verse:verseFor(o),
+  return{S:S,th:th,pts:pts,T:T,tier:tier,cd:cdText(S),own:o.own,frame:o.frame,wear:w8.wear||'',on:o.on,
    items:T.map(function(v,k){return{n:k+1,pts:v,icon:tierIcon(S.theme,k,S.kind),label:rlabel(k,S.kind),got:k<tier,id:'ss:'+S.key+':'+(k+1),wearable:k===1||k===4||k===6||k===7,frame:k===3}})}};
 })();
 
@@ -6040,7 +5979,7 @@ function buddy(sp,mo,sk,stg,anim){
  function kids(view){var v=$(view);return v?[].filter.call(v.children,function(c){return!c.matches('.mhq-back-row,.section-switcher,.hero')}):[]}
  var moved=false;
  function reorg(){
-  if(moved)return;var hv=$('homeView');if(!hv)return;
+  if(moved)return;var hv=$('homeView');if(!hv)return;ensureHQ();
   var q=$('v81Queue'),rc=$('roundsCard'),ar=hv.querySelector('.adaptive-review-card'),hs=hv.querySelector('.home-stats');
   /* Study > Today: rounds under the queue */
   if(rc){var tv=$('todayView');if(tv&&q)tv.insertBefore(rc,q.nextSibling)}
@@ -6050,7 +5989,7 @@ function buddy(sp,mo,sk,stg,anim){
   if(hs)after('rpgView',hs);
   /* Me > Rewards */
   var rw=$('rewardsView');
-  if(rw){['seasonCard','weeklyCard','motivationPanel','trophyShelf','verseCard'].forEach(function(i){var e=$(i);if(e)rw.appendChild(e)});
+  if(rw){['seasonCard','weeklyCard','motivationPanel'].forEach(function(i){var e=$(i);if(e)rw.appendChild(e)});
    kids('achievementsView').forEach(function(c){rw.appendChild(c)})}
   /* Me > Reports: calendar after the weekly review */
   var sx=$('statsView');if(sx)kids('calendarView').forEach(function(c){sx.appendChild(c)});
@@ -6058,13 +5997,15 @@ function buddy(sp,mo,sk,stg,anim){
   var iv=$('insightsView');if(iv){['rhythmCard','energyCard'].forEach(function(i){var e=$(i);if(e)iv.appendChild(e)})}
   /* old home blocks that stay in the DOM for their renderers, but hidden */
   ['homeExamCard','buddyCard','vitalsBox'].forEach(function(i){var e=$(i);if(e)e.classList.add('hq-hide')});
+  var hb=$('hqBottom');if(!hb){hb=document.createElement('div');hb.id='hqBottom';var h81=$('hq81');(h81?h81.parentNode:hv).insertBefore(hb,h81?h81.nextSibling:null)}
+  ['verseCard','trophyShelf'].forEach(function(i){var e=$(i);if(e)hb.appendChild(e)});
   var nx=hv.querySelector('.next-card');if(nx)nx.classList.add('hq-hide');
   var hs2=hv.querySelector('.hero-slim');if(hs2)hs2.classList.add('hq-hide');
   moved=true}
  /* ---------- home ---------- */
  function ensureHQ(){
   var hv=$('homeView');if(!hv)return null;var h=$('hq81');
-  if(!h){h=document.createElement('div');h.id='hq81';h.innerHTML='<div id="hqTop"></div><div id="hqSeason"></div><div id="hqExam"></div><div id="hqToday"></div><div id="hqQuests"></div><div id="hqNext"></div><div id="hqSplit"></div>';
+  if(!h){h=document.createElement('div');h.id='hq81';h.innerHTML='<div id="hqTop"></div><div id="hqSeason"></div><div id="hqExam"></div><div id="hqToday"></div><div id="hqQuests"></div><div id="hqNext"></div>';
    var anchor=hv.querySelector('#paceNote');hv.insertBefore(h,anchor?anchor.nextSibling:hv.firstChild)}
   return h}
  function rg(p,n,col,txt){var f=n?Math.min(1,p/n):0,d=Math.round(f*100);return'<svg viewBox="0 0 44 44" class="hq-rg" aria-hidden="true"><circle cx="22" cy="22" r="17" fill="none" stroke="var(--line)" stroke-width="6"/>'+(d>0?'<circle cx="22" cy="22" r="17" fill="none" stroke="'+col+'" stroke-width="6" stroke-linecap="round" pathLength="100" stroke-dasharray="'+d+' '+(100-d)+'" transform="rotate(-90 22 22)"/>':'')+'<text x="22" y="26" text-anchor="middle" style="font-size:11px;font-weight:700;fill:var(--text)">'+(txt||(f>=1?'✓':p+'/'+n))+'</text></svg>'}
@@ -6110,46 +6051,12 @@ function buddy(sp,mo,sk,stg,anim){
   if(h.dataset.h!==html){h.innerHTML=html;h.dataset.h=html}}
  function paintNext(){
   var h=$('hqNext');if(!h)return;var p=V.prio(),r=p[0];
-  var html=r?'<div class="hq-card hq-nx2"><span class="hq-n" title="Priority group '+r.g+'">'+r.g+'</span><span class="hq-nt"><small>NEXT OBJECTIVE</small><b>L'+r.l.id+' · '+esc(r.l.title)+'</b></span><button type="button" onclick="startMission()">START</button></div>':'';
-  if(h.dataset.h!==html){h.innerHTML=html;h.dataset.h=html}}
- window.mhqOpenTrophies=function(){
-  showView('rewardsView');
-  setTimeout(function(){var el=$('achievementGrid')||$('achievementsView');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})},120)};
- function top3Trophies(){
-  var defs=typeof achievementDefinitions==='function'?achievementDefinitions():[];
-  var unSet={};(typeof achievementIds!=='undefined'?achievementIds:[]).forEach(function(id){unSet[id]=1});
-  var pins=(window.mhqGetPins?window.mhqGetPins():[]).map(function(id){return defs.find(function(a){return a.id===id&&unSet[a.id]})}).filter(Boolean);
-  var used={};pins.forEach(function(a){used[a.id]=1});
-  if(pins.length<3){
-   var un=defs.filter(function(a){return unSet[a.id]&&!used[a.id]}).sort(function(a,b){return(b.xp||0)-(a.xp||0)});
-   while(pins.length<3&&un.length){var nx=un.shift();used[nx.id]=1;pins.push(nx)}}
-  if(pins.length<3){
-   var pref=['century','focus-veteran','perfect-score','first-step','first-lecture','first-mcq'];
-   pref.forEach(function(id){if(pins.length<3&&!used[id]){var d=defs.find(function(a){return a.id===id});if(d){used[d.id]=1;pins.push({id:d.id,icon:d.icon,name:d.name,locked:!unSet[d.id]})}}});
-   defs.forEach(function(d){if(pins.length<3&&!used[d.id]){used[d.id]=1;pins.push({id:d.id,icon:d.icon,name:d.name,locked:!unSet[d.id]})}})}
-  return pins.slice(0,3)}
- function paintSplit(){
-  var h=$('hqSplit');if(!h)return;
-  var vi=window.mhqVerseInfo?window.mhqVerseInfo():{on:true,ref:'Psalm 23:1',en:'The Lord is my shepherd; I shall not want.',ar:'الرَّبُّ رَاعِيَّ فَلاَ يُعْوِزُنِي شَيْءٌ.'};
-  var longAr=(vi.ar||'').length>65,longEn=(vi.en||'').length>85;
-  var verseHtml='<button type="button" class="hq-card hq-verse-card'+(longAr||longEn?' is-long':'')+'" onclick="window.mhqShowVerseModal&&window.mhqShowVerseModal()" aria-label="Verse of the day: '+esc(vi.ref)+'. Tap to read full verse">'+
-   '<span class="hq-vh"><span class="hq-vi" aria-hidden="true">📖</span><b>VERSE OF THE DAY</b></span>'+
-   '<span class="hq-var" dir="rtl" lang="ar">'+esc(vi.ar)+'</span>'+
-   '<span class="hq-ven">'+esc(vi.en)+'</span>'+
-   '<span class="hq-vref">'+esc(vi.ref)+'</span></button>';
-  var trs=top3Trophies();
-  var trCols=trs.map(function(t){
-   return'<span class="hq-tr-it'+(t.locked?' is-locked':'')+'" title="'+esc(t.name)+(t.locked?' (Locked)':'')+'"><i class="hq-tr-ic" aria-hidden="true">'+t.icon+'</i><b>'+esc(t.name)+'</b></span>'}).join('');
-  var trophyHtml='<button type="button" class="hq-card hq-trophy-card" onclick="window.mhqOpenTrophies()" aria-label="Trophy shelf. Tap to view or pin achievements">'+
-   '<span class="hq-th"><span class="hq-ti2" aria-hidden="true">🏆</span><b>TROPHY SHELF</b></span>'+
-   '<span class="hq-tr-grid">'+trCols+'</span>'+
-   '<span class="hq-shelf-bar" aria-hidden="true"></span></button>';
-  var html=verseHtml+trophyHtml;
+  var html=r?'<div class="hq-card hq-nx2"><span class="hq-n" title="Priority group '+r.g+'">'+r.g+'</span><span class="hq-nt"><small>NEXT</small><b>L'+r.l.id+' · '+esc(r.l.title)+'</b></span><button type="button" onclick="startMission()">Start</button></div>':'';
   if(h.dataset.h!==html){h.innerHTML=html;h.dataset.h=html}}
  window.renderHQ=function(){
   if(!data.length)return;
   try{buildOnce()}catch(e){}
-  try{ensureHQ();paintTop();paintSeason();paintExam();paintToday();paintQuests();paintNext();paintSplit()}catch(e){}};
+  try{ensureHQ();paintTop();paintSeason();paintExam();paintToday();paintQuests();paintNext()}catch(e){}};
  /* ---------- season sheet ---------- */
  var sov=null;
  function closeSheet(){if(sov){sov.remove();sov=null}}
@@ -6166,6 +6073,17 @@ function buddy(sp,mo,sk,stg,anim){
   document.body.appendChild(sov)};
  window.mhqSeasonWear=function(id){try{mhqWearAcc(id)}catch(e){}window.mhqSeasonSheet()};
  window.mhqSeasonFrame=function(id){try{mhqWearFrame(id)}catch(e){}window.mhqSeasonSheet()};
+ /* ---------- verse sheet (tap the verse card) ---------- */
+ var vov=null;
+ function verseClose(){if(vov){vov.remove();vov=null}}
+ window.mhqVerseClose=verseClose;
+ document.addEventListener('click',function(ev){var c=ev.target.closest&&ev.target.closest('#verseCard .ss-verse');if(!c)return;
+  var ar=c.querySelector('.ss-ar'),en=c.querySelector('.ss-en'),rf=c.querySelector('.meta');verseClose();
+  vov=document.createElement('div');vov.className='ss-quiet';vov.setAttribute('role','dialog');vov.setAttribute('aria-label','Verse of the day');
+  vov.innerHTML='<div class="ss-qc"><div class="label">VERSE OF THE DAY</div><div class="ss-ar" dir="rtl" lang="ar" style="font-size:22px;margin:12px 0">'+(ar?ar.innerHTML:'')+'</div><div class="ss-en" style="font-size:16px">'+(en?en.innerHTML:'')+'</div><div class="meta" style="margin-top:6px">'+(rf?rf.innerHTML:'')+'</div><div class="v78-yn" style="margin-top:16px"><button type="button" class="yes" onclick="mhqVerseClose()">Close</button></div></div>';
+  document.body.appendChild(vov)});
+ /* streak banner and buddy alarm switch on at 20:00: refresh around the boundary */
+ setInterval(function(){try{window.renderUrgency&&window.renderUrgency()}catch(e){}},60000);
  /* ---------- init ---------- */
  var built=false;
  function buildOnce(){if(built)return;built=true;buildNav();reorg()}
