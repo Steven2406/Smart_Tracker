@@ -1034,12 +1034,82 @@ html[data-theme="dark"]{--v-prog:#6fb0f0;--v-watch:#b794f0}
 .v81-chips{margin-top:10px;font-size:12px;color:var(--muted)}.v81-chip{display:inline-block;margin-left:6px;padding:2px 9px;border-radius:10px;border:1px solid var(--accent);color:var(--accent);font-weight:700}
 .v81-mapd>summary{cursor:pointer;font-size:14px}.v81-mapd[open]>summary{margin-bottom:6px}
 .v81-radar{max-width:250px}.v81-wk{max-width:320px}
+/* ---- v8.1.1 one-screen HQ ---- */
+.hq-hide{display:none!important}
+#hq81{display:grid;gap:8px;margin:0 0 8px}
+#hq81 button{font-weight:400}
+#hqTop{display:flex;align-items:center;gap:10px}
+.hq-av{flex:none;width:58px;height:58px;padding:0;border-radius:50%;border:3px solid var(--accent);background:var(--surface);overflow:hidden;position:relative}
+.hq-av svg{width:100%;height:100%;display:block}
+.hq-bub{position:relative;flex:1;min-width:0;padding:9px 12px;border-radius:16px;background:var(--surface);border:1px solid var(--line);font-size:13px;line-height:1.3;max-height:58px;overflow:hidden;color:var(--text)}
+.hq-bub::before{content:"";position:absolute;left:-7px;top:20px;width:12px;height:12px;background:var(--surface);border-left:1px solid var(--line);border-bottom:1px solid var(--line);transform:rotate(45deg)}
+.hq-st{flex:none;display:flex;align-items:center;gap:2px;padding:4px 8px;border-radius:14px;background:transparent;border:0;color:var(--muted)}
+.hq-st .fl{font-size:30px;line-height:1;filter:grayscale(1);opacity:.55}
+.hq-st b{font-size:28px;font-weight:800;line-height:1;color:var(--muted)}
+.hq-st.on .fl{filter:none;opacity:1}.hq-st.on b{color:#e8720c}
+.hq-season{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:16px;border:0;color:#fff;text-align:left}
+.hq-tier{flex:none;width:46px;height:50px;border-radius:12px;background:rgba(0,0,0,.28);display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.55)}
+.hq-tier small{font-size:8px;letter-spacing:.1em;opacity:.9}.hq-tier b{font-size:22px;line-height:1;color:#fff}
+.hq-sb{flex:1;min-width:0;display:grid;gap:5px}
+.hq-sn{display:flex;justify-content:space-between;gap:6px;align-items:baseline}.hq-sn b{font-size:15px;color:#fff}.hq-sn em{font-style:normal;font-size:11px;opacity:.9;white-space:nowrap}
+.hq-bar{position:relative;display:block;height:18px;border-radius:9px;background:rgba(0,0,0,.35);overflow:hidden}
+.hq-bar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#ffd24a,#ffb000);border-radius:9px}
+.hq-bar u{position:absolute;inset:0;display:grid;place-items:center;text-decoration:none;font-size:11px;font-weight:800;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.6)}
+.hq-bar.big{height:24px;margin-top:8px}.hq-bar.big u{font-size:12px}
+.hq-nx{flex:none;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.22);border:2px solid #ffd24a;display:grid;place-items:center;font-size:20px}
+.hq-card{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:14px;background:var(--surface);border:1px solid var(--line);color:var(--text);text-align:left}
+.hq-empty{font-size:13px;color:var(--muted);justify-content:center}
+.hq-gauge{flex:none;width:52px;height:52px}
+.hq-ex{flex:1;min-width:0;display:grid}.hq-ex b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hq-ex small,.hq-dd small{font-size:11px;color:var(--muted)}
+.hq-dd{flex:none;text-align:center;line-height:1}.hq-dd b{display:block;font-size:24px;font-weight:800}
+.hq-pill{flex:none;font-size:10px;font-weight:800;padding:3px 8px;border-radius:10px}.hq-pill.bad{background:color-mix(in srgb,var(--danger) 18%,transparent);color:var(--danger)}.hq-pill.ok{background:color-mix(in srgb,var(--good) 18%,transparent);color:var(--good)}
+.hq-row{justify-content:space-between;gap:4px;padding:8px 6px}
+.hq-c{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;color:var(--text);padding:0}
+.hq-c span{font-size:10px;color:var(--muted);max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.hq-rg{width:42px;height:42px}
+.hq-chest{font-size:28px;line-height:42px;filter:grayscale(.8);opacity:.7}.hq-chest.on{filter:none;opacity:1}
+.hq-qs{display:grid;gap:5px;padding:9px 12px}
+.hq-qh{display:flex;justify-content:space-between;align-items:baseline}.hq-qh b{font-size:12px;letter-spacing:.04em}.hq-qh small{font-size:11px;color:var(--muted)}
+.hq-q{display:flex;align-items:center;gap:8px;font-size:12px}.hq-qt{flex:none;width:44%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hq-qb{flex:1;height:8px;border-radius:5px;background:var(--line);overflow:hidden}.hq-qb i{display:block;height:100%;background:var(--accent);border-radius:5px}
+.hq-q.d .hq-qb i{background:var(--good)}.hq-q small{flex:none;width:34px;text-align:right;color:var(--muted);font-size:11px}
+.hq-nx2{padding:8px 10px;gap:9px}
+.hq-n{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-size:12px;font-weight:800}
+.hq-nt{flex:1;min-width:0;display:grid;line-height:1.2}.hq-nt small{font-size:9px;letter-spacing:.08em;color:var(--muted)}.hq-nt b{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hq-nx2 button{flex:none;padding:8px 16px;border-radius:12px;background:var(--accent);color:var(--accent-ink);font-weight:800;border:0}
+#buddyCard.hq-sheet-open{position:fixed;left:10px;right:10px;bottom:calc(88px + env(safe-area-inset-bottom));z-index:520;display:block!important;max-width:520px;margin:0 auto}
+.hq-close{position:fixed;z-index:525;width:32px;height:32px;border-radius:50%;background:var(--surface2);border:1px solid var(--line);color:var(--text)}
+.hq-backdrop{position:fixed;inset:0;z-index:510;background:rgba(5,10,12,.55)}
+.hq-sheet-wrap{position:fixed;inset:0;z-index:530}
+.hq-sheet{position:absolute;left:0;right:0;bottom:0;max-height:88vh;display:flex;flex-direction:column;background:var(--surface);color:var(--text);border-radius:22px 22px 0 0;animation:v78up .25s ease-out;max-width:560px;margin:0 auto}
+.hq-sh{position:relative;padding:16px 16px 14px;border-radius:22px 22px 0 0;color:#fff;display:grid}
+.hq-sh small{font-size:10px;letter-spacing:.1em;opacity:.9}.hq-sh b{font-size:22px;color:#fff}.hq-sh em{font-style:normal;font-size:12px;opacity:.95}
+.hq-x{position:absolute;right:12px;top:10px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.3);border:0;color:#fff}
+.hq-tl{overflow:auto;padding:8px 14px;-webkit-overflow-scrolling:touch}
+.hq-tr{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.hq-tr.nx{background:color-mix(in srgb,var(--gold) 12%,transparent);border-radius:10px;padding:9px 8px}
+.hq-ti{flex:none;width:42px;height:42px;border-radius:12px;background:var(--surface2);border:2px solid var(--line);display:grid;place-items:center;font-size:22px}.hq-tr.got .hq-ti{border-color:var(--good)}
+.hq-tt{flex:1;min-width:0;display:grid}.hq-tt b{font-size:14px}.hq-tt small{font-size:11px;color:var(--muted)}
+.hq-ok{color:var(--good);font-weight:800}.hq-nxt{font-size:10px;font-weight:800;color:var(--gold)}.hq-lk{opacity:.6}
+.hq-wear{padding:5px 10px;border-radius:10px;font-size:12px;font-weight:700;background:var(--surface2);border:1px solid var(--line);color:var(--text)}.hq-wear.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.hq-sf{padding:10px 14px calc(14px + env(safe-area-inset-bottom))}.hq-sf button{width:100%;padding:12px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);font-weight:700;color:var(--text)}
+#homeView>:empty{display:none!important;margin:0!important}
+#hq81{gap:10px}
+.hq-sheet-wrap .hq-backdrop{z-index:1}.hq-sheet-wrap .hq-sheet{z-index:2}
+/* compact notices so the one-screen home still fits */
+#protectCard .protect-card{display:flex!important;flex-direction:row!important;align-items:center;gap:8px;padding:8px 10px!important;margin:0 0 8px!important;border-radius:14px}
+#protectCard .protect-text{flex:1;min-width:0}
+#protectCard .protect-text b{display:block;font-size:13px}
+#protectCard .protect-text span{display:block;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#protectCard .protect-actions{display:flex;gap:6px;flex:none;margin:0}
+#protectCard .protect-actions button{padding:7px 11px;font-size:12px;min-height:34px;margin:0}
+#protectCard .protect-actions button{white-space:nowrap}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v8.1.0</small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v8.1.1</small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -2433,7 +2503,7 @@ function showView(id,button){
   syncTopNav(id);
   if(id!==window.MHQ_LAST_VIEW){playSfx("nav_whoosh",.26);window.MHQ_LAST_VIEW=id;}
   if(button?.closest?.(".nav"))button.classList.add("active");
-  if(id==="todayView"||id==="studyView"||id==="achievementsView"||id==="weaknessView"||id==="statsView"||id==="bossView"||id==="campaignView"||id==="rpgView"||id==="reviewView"||id==="clinicalView"||id==="externalTestsView"||id==="examsView")renderExtraViews();
+  if(id==="todayView"||id==="rewardsView"||id==="insightsView"||id==="courseMapView"||id==="mistakesView"||id==="studyView"||id==="achievementsView"||id==="weaknessView"||id==="statsView"||id==="bossView"||id==="campaignView"||id==="rpgView"||id==="reviewView"||id==="clinicalView"||id==="externalTestsView"||id==="examsView")renderExtraViews();
   window.scrollTo({top:0,behavior:"smooth"});
 }
 function openDataTools(){
@@ -5170,6 +5240,7 @@ function buddy(sp,mo,sk,stg,anim){
    if(ch)save(o);
    var done=wk.d.filter(Boolean).length;
    var left=Math.max(1,Math.round((new Date(w.b+'T12:00:00')-new Date(todayKey+'T12:00:00'))/86400000)+1);
+   window.__mhqWeekly={q:wk.q.map(function(q,i){return{t:title(q),k:q.k,p:wk.d[i]?q.n:ps[i],n:q.n,d:!!wk.d[i]}}),done:done,left:left};
    var C=2*Math.PI*18;
    var rows=wk.q.map(function(q,i){
     var p=wk.d[i]?q.n:ps[i],f=Math.min(1,p/q.n),dn=!!wk.d[i];
@@ -5536,6 +5607,10 @@ function buddy(sp,mo,sk,stg,anim){
  window.mhqSeasonSave=async function(){try{var b=await blob(),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=fname();document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000);toast('Image saved')}catch(e){toast('Press and hold the image to save it')}};
  window.mhqSeasonDebug=function(){var o=load();return{cur:current(o.on).cur,pts:points(current(o.on).cur,o,o.on),thr:thr(current(o.on).cur)}};
  
+ window.mhqSeasonInfo=function(){
+  var o=load(),C=current(o.on),S=C.cur,pts=points(S,o,o.on),T=thr(S),tier=T.filter(function(v){return pts>=v}).length,th=TH[S.theme],w8={};try{w8=window.mhqV78Store.get()}catch(e){}
+  return{S:S,th:th,pts:pts,T:T,tier:tier,cd:cdText(S),own:o.own,frame:o.frame,wear:w8.wear||'',on:o.on,
+   items:T.map(function(v,k){return{n:k+1,pts:v,icon:tierIcon(S.theme,k,S.kind),label:rlabel(k,S.kind),got:k<tier,id:'ss:'+S.key+':'+(k+1),wearable:k===1||k===4||k===6||k===7,frame:k===3}})}};
 })();
 
 </script>
@@ -5778,10 +5853,13 @@ function buddy(sp,mo,sk,stg,anim){
   put(hm,'<details class="section card v81-mapd"'+(mapOpen?' open':'')+'><summary><b>Lecture map</b> · '+c.y+' cleared · '+c.t+' taken in college</summary>'+mapHTML()+'<div class="label" style="margin-top:12px">COLLEGE vs YOU</div>'+cvyHTML()+'</details>');
   var md=hm&&hm.querySelector('details');if(md)md.ontoggle=function(){mapOpen=md.open};
   var lt=document.querySelector('#curriculumView .lecture-tools');if(lt&&!$('v81Tools')){var t=document.createElement('div');t.id='v81Tools';lt.parentNode.insertBefore(t,lt.nextSibling);paintTools()}}
+ function topOf(v){var sw=v.querySelector(':scope > .section-switcher'),bk=v.querySelector(':scope > .mhq-back-row');return sw||bk||null}
+ function hostIn(viewId,id){var v=$(viewId);if(!v)return null;var e=$(id);if(!e){e=document.createElement('div');e.id=id;var t=topOf(v);if(t)t.parentNode.insertBefore(e,t.nextSibling);else v.insertBefore(e,v.firstChild)}else if(e.parentNode!==v){var t2=topOf(v);if(t2)t2.parentNode.insertBefore(e,t2.nextSibling);else v.insertBefore(e,v.firstChild)}return e}
  function paintOver(){
-  var h=host('v81Over','paceCard');if(!h)return;
-  var rd=radarHTML(),dn=donutHTML();
-  put(h,'<div class="section card"><div class="label">LECTURE MAP</div>'+mapHTML()+'</div><div class="section card"><div class="label">COLLEGE vs YOU</div>'+cvyHTML()+'</div>'+(rd?'<div class="section card"><div class="label">MASTERY BY SUBJECT</div>'+rd+'</div>':'')+'<div class="section card"><div class="label">LAST 7 DAYS</div>'+weekHTML()+'</div>'+(dn?'<div class="section card"><div class="label">MISTAKES BY TYPE</div>'+dn+'</div>':''))}
+  var rd=radarHTML(),dn=donutHTML(),h;
+  h=hostIn('courseMapView','v81Course');if(h)put(h,'<div class="section card"><div class="label">LECTURE MAP</div>'+mapHTML()+'</div><div class="section card"><div class="label">COLLEGE vs YOU</div>'+cvyHTML()+'</div>'+(rd?'<div class="section card"><div class="label">MASTERY BY SUBJECT</div>'+rd+'</div>':''));
+  h=hostIn('insightsView','v81Week');if(h)put(h,'<div class="section card"><div class="label">LAST 7 DAYS</div>'+weekHTML()+'</div>');
+  h=hostIn('mistakesView','v81Mist');if(h)put(h,dn?'<div class="section card"><div class="label">MISTAKES BY TYPE</div>'+dn+'</div>':'')}
  function chipsFor(r){
   var c=[];try{var it=window.__mhqRounds||[];if(it.some(function(i){return i.p<i.n&&/step|lecture|study/i.test(i.t)}))c.push('Round')}catch(e){}
   try{var W=window.mhqV78Store.get().weeks,k=Object.keys(W).sort().pop(),w=W[k];if(w&&w.q.some(function(q,i){return!w.d[i]&&(q.k==='clear'||q.k==='steps')}))c.push('Quest')}catch(e){}
@@ -5793,10 +5871,9 @@ function buddy(sp,mo,sk,stg,anim){
   var COLS=['','#c0392b','#d9822b','#c9921a','#2f7fd1','#6f7fd1','#6b7f78'];
   put(h,'<div class="section card"><div class="section-head"><h2>Study queue</h2><small>'+(ne?'📅 '+esc(ne.e.name):'No exam dates yet')+'</small></div>'+(p.length?p.map(function(r){return'<button type="button" class="v81-q" onclick="openLecture('+r.l.id+')"><i class="v81-n" style="background:'+COLS[r.g]+'" title="Priority group '+r.g+'">'+r.g+'</i><span><b>L'+r.l.id+' · '+esc(r.l.title)+'</b><small>'+esc(r.why)+'</small></span>'+(r.col?'<em title="Taken in college">🏫</em>':'')+'</button>'}).join('')+'<div class="v81-chips">Also counts toward: '+chipsFor()+'</div>':'<div class="empty">Everything is cleared and strong. Great work!</div>')+'<div class="meta" style="margin-top:8px">Order: 1 exam · taken · untouched → 2 exam · only watched → 3 rest of exam by mastery → 4 taken · untouched → 5 only watched → 6 the rest by mastery.</div></div>')}
  /* ---------- exam gauge ---------- */
- function gauge(){
-  var card=document.querySelector('#homeExamCard .exam-home');if(!card||card.querySelector('.v81-xg'))return;
-  var up=upcomingExams();if(!up.length)return;var e=up[0],s=examStats(e),ids=examLectureIds(e),L=ids.map(function(id){return data.find(function(x){return x.id===id})}).filter(Boolean);
-  if(!L.length)return;
+ function examInfo(){
+  var up=upcomingExams();if(!up.length)return null;var e=up[0],s=examStats(e),ids=examLectureIds(e),L=ids.map(function(id){return data.find(function(x){return x.id===id})}).filter(Boolean);
+  if(!L.length)return null;
   var now=Math.max(0,Math.min(100,Math.round(s.mastery||0))),c=[0,0,0,0];L.forEach(function(l){c[stage(l)]++});
   var left=L.filter(function(l){return!cleared(l)}),since=new Date();since.setDate(since.getDate()-14);var sk=localDateKey(since),rec=0;
   data.forEach(function(l){if(cleared(l)){var m=(l.stepDates||[]).filter(Boolean).sort().pop();if(m&&m>=sk)rec++}});
@@ -5804,6 +5881,12 @@ function buddy(sp,mo,sk,stg,anim){
   var tgt=Math.max(60,Math.round(L.filter(cleared).reduce(function(a,l){return a+inferredMastery(l)},0)/Math.max(1,L.filter(cleared).length))||70);
   var order=left.slice().sort(function(a,b){return inferredMastery(a)-inferredMastery(b)}).slice(0,extra),gain=order.reduce(function(a,l){return a+Math.max(0,tgt-inferredMastery(l))},0)/L.length;
   var proj=Math.min(100,Math.round(now+gain)),colr=now<50?'var(--danger)':now<75?'var(--gold)':'var(--good)',need=days>1?(left.length/(days-1)):left.length;
+  return{e:e,s:s,L:L,now:now,proj:proj,colr:colr,c:c,left:left,perDay:perDay,days:days,need:need,behind:left.length>0&&need>perDay+.05}}
+ window.mhqExamInfo=examInfo;
+
+ function gauge(){
+  var card=document.querySelector('#homeExamCard .exam-home');if(!card||card.querySelector('.v81-xg'))return;
+  var X=examInfo();if(!X)return;var s=X.s,now=X.now,proj=X.proj,colr=X.colr,c=X.c,left=X.left,perDay=X.perDay,days=X.days,need=X.need;
   var seg=function(n,k){return n?'<i style="flex:'+n+';background:'+k+'"></i>':''};
   var html='<div class="v81-xg"><svg viewBox="0 0 100 100" class="v81-gauge" role="img" aria-label="Readiness '+now+' percent'+(proj>now?', about '+proj+' percent on exam day at your current pace':'')+'"><circle cx="50" cy="50" r="40" fill="none" stroke="var(--line)" stroke-width="10"/>'+(proj>now?'<circle cx="50" cy="50" r="40" fill="none" stroke="'+colr+'" stroke-opacity=".35" stroke-width="10" pathLength="100" stroke-dasharray="0 '+now+' '+(proj-now)+' '+(100-proj)+'" transform="rotate(-90 50 50)"/>':'')+'<circle cx="50" cy="50" r="40" fill="none" stroke="'+colr+'" stroke-width="10" stroke-linecap="round" pathLength="100" stroke-dasharray="'+now+' '+(100-now)+'" transform="rotate(-90 50 50)"/><text x="50" y="55" text-anchor="middle" style="font-size:22px;font-weight:800;fill:var(--text)">'+now+'%</text></svg><div class="v81-xt"><b>Ready '+now+'%</b><div>'+s.cleared+'/'+s.total+' cleared · '+left.length+' to go</div>'+(days>0?(perDay>0?'<div>At your pace ≈ <b>'+proj+'%</b> on exam day</div>':'<div>Clear lectures to raise this by exam day</div>')+(left.length?'<div class="v81-mu">Needs ≈ '+(need<1?need.toFixed(1):Math.ceil(need))+' lecture'+(need===1?'':'s')+'/day</div>':''):'')+'</div></div><div class="v81-seg" role="img" aria-label="'+c[3]+' cleared, '+(c[1]+c[2])+' in progress, '+c[0]+' untouched">'+seg(c[3],'var(--good)')+seg(c[2],'var(--v-prog)')+seg(c[1],'var(--v-watch)')+seg(c[0],'var(--line)')+'</div>';
   var head=card.querySelector('.exam-card-head');if(head)head.insertAdjacentHTML('afterend',html);
@@ -5837,14 +5920,151 @@ function buddy(sp,mo,sk,stg,anim){
  /* ---------- main ---------- */
  window.renderV81=function(){
   if(!data.length)return;
-  try{layout()}catch(e){}
-  try{paintRings()}catch(e){}
   try{paintCurr()}catch(e){}
   try{paintOver()}catch(e){}
   try{paintQueue()}catch(e){}
   try{gauge()}catch(e){}
-  try{enhanceList()}catch(e){}};
+  try{enhanceList()}catch(e){}
+  try{window.renderHQ&&window.renderHQ()}catch(e){}};
+ window.__v81={stage:stage,cleared:cleared,nearest:nearest,prio:prio,esc:esc,put:put,counts:counts};
  try{window.renderV81()}catch(e){}
+})();
+
+</script>
+<script>
+/* v8.1.1 Structure: one-screen HQ, season bar + sheet, buddy bubble, streak, new tabs and card homes */
+(function(){
+ var V=window.__v81;if(!V)return;
+ function $(i){return document.getElementById(i)}
+ var esc=V.esc,put=V.put;
+ /* ---------- new views and navigation ---------- */
+ function mkView(id){if($(id))return $(id);var ref=$('rpgView'),v=document.createElement('div');v.id=id;v.className='view';ref.parentNode.insertBefore(v,ref.nextSibling);var br=ref.querySelector(':scope > .mhq-back-row');if(br)v.appendChild(br.cloneNode(true));return v}
+ var G={
+  study:[['todayView','⚡ Today'],['curriculumView','📚 Lectures'],['reviewView','🧠 Review'],['weaknessView','🎯 Weak spots'],['examsView','📅 Exams']],
+  testing:[['externalTestsView','🧪 Tests'],['clinicalView','🩺 Clinical cases'],['mistakesView','📓 Mistakes']],
+  campaign:[['campaignView','🗺️ Map'],['bossView','🐉 Bosses'],['bodyMapView','🫀 Body map'],['courseMapView','🧭 Course map']],
+  focus:[['studyView','⏱ Timer'],['insightsView','📈 Insights']],
+  me:[['rpgView','🏆 Overview'],['rewardsView','🎁 Rewards'],['statsView','📊 Reports'],['dataView','⚙️ Settings']]};
+ var REMAP={achievementsView:'rewardsView',calendarView:'statsView'};
+ function buildNav(){
+  ['courseMapView','insightsView','rewardsView'].forEach(mkView);
+  try{VIEW_SECTIONS.courseMapView='campaign';VIEW_SECTIONS.insightsView='focus';VIEW_SECTIONS.rewardsView='progress';VIEW_SECTIONS.mistakesView='testing'}catch(e){}
+  document.querySelectorAll('.section-switcher').forEach(function(s){s.remove()});
+  Object.keys(G).forEach(function(k){G[k].forEach(function(it){
+   var host=$(it[0]);if(!host)return;
+   var strip=document.createElement('div');strip.className='section-switcher';strip.setAttribute('aria-label','Section navigation');
+   G[k].forEach(function(x){var b=document.createElement('button');b.type='button';b.textContent=x[1];b.dataset.targetView=x[0];b.onclick=function(){showView(x[0],b)};strip.appendChild(b)});
+   var bk=host.querySelector(':scope > .mhq-back-row');host.insertBefore(strip,bk?bk.nextSibling:host.firstChild)})});
+  var nb={study:'todayView',testing:'externalTestsView'};
+  document.querySelectorAll('.nav button').forEach(function(b){
+   var s=b.dataset.section;if(nb[s])b.setAttribute('onclick',"showView('"+nb[s]+"',this)");
+   if(s==='progress'){b.querySelectorAll('span').forEach(function(n){if(n.textContent.trim()==='Progress')n.textContent='Me'});b.setAttribute('aria-label','Me')}});
+  var a=document.querySelector('.view.active');if(a)document.querySelectorAll('.section-switcher button').forEach(function(b){b.classList.toggle('active',b.dataset.targetView===a.id)})}
+ var sv=window.showView;
+ if(typeof sv==='function')window.showView=function(id,btn){if(REMAP[id])id=REMAP[id];var r=sv.call(this,id,btn);try{syncTopNav(id)}catch(e){}try{window.renderV81&&window.renderV81()}catch(e){}return r};
+ /* ---------- card homes ---------- */
+ function after(view,el){var v=$(view);if(!v||!el)return;var t=v.querySelector(':scope > .section-switcher')||v.querySelector(':scope > .mhq-back-row');if(t)t.parentNode.insertBefore(el,t.nextSibling);else v.insertBefore(el,v.firstChild)}
+ function appendTo(view,el){var v=$(view);if(v&&el)v.appendChild(el)}
+ function kids(view){var v=$(view);return v?[].filter.call(v.children,function(c){return!c.matches('.mhq-back-row,.section-switcher,.hero')}):[]}
+ var moved=false;
+ function reorg(){
+  if(moved)return;var hv=$('homeView');if(!hv)return;
+  var q=$('v81Queue'),rc=$('roundsCard'),ar=hv.querySelector('.adaptive-review-card'),hs=hv.querySelector('.home-stats');
+  /* Study > Today: rounds under the queue */
+  if(rc){var tv=$('todayView');if(tv&&q)tv.insertBefore(rc,q.nextSibling)}
+  /* Study > Review: reviews due on top */
+  if(ar)after('reviewView',ar);
+  /* Me > Overview: streak/XP/lectures on top */
+  if(hs)after('rpgView',hs);
+  /* Me > Rewards */
+  var rw=$('rewardsView');
+  if(rw){['seasonCard','weeklyCard','motivationPanel','trophyShelf','verseCard'].forEach(function(i){var e=$(i);if(e)rw.appendChild(e)});
+   kids('achievementsView').forEach(function(c){rw.appendChild(c)})}
+  /* Me > Reports: calendar after the weekly review */
+  var sx=$('statsView');if(sx)kids('calendarView').forEach(function(c){sx.appendChild(c)});
+  /* Focus > Insights: rhythm and energy */
+  var iv=$('insightsView');if(iv){['rhythmCard','energyCard'].forEach(function(i){var e=$(i);if(e)iv.appendChild(e)})}
+  /* old home blocks that stay in the DOM for their renderers, but hidden */
+  ['homeExamCard','buddyCard'].forEach(function(i){var e=$(i);if(e)e.classList.add('hq-hide')});
+  var nx=hv.querySelector('.next-card');if(nx)nx.classList.add('hq-hide');
+  var hs2=hv.querySelector('.hero-slim');if(hs2)hs2.classList.add('hq-hide');
+  moved=true}
+ /* ---------- home ---------- */
+ function ensureHQ(){
+  var hv=$('homeView');if(!hv)return null;var h=$('hq81');
+  if(!h){h=document.createElement('div');h.id='hq81';h.innerHTML='<div id="hqTop"></div><div id="hqSeason"></div><div id="hqExam"></div><div id="hqToday"></div><div id="hqQuests"></div><div id="hqNext"></div>';
+   var anchor=hv.querySelector('#paceNote');hv.insertBefore(h,anchor?anchor.nextSibling:hv.firstChild)}
+  return h}
+ function rg(p,n,col,txt){var f=n?Math.min(1,p/n):0,d=Math.round(f*100);return'<svg viewBox="0 0 44 44" class="hq-rg" aria-hidden="true"><circle cx="22" cy="22" r="17" fill="none" stroke="var(--line)" stroke-width="6"/>'+(d>0?'<circle cx="22" cy="22" r="17" fill="none" stroke="'+col+'" stroke-width="6" stroke-linecap="round" pathLength="100" stroke-dasharray="'+d+' '+(100-d)+'" transform="rotate(-90 22 22)"/>':'')+'<text x="22" y="26" text-anchor="middle" style="font-size:11px;font-weight:700;fill:var(--text)">'+(txt||(f>=1?'✓':p+'/'+n))+'</text></svg>'}
+ var bubKey='';
+ function paintTop(){
+  var h=$('hqTop');if(!h)return;
+  var pet=$('bdPetH'),svg=pet&&pet.querySelector('svg'),bub=document.querySelector('#buddyCard .bd-bub'),on=!!svg;
+  var studied=false;try{studied=(lastStudyDate===todayKey)||todaySteps>0}catch(e){}
+  var st=0;try{st=appStreak||0}catch(e){}
+  var html=(on?'<button type="button" class="hq-av" onclick="mhqBuddyOpen()" aria-label="Open your study buddy">'+svg.outerHTML.replace(/\bid="([^"]+)"/g,'id="hq-$1"').replace(/url\(#([^)]+)\)/g,'url(#hq-$1)').replace(/href="#([^"]+)"/g,'href="#hq-$1"')+'</button><div class="hq-bub" role="status">'+esc(bub?bub.textContent:'Hi! Ready to study?')+'</div>':'<div class="hq-bub" style="visibility:hidden"></div>')+
+   '<button type="button" class="hq-st'+(studied?' on':'')+'" onclick="showView(\'statsView\')" aria-label="'+st+' day streak'+(studied?'':', study today to keep it')+'"><span class="fl">🔥</span><b>'+st+'</b></button>';
+  if(h.dataset.h!==html){h.innerHTML=html;h.dataset.h=html}}
+ window.mhqBuddyOpen=function(){
+  var c=$('buddyCard');if(!c)return;window.mhqBuddyClose();c.classList.add('hq-sheet-open');
+  var bd=document.createElement('div');bd.id='hqBdBack';bd.className='hq-backdrop';bd.onclick=window.mhqBuddyClose;document.body.appendChild(bd);
+  var x=document.createElement('button');x.type='button';x.id='hqBdX';x.className='hq-close';x.textContent='✕';x.setAttribute('aria-label','Close buddy');x.onclick=window.mhqBuddyClose;document.body.appendChild(x);
+  try{window.renderBuddy(true)}catch(e){}
+  setTimeout(function(){var r=c.getBoundingClientRect();x.style.top=Math.max(8,r.top-16)+'px';x.style.right='18px'},60)};
+ window.mhqBuddyClose=function(){var c=$('buddyCard');if(c)c.classList.remove('hq-sheet-open');['hqBdBack','hqBdX'].forEach(function(i){var b=$(i);if(b)b.remove()})};
+ function paintSeason(){
+  var h=$('hqSeason');if(!h||!window.mhqSeasonInfo)return;
+  var I=window.mhqSeasonInfo(),T=I.T,t=I.tier,prev=t?T[t-1]:0,next=T[t],max=t>=8,f=max?1:Math.max(0,Math.min(1,(I.pts-prev)/(next-prev))),it=I.items[Math.min(t,7)];
+  var html='<button type="button" class="hq-season" style="background:linear-gradient(135deg,'+I.th.c1+','+I.th.c2+')" onclick="mhqSeasonSheet()" aria-label="Season: '+esc(I.S.name)+', tier '+t+' of 8, '+I.pts+' points. Tap for rewards"><span class="hq-tier"><small>TIER</small><b>'+t+'</b></span><span class="hq-sb"><span class="hq-sn"><b>'+esc(I.S.name)+'</b><em>⏳ '+esc(I.cd)+'</em></span><span class="hq-bar"><i style="width:'+Math.round(f*100)+'%"></i><u>'+(max?'MAX · '+I.pts:I.pts+' / '+next)+'</u></span></span><span class="hq-nx" title="Next reward">'+(max?'🏆':it.icon)+'</span></button>';
+  if(h.dataset.h!==html){h.innerHTML=html;h.dataset.h=html}}
+ function paintExam(){
+  var h=$('hqExam');if(!h)return;var X=window.mhqExamInfo&&window.mhqExamInfo(),html;
+  if(!X)html='<button type="button" class="hq-card hq-empty" onclick="showView(\'examsView\')">📅 Add your exam date to see your readiness forecast</button>';
+  else{var d=Math.round(X.now),col=X.colr;
+   html='<button type="button" class="hq-card hq-exam" onclick="showView(\'examsView\')" aria-label="Exam '+esc(X.e.name)+' in '+X.days+' days, ready '+X.now+' percent"><svg viewBox="0 0 100 100" class="hq-gauge" aria-hidden="true"><circle cx="50" cy="50" r="40" fill="none" stroke="var(--line)" stroke-width="12"/>'+(X.proj>X.now?'<circle cx="50" cy="50" r="40" fill="none" stroke="'+col+'" stroke-opacity=".35" stroke-width="12" pathLength="100" stroke-dasharray="0 '+X.now+' '+(X.proj-X.now)+' '+(100-X.proj)+'" transform="rotate(-90 50 50)"/>':'')+'<circle cx="50" cy="50" r="40" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" pathLength="100" stroke-dasharray="'+d+' '+(100-d)+'" transform="rotate(-90 50 50)"/><text x="50" y="58" text-anchor="middle" style="font-size:26px;font-weight:800;fill:var(--text)">'+X.now+'%</text></svg><span class="hq-ex"><b>'+esc(X.e.name)+'</b><small>'+X.s.cleared+'/'+X.s.total+' cleared'+(X.days>0&&X.proj>X.now?' · ≈'+X.proj+'% by exam':'')+'</small></span><span class="hq-dd"><b>'+X.days+'</b><small>days</small></span>'+(X.left.length?'<span class="hq-pill '+(X.behind?'bad':'ok')+'">'+(X.behind?'Behind':'On track')+'</span>':'')+'</button>'}
+  if(h.dataset.h!==html){h.innerHTML=html;h.dataset.h=html}}
+ function paintToday(){
+  var h=$('hqToday');if(!h)return;
+  var it=window.__mhqRounds||[],goal=(typeof XP2!=='undefined'&&XP2.goalSteps)||3,sh=function(t){t=String(t).replace(/^(Complete|Finish a|Log an|Do a|Solve a|Test yourself on)\s*/i,'');return t.length>13?t.slice(0,12)+'…':t};
+  var sl=function(t){t=String(t);return/flash|card/i.test(t)?'Cards':/focus/i.test(t)?'Focus':/mcq|question/i.test(t)?'MCQs':/step/i.test(t)?'Steps':/lecture|clear/i.test(t)?'Lecture':/review/i.test(t)?'Review':sh(t)};
+  var cells='<button type="button" class="hq-c" onclick="startMission()">'+rg(Math.min(todaySteps,goal),goal,'var(--accent)')+'<span>Daily goal</span></button>'+it.map(function(i){return'<button type="button" class="hq-c" onclick="'+i.go+'">'+rg(i.p,i.n,i.p>=i.n?'var(--good)':'var(--v-prog)')+'<span>'+esc(sl(i.t))+'</span></button>'}).join('');
+  var done=it.filter(function(i){return i.p>=i.n}).length;
+  cells+='<button type="button" class="hq-c" onclick="showView(\'todayView\')"><span class="hq-chest'+(it.length&&done===it.length?' on':'')+'">🎁</span><span>'+done+'/'+it.length+'</span></button>';
+  var html='<div class="hq-card hq-row">'+cells+'</div>';
+  if(h.dataset.h!==html){h.innerHTML=html;h.dataset.h=html}}
+ function paintQuests(){
+  var h=$('hqQuests');if(!h)return;var W=window.__mhqWeekly;
+  var html=W?'<button type="button" class="hq-card hq-qs" onclick="showView(\'rewardsView\')"><span class="hq-qh"><b>Weekly quests</b><small>'+W.done+'/3 · '+W.left+'d left</small></span>'+W.q.map(function(q){var p=Math.round(Math.min(1,q.p/q.n)*100),tt={steps:q.n+' study steps',clear:q.n+' lecture'+(q.n===1?'':'s'),focus:'Focus '+q.n+' min',mcq:q.n+' MCQ sets',flash:q.n+' flashcard sets'}[q.k]||q.t;return'<span class="hq-q'+(q.d?' d':'')+'"><span class="hq-qt">'+esc(tt)+'</span><span class="hq-qb"><i style="width:'+p+'%"></i></span><small>'+(q.d?'✓':q.p+'/'+q.n)+'</small></span>'}).join('')+'</button>':'';
+  if(h.dataset.h!==html){h.innerHTML=html;h.dataset.h=html}}
+ function paintNext(){
+  var h=$('hqNext');if(!h)return;var p=V.prio(),r=p[0];
+  var html=r?'<div class="hq-card hq-nx2"><span class="hq-n" title="Priority group '+r.g+'">'+r.g+'</span><span class="hq-nt"><small>NEXT</small><b>L'+r.l.id+' · '+esc(r.l.title)+'</b></span><button type="button" onclick="startMission()">Start</button></div>':'';
+  if(h.dataset.h!==html){h.innerHTML=html;h.dataset.h=html}}
+ window.renderHQ=function(){
+  if(!data.length)return;
+  try{buildOnce()}catch(e){}
+  try{ensureHQ();paintTop();paintSeason();paintExam();paintToday();paintQuests();paintNext()}catch(e){}};
+ /* ---------- season sheet ---------- */
+ var sov=null;
+ function closeSheet(){if(sov){sov.remove();sov=null}}
+ window.mhqSeasonSheetClose=closeSheet;
+ window.mhqSeasonSheet=function(){
+  if(!window.mhqSeasonInfo)return;closeSheet();var I=window.mhqSeasonInfo(),t=I.tier,T=I.T,prev=t?T[t-1]:0,next=T[t],f=t>=8?1:Math.max(0,Math.min(1,(I.pts-prev)/(next-prev)));
+  var rows=I.items.map(function(x){
+   var st=x.got?'<span class="hq-ok">✓</span>':(x.n===t+1?'<span class="hq-nxt">Next</span>':'<span class="hq-lk">🔒</span>'),act='';
+   if(x.got&&x.wearable){var on=I.wear===x.id;act='<button type="button" class="hq-wear'+(on?' on':'')+'" onclick="mhqSeasonWear(\''+x.id+'\')">'+(on?'Wearing':'Wear')+'</button>'}
+   if(x.got&&x.frame){var onf=I.frame===x.id;act='<button type="button" class="hq-wear'+(onf?' on':'')+'" onclick="mhqSeasonFrame(\''+x.id+'\')">'+(onf?'Using':'Use')+'</button>'}
+   return'<div class="hq-tr'+(x.got?' got':'')+(x.n===t+1?' nx':'')+'"><span class="hq-ti">'+x.icon+'</span><span class="hq-tt"><b>Tier '+x.n+' · '+esc(x.label)+'</b><small>'+x.pts+' pts</small></span>'+act+st+'</div>'}).join('');
+  sov=document.createElement('div');sov.className='hq-sheet-wrap';sov.setAttribute('role','dialog');sov.setAttribute('aria-label','Season rewards');
+  sov.innerHTML='<div class="hq-backdrop" onclick="mhqSeasonSheetClose()"></div><div class="hq-sheet"><div class="hq-sh" style="background:linear-gradient(135deg,'+I.th.c1+','+I.th.c2+')"><button type="button" class="hq-x" onclick="mhqSeasonSheetClose()" aria-label="Close">✕</button><small>'+(I.S.kind==='event'?'EVENT SEASON':'SEASON '+I.S.num)+'</small><b>'+esc(I.S.name)+'</b><em>⏳ '+esc(I.cd)+'</em><span class="hq-bar big"><i style="width:'+Math.round(f*100)+'%"></i><u>'+(t>=8?'All tiers unlocked':I.pts+' / '+next+' pts · Tier '+t)+'</u></span></div><div class="hq-tl">'+rows+'</div><div class="hq-sf"><button type="button" onclick="mhqSeasonSheetClose();showView(\'rewardsView\')">Rewards &amp; faith settings →</button></div></div>';
+  document.body.appendChild(sov)};
+ window.mhqSeasonWear=function(id){try{mhqWearAcc(id)}catch(e){}window.mhqSeasonSheet()};
+ window.mhqSeasonFrame=function(id){try{mhqWearFrame(id)}catch(e){}window.mhqSeasonSheet()};
+ /* ---------- init ---------- */
+ var built=false;
+ function buildOnce(){if(built)return;built=true;buildNav();reorg()}
+ var bc=$('buddyCard');if(bc)new MutationObserver(function(){try{paintTop()}catch(e){}}).observe(bc,{childList:true,subtree:true,characterData:true});
+ try{buildOnce();window.renderV81&&window.renderV81()}catch(e){}
 })();
 </script>
 </body>
