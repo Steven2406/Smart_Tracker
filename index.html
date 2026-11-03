@@ -1115,12 +1115,24 @@ html[data-theme="dark"]{--v-prog:#6fb0f0;--v-watch:#b794f0}
 #hqBottom .ss-verse .meta{font-size:11px}
 #hqBottom #trophyShelf{min-width:0}
 #hqBottom #trophyShelf{display:flex}#hqBottom #trophyShelf>.trophy-shelf{flex:1;margin:0}
+/* ---- v8.1.3 rest days ---- */
+.hq-st.rest .fl{filter:none;opacity:1}.hq-st.rest b{color:#2f7fd1}
+.rs-head{background:linear-gradient(135deg,#8f2d12,#e8720c)}.rs-head.ice{background:linear-gradient(135deg,#1c5a8c,#4aa6d9)}
+.rs-big{display:flex;align-items:center;gap:8px}.rs-big span{font-size:44px;line-height:1}.rs-big b{font-size:44px;color:#fff}
+.rs-head em{font-style:normal;font-size:13px;opacity:.95}.rs-head small{font-size:13px;margin-top:4px;opacity:.95}
+.rs-chips{display:flex;gap:6px;flex-wrap:wrap}
+.rs-chips button,.rs-date button{padding:9px 12px;border-radius:12px;font-size:13px;font-weight:700;background:var(--surface2);border:1px solid var(--line);color:var(--text)}
+.rs-chips button:disabled{opacity:.5}
+.rs-date{display:flex;gap:8px;margin-top:10px}.rs-date input{flex:1;min-width:0;padding:9px 10px;border-radius:10px;border:1px solid var(--line);background:var(--surface2);color:var(--text);font:inherit}
+.rs-date button{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.rs-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}.rs-row.past{color:var(--muted)}
+.rs-row button{padding:5px 10px;border-radius:10px;font-size:12px;background:var(--surface2);border:1px solid var(--line);color:var(--text)}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v8.1.2</small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v8.1.3</small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -1792,7 +1804,7 @@ function markStudyActivity(){
     const previous=new Date();
     previous.setDate(previous.getDate()-1);
     const yesterday=localDateKey(previous);
-    appStreak=(lastStudyDate===yesterday)?Math.max(1,appStreak+1):1;
+    appStreak=(lastStudyDate===yesterday||(window.mhqRestCovers&&window.mhqRestCovers(lastStudyDate,today)))?Math.max(1,appStreak+1):1;
     lastStudyDate=today;
     if(appStreak>=2) setTimeout(()=>playSfx("streak_flame",.55),180);
   }
@@ -3785,6 +3797,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
   get:function(){const b=(M.bodymap&&typeof M.bodymap==='object')?M.bodymap:{};const a={};if(b.assign&&typeof b.assign==='object')Object.keys(b.assign).forEach(k=>{if(/^\d+$/.test(k)&&typeof b.assign[k]==='string')a[k]=b.assign[k]});return{assign:a,mode:['organs','territories'].indexOf(b.mode)>=0?b.mode:'auto'}},
   set:function(assign,mode){M.bodymap={assign:assign||{},mode:mode||'auto'};saveM()}};
  window.mhqV77Store={get:function(){const b=(M.v77&&typeof M.v77==='object')?M.v77:{};return{ws:[6,0,1].indexOf(b.ws)>=0?b.ws:6,range:[13,26,53].indexOf(b.range)>=0?b.range:26,metric:b.metric==='focus'?'focus':'xp',win:b.win==='all'?'all':'30'}},set:function(p){const c=window.mhqV77Store.get();M.v77=Object.assign(c,p);saveM()}};
+ window.mhqV82Store={get:function(){return(M.v82&&typeof M.v82==='object')?M.v82:{}},set:function(v){M.v82=v;saveM()}};
  window.mhqV80Store={get:function(){return(M.v80&&typeof M.v80==='object')?M.v80:{}},set:function(v){M.v80=v;saveM()},earned:function(){return M.rewardCreditsEarned},goals:{get:function(){return[M.dailyTarget,M.weeklyTarget]},set:function(d,w){M.dailyTarget=d;M.weeklyTarget=w;saveM()}}};
  try{var _v8=M.v80;if(_v8&&_v8.applied){window.__mhqXPL=_v8.xpl;window.__mhqCXP=_v8.cxp;window.__mhqBase=_v8.baseC;window.__mhqXpAt=_v8.xpAt}}catch(e){}
  window.mhqV79Store={get:function(){return(M.v79&&typeof M.v79==='object')?M.v79:{}},set:function(v){M.v79=v;saveM()}};
@@ -4319,7 +4332,7 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
  window.renderUrgency=function(){
   var md=mode(),box=document.getElementById('urgencyBox'),vb=document.getElementById('vitalsBox');
   if(box){var html='';
-   try{if(typeof lastStudyDate==='string'&&lastStudyDate===yKey()&&appStreak>=2&&todayKey===localDateKey()&&new Date().getHours()>=20){
+   try{if(typeof lastStudyDate==='string'&&(window.mhqAtRisk?window.mhqAtRisk():lastStudyDate===yKey())&&appStreak>=2&&todayKey===localDateKey()&&new Date().getHours()>=20){
     var end=new Date();end.setHours(24,0,0,0);var u='<em data-until="'+end.getTime()+'"></em>';
     html=md==='calm'
      ?'<div class="urg-box urg-calm" role="status"><div class="urg-tx">🔥 Your '+appStreak+'-day streak continues if you study today ('+u+' left).</div><button type="button" onclick="startMission()">Start</button></div>'
@@ -4645,7 +4658,7 @@ function buddy(sp,mo,sk,stg,anim){
   if(document.querySelector('#roundsCard .rounds-chest.ready'))return{k:'excited',why:'chest'};
   try{if(bossDefinitions.some(function(b){return!bossVictories[b.id]&&bossStats(b).ready}))return{k:'excited',why:'boss'}}catch(e){}
   if(m!=='calm'){
-   try{if(typeof lastStudyDate==='string'&&lastStudyDate===yKey()&&appStreak>=2&&todayKey===localDateKey()&&new Date().getHours()>=20)return{k:'worried',why:'streak'}}catch(e){}
+   try{if(typeof lastStudyDate==='string'&&(window.mhqAtRisk?window.mhqAtRisk():lastStudyDate===yKey())&&appStreak>=2&&todayKey===localDateKey()&&new Date().getHours()>=20)return{k:'worried',why:'streak'}}catch(e){}
    }
   var hr=new Date().getHours();
   if(hr>=23||hr<5)return{k:'sleepy',why:'night'};
@@ -6014,9 +6027,9 @@ function buddy(sp,mo,sk,stg,anim){
   var h=$('hqTop');if(!h)return;
   var pet=$('bdPetH'),svg=pet&&pet.querySelector('svg'),bub=document.querySelector('#buddyCard .bd-bub'),on=!!svg;
   var studied=false;try{studied=(lastStudyDate===todayKey)||todaySteps>0}catch(e){}
-  var st=0;try{st=appStreak||0}catch(e){}
+  var st=0,rest=false;try{st=appStreak||0;if(window.mhqStreakInfo){var SI=window.mhqStreakInfo();st=SI.n;rest=SI.rest}}catch(e){}
   var html=(on?'<button type="button" class="hq-av" onclick="mhqBuddyOpen()" aria-label="Open your study buddy">'+svg.outerHTML.replace(/\bid="([^"]+)"/g,'id="hq-$1"').replace(/url\(#([^)]+)\)/g,'url(#hq-$1)').replace(/href="#([^"]+)"/g,'href="#hq-$1"')+'</button><div class="hq-bub" role="status">'+esc(bub?bub.textContent:'Hi! Ready to study?')+'</div>':'<div class="hq-bub" style="visibility:hidden"></div>')+
-   '<button type="button" class="hq-st'+(studied?' on':'')+'" onclick="showView(\'statsView\')" aria-label="'+st+' day streak'+(studied?'':', study today to keep it')+'"><span class="fl">🔥</span><b>'+st+'</b></button>';
+   '<button type="button" class="hq-st'+(studied?' on':'')+(rest&&!studied?' rest':'')+'" onclick="mhqStreakSheet()" aria-label="'+st+' day streak'+(rest?', rest day today':studied?'':', study today to keep it')+'. Tap for rest days"><span class="fl">'+(rest&&!studied?'❄️':'🔥')+'</span><b>'+st+'</b></button>';
   if(h.dataset.h!==html){h.innerHTML=html;h.dataset.h=html}}
  window.mhqBuddyOpen=function(){
   var c=$('buddyCard');if(!c)return;window.mhqBuddyClose();c.classList.add('hq-sheet-open');
@@ -6089,6 +6102,81 @@ function buddy(sp,mo,sk,stg,anim){
  function buildOnce(){if(built)return;built=true;buildNav();reorg()}
  var bc=$('buddyCard');if(bc)new MutationObserver(function(){try{paintTop()}catch(e){}}).observe(bc,{childList:true,subtree:true,characterData:true});
  try{buildOnce();window.renderV81&&window.renderV81()}catch(e){}
+})();
+
+</script>
+<script>
+/* v8.1.3 Rest-day streak freeze */
+(function(){
+ var ST=window.mhqV82Store;if(!ST)return;
+ var ALLOW=3;
+ function $(i){return document.getElementById(i)}
+ function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+ function addDays(k,n){var d=new Date(k+'T12:00:00');d.setDate(d.getDate()+n);return localDateKey(d)}
+ function load(){var b=ST.get(),r={};if(b.rest&&typeof b.rest==='object')Object.keys(b.rest).forEach(function(k){if(/^\d{4}-\d{2}-\d{2}$/.test(k))r[k]=1});return r}
+ function save(r){var cut=addDays(localDateKey(),-400),o={};Object.keys(r).forEach(function(k){if(k>=cut)o[k]=1});ST.set({rest:o})}
+ function fmt(k){return new Date(k+'T12:00:00').toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})}
+ /* every day strictly between from and to is a rest day (and there is at least one) */
+ function covered(from,to,R){R=R||load();if(!from||from>=to)return false;var d=addDays(from,1),n=0;while(d<to){if(!R[d])return false;d=addDays(d,1);n++}return n>0}
+ window.mhqIsRest=function(k){return!!load()[k||localDateKey()]};
+ window.mhqRestCovers=function(from,to){var ok=covered(from,to);if(ok){var n=0,d=addDays(from,1);while(d<to){n++;d=addDays(d,1)}setTimeout(function(){try{toast('❄ Rest day'+(n>1?'s':'')+' protected your streak')}catch(e){}},900)}return ok};
+ window.mhqAtRisk=function(){
+  var last=lastStudyDate,t=localDateKey(),R=load();
+  if(!last||last>=t||R[t])return false;
+  return last===addDays(t,-1)||covered(last,t,R)};
+ window.mhqStreakInfo=function(){
+  var last=lastStudyDate,t=localDateKey(),R=load(),n=appStreak||0;
+  var alive=!!last&&(last===t||last===addDays(t,-1)||covered(last,t,R));
+  if(!alive)n=0;
+  return{n:n,alive:alive,studied:last===t,rest:!!R[t]}};
+ /* ---------- allowance ---------- */
+ function usedIn(R,month){return Object.keys(R).filter(function(k){return k.slice(0,7)===month}).length}
+ function check(k,R){
+  var t=localDateKey();
+  if(R[k])return'Already a rest day';
+  if(k<addDays(t,-2))return'Rest days can only be added up to 2 days back';
+  if(k>addDays(t,60))return'Pick a date within the next 60 days';
+  if(usedIn(R,k.slice(0,7))>=ALLOW)return'You already have '+ALLOW+' rest days in that month';
+  return''}
+ window.mhqRestAdd=function(k){
+  var R=load(),e=check(k,R);if(e){try{toast(e)}catch(x){}return false}
+  R[k]=1;save(R);try{playSfx('ui_click',.5)}catch(x){}try{toast('❄ Rest day added: '+fmt(k))}catch(x){}
+  after();return true};
+ window.mhqRestRemove=function(k){
+  var R=load(),t=localDateKey();if(!R[k]||k<t)return;
+  delete R[k];save(R);try{playSfx('ui_click',.5)}catch(x){}after()};
+ function after(){try{render()}catch(e){}if(sov)window.mhqStreakSheet()}
+ /* ---------- sheet ---------- */
+ var sov=null;
+ function close(){if(sov){sov.remove();sov=null}}
+ window.mhqStreakSheetClose=close;
+ window.mhqStreakSheet=function(){
+  close();var I=window.mhqStreakInfo(),R=load(),t=localDateKey(),m=t.slice(0,7),left=Math.max(0,ALLOW-usedIn(R,m));
+  var status=I.rest?(I.studied?'Studied today ✓ (rest day)':'❄ Rest day today: your streak is protected'):I.studied?'Studied today ✓':I.alive&&I.n>0?'Study today to keep your streak':'Start a new streak today';
+  var upcoming=Object.keys(R).filter(function(k){return k>=addDays(t,-30)}).sort().reverse();
+  var rows=upcoming.length?upcoming.map(function(k){var past=k<t;return'<div class="rs-row'+(past?' past':'')+'"><span>'+(k===t?'Today · ':'')+esc(fmt(k))+(past?' <small>(done)</small>':'')+'</span>'+(past?'':'<button type="button" onclick="mhqRestRemove(\''+k+'\')">Remove</button>')+'</div>'}).join(''):'<div class="meta">No rest days yet.</div>';
+  var chips='<button type="button" onclick="mhqRestAdd(\''+t+'\')"'+(R[t]?' disabled':'')+'>❄ Rest today</button><button type="button" onclick="mhqRestAdd(\''+addDays(t,1)+'\')"'+(R[addDays(t,1)]?' disabled':'')+'>Tomorrow</button>';
+  var ex='';try{ex=upcomingExams().filter(function(e){return e.date>=t&&!R[e.date]}).slice(0,3).map(function(e){return'<button type="button" onclick="mhqRestAdd(\''+e.date+'\')">📅 '+esc(e.name)+' · '+esc(fmt(e.date))+'</button>'}).join('')}catch(e){}
+  sov=document.createElement('div');sov.className='hq-sheet-wrap';sov.setAttribute('role','dialog');sov.setAttribute('aria-label','Streak and rest days');
+  sov.innerHTML='<div class="hq-backdrop" onclick="mhqStreakSheetClose()"></div><div class="hq-sheet"><div class="hq-sh rs-head'+(I.rest?' ice':'')+'"><button type="button" class="hq-x" onclick="mhqStreakSheetClose()" aria-label="Close">✕</button><div class="rs-big"><span>'+(I.rest?'❄️':'🔥')+'</span><b>'+I.n+'</b></div><em>day streak</em><small>'+esc(status)+'</small></div>'+
+   '<div class="hq-tl"><div class="label">REST DAYS</div><div class="meta" style="margin:4px 0 8px">A rest day keeps your streak alive on a day you choose (sick day, exam day). It doesn’t add to the streak, and studying on it counts as normal.</div>'+
+   '<div class="rs-chips">'+chips+ex+'</div>'+
+   '<div class="rs-date"><input type="date" id="rsDate" min="'+addDays(t,-2)+'" max="'+addDays(t,60)+'" aria-label="Pick a rest day"><button type="button" onclick="var v=document.getElementById(\'rsDate\').value;if(v)mhqRestAdd(v)">Add</button></div>'+
+   '<div class="meta" style="margin:8px 0">'+left+' of '+ALLOW+' rest days left in '+new Date(t+'T12:00:00').toLocaleDateString(undefined,{month:'long'})+'. You can add a day up to 2 days back, before you study today.</div>'+
+   '<div class="label" style="margin-top:10px">YOUR REST DAYS</div>'+rows+'</div></div>';
+  document.body.appendChild(sov)};
+ /* ---------- Settings card ---------- */
+ window.renderRest=function(){
+  var v=$('dataView');if(!v)return;var h=$('v82Rest');
+  if(!h){h=document.createElement('div');h.id='v82Rest';var t=v.querySelector(':scope > .section-switcher')||v.querySelector(':scope > .mhq-back-row');if(t)t.parentNode.insertBefore(h,t.nextSibling);else v.insertBefore(h,v.firstChild)}
+  var I=window.mhqStreakInfo(),R=load(),n=Object.keys(R).filter(function(k){return k>=localDateKey()}).length;
+  var html='<div class="section card"><div class="label">STREAK</div><h2 style="margin:4px 0">❄ Rest days</h2><div class="meta">'+I.n+' day streak · '+n+' rest day'+(n===1?'':'s')+' scheduled</div><button type="button" class="primary" style="width:100%;margin-top:10px" onclick="mhqStreakSheet()">Choose rest days</button></div>';
+  if(h.dataset.h!==html){h.innerHTML=html;h.dataset.h=html}};
+ /* keep the stored counter honest when a streak has really been broken */
+ window.mhqStreakNormalize=function(){try{var I=window.mhqStreakInfo();if(!I.alive&&appStreak>0)appStreak=0}catch(e){}};
+ var r0=window.renderHQ;
+ window.renderHQ=function(){try{window.mhqStreakNormalize();window.renderRest()}catch(e){}return r0&&r0.apply(this,arguments)};
+ try{window.renderHQ()}catch(e){}
 })();
 </script>
 </body>
