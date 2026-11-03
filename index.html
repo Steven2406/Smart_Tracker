@@ -12,6 +12,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Medical HQ">
 <meta name="theme-color" content="#f4f5f1">
+<script>window.mhqStorageFail=function(){var n=Date.now();if(n-(window.__mhqSF||0)<60000)return;window.__mhqSF=n;try{toast("⚠ Couldn't save: storage is full or blocked. Export a backup now (⚙).")}catch(e){}};</script>
 <script id="mhq-courses-shim">
 /* Multi-course storage: every course keeps its own copy of the app's data. The first course uses the original keys, so existing progress is untouched. */
 (function(){
@@ -377,8 +378,8 @@ body.mhq-modal-open{overflow:hidden}
 /* Courses */
 button.brand{display:flex;align-items:center;gap:10px;min-width:0;min-height:0;padding:0;border:0;background:none;text-align:left;color:inherit;border-radius:12px}
 .brand-text{display:block;min-width:0}.brand-text b{display:block;font-family:var(--serif);font-size:17px;line-height:1.1;white-space:nowrap}
-.brand-text small{display:block;font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px}
-button.brand .brand-text small::after{content:" ▾";color:var(--accent)}
+.brand-text small{display:flex;font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;max-width:170px}.brand-text small .bt-c{min-width:0;overflow:hidden;text-overflow:ellipsis}.brand-text small .bt-v{flex:none}
+button.brand .brand-text small::after{content:" ▾";color:var(--accent);flex:none;white-space:pre}
 .cs-backdrop{position:fixed;inset:0;z-index:600;display:flex;align-items:flex-end;justify-content:center;background:rgba(10,18,13,.5);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 .cs-sheet{width:min(560px,100%);max-height:88%;overflow:auto;background:var(--surface);border:1px solid var(--line);border-bottom:0;border-radius:24px 24px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom));animation:sheet .28s cubic-bezier(.2,.8,.2,1)}
 @media(min-width:600px){.cs-backdrop{align-items:center}.cs-sheet{border-radius:24px;border-bottom:1px solid var(--line)}}
@@ -1127,12 +1128,22 @@ html[data-theme="dark"]{--v-prog:#6fb0f0;--v-watch:#b794f0}
 .rs-date button{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .rs-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}.rs-row.past{color:var(--muted)}
 .rs-row button{padding:5px 10px;border-radius:10px;font-size:12px;background:var(--surface2);border:1px solid var(--line);color:var(--text)}
+
+/* ---- v8.1.4 fixes ---- */
+.hq-bub{max-height:none;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.header-audio,.header-data,.theme-toggle{position:relative}
+.header-audio::after,.header-data::after,.theme-toggle::after{content:"";position:absolute;inset:-4px -3px}
+.mhq-back-button{min-height:44px}
+.hq-fade-r{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 28px),transparent)}
+.hq-fade-l{-webkit-mask-image:linear-gradient(to right,transparent,#000 28px);mask-image:linear-gradient(to right,transparent,#000 28px)}
+.hq-fade-l.hq-fade-r{-webkit-mask-image:linear-gradient(to right,transparent,#000 28px,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(to right,transparent,#000 28px,#000 calc(100% - 28px),transparent)}
+.rs-row .auto{color:var(--muted);font-size:11px}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small>GIT campaign · v8.1.3</small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.1.4</span></small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -2326,7 +2337,7 @@ function save(){
   normalizeLearningEvidence();
   syncXP();
   reconcileXpLedger();
-  localStorage.setItem("medicalHQ",JSON.stringify(buildPersistedState()));
+  try{localStorage.setItem("medicalHQ",JSON.stringify(buildPersistedState()))}catch(e){try{window.mhqStorageFail(e)}catch(x){}}
 }
 
 function auditFoundation(){
@@ -2499,6 +2510,7 @@ function checkRpgLevelUp(){
   const level=rpgInfo().level;
   if(rpgLastSeenLevel===null){rpgLastSeenLevel=level;return;}
   if(level>rpgLastSeenLevel){
+    if(level<=1){rpgLastSeenLevel=level;return;}
     const gained=level-rpgLastSeenLevel,from=rpgLastSeenLevel;rpgLastSeenLevel=level;playSfx("level_up",.95);
     const info=rpgInfo(),oldRank=info.ranks.find(r=>from>=r.min&&from<=r.max),newRank=info.rank;
     celebrate({kind:"level",icon:newRank.icon,kicker:"LEVEL UP",title:`Level ${level}`,sub:gained>1?`+${gained} levels at once`:newRank.name,
@@ -3703,7 +3715,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
  if(!M){const legacy=JSON.parse(localStorage.getItem(LEGACY)||'null')||{};const earned=Math.floor(Number(readCore().xp||0)/250);M={dailyTarget:legacy.dailyTarget||3,weeklyTarget:legacy.weeklyTarget||15,campaignGoal:legacy.campaignGoal||'Clear '+COURSE.short+' campaign',redeemed:legacy.redeemed||[],rewardCreditsEarned:Math.max(earned,Number(legacy.rewardCreditsEarned||0)),rewardCreditsSpent:Number(legacy.rewardCreditsSpent||0),ownedItems:legacy.ownedItems||[],shopVersion:2};localStorage.setItem(KEY,JSON.stringify(M));}
  M.rewardCreditsEarned=Number(M.rewardCreditsEarned||0);M.rewardCreditsSpent=Number(M.rewardCreditsSpent||0);M.ownedItems=Array.isArray(M.ownedItems)?M.ownedItems:[];
  M.equipped=Object.assign({skin:'clinical',frame:null,emblem:null,banner:null,vmap:{},fx:'full',intensity:'standard'},(M.equipped&&typeof M.equipped==='object')?M.equipped:{});
- function saveM(){localStorage.setItem(KEY,JSON.stringify(M));}
+ function saveM(){try{localStorage.setItem(KEY,JSON.stringify(M))}catch(e){try{window.mhqStorageFail(e)}catch(x){}}}
  function dayKey(d=new Date()){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
  function ledger(){const c=readCore();return Array.isArray(c.activityLedger)?c.activityLedger:[]}
  function studyActions(date=dayKey()){return ledger().filter(x=>x.dateKey===date&&['study-step','mcq','focus-session','boss-victory','clinical-case','external-test'].includes(x.type)).length}
@@ -6106,20 +6118,28 @@ function buddy(sp,mo,sk,stg,anim){
 
 </script>
 <script>
-/* v8.1.3 Rest-day streak freeze */
+/* v8.1.4 Streak freezes: rest days + automatic freezes for missed days */
 (function(){
  var ST=window.mhqV82Store;if(!ST)return;
  var ALLOW=3;
  function $(i){return document.getElementById(i)}
  function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
  function addDays(k,n){var d=new Date(k+'T12:00:00');d.setDate(d.getDate()+n);return localDateKey(d)}
- function load(){var b=ST.get(),r={};if(b.rest&&typeof b.rest==='object')Object.keys(b.rest).forEach(function(k){if(/^\d{4}-\d{2}-\d{2}$/.test(k))r[k]=1});return r}
- function save(r){var cut=addDays(localDateKey(),-400),o={};Object.keys(r).forEach(function(k){if(k>=cut)o[k]=1});ST.set({rest:o})}
+ function load(){var b=ST.get(),r={};if(b.rest&&typeof b.rest==='object')Object.keys(b.rest).forEach(function(k){if(/^\d{4}-\d{2}-\d{2}$/.test(k))r[k]=b.rest[k]===2?2:1});return r}
+ function save(r){var cut=addDays(localDateKey(),-400),o={};Object.keys(r).forEach(function(k){if(k>=cut)o[k]=r[k]===2?2:1});ST.set({rest:o})}
  function fmt(k){return new Date(k+'T12:00:00').toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})}
- /* every day strictly between from and to is a rest day (and there is at least one) */
- function covered(from,to,R){R=R||load();if(!from||from>=to)return false;var d=addDays(from,1),n=0;while(d<to){if(!R[d])return false;d=addDays(d,1);n++}return n>0}
+ /* days strictly between from and to must each be a rest day or, if freezes are left that month, an automatic freeze */
+ function usedIn(R,month){return Object.keys(R).filter(function(k){return k.slice(0,7)===month}).length}
+ function plan(from,to,R){R=R||load();if(!from||from>=to)return null;var d=addDays(from,1),n=0,need=[],tmp={};Object.keys(R).forEach(function(k){tmp[k]=R[k]});
+  while(d<to){n++;if(!tmp[d]){if(usedIn(tmp,d.slice(0,7))>=ALLOW)return null;tmp[d]=2;need.push(d)}d=addDays(d,1)}
+  return n>0?{days:need,n:n}:null}
+ function covered(from,to,R){return!!plan(from,to,R)}
+ function aliveWith(R){var last=lastStudyDate,t=localDateKey();return!!last&&(last===t||last===addDays(t,-1)||covered(last,t,R))}
  window.mhqIsRest=function(k){return!!load()[k||localDateKey()]};
- window.mhqRestCovers=function(from,to){var ok=covered(from,to);if(ok){var n=0,d=addDays(from,1);while(d<to){n++;d=addDays(d,1)}setTimeout(function(){try{toast('❄ Rest day'+(n>1?'s':'')+' protected your streak')}catch(e){}},900)}return ok};
+ window.mhqRestCovers=function(from,to){var R=load(),p=plan(from,to,R);if(!p)return false;
+  if(p.days.length){p.days.forEach(function(d){R[d]=2});save(R)}
+  setTimeout(function(){try{toast(p.days.length?'❄ Streak freeze used for '+p.days.length+' missed day'+(p.days.length>1?'s':'')+': streak saved':'❄ Rest day'+(p.n>1?'s':'')+' protected your streak')}catch(e){}},900);
+  return true};
  window.mhqAtRisk=function(){
   var last=lastStudyDate,t=localDateKey(),R=load();
   if(!last||last>=t||R[t])return false;
@@ -6128,15 +6148,17 @@ function buddy(sp,mo,sk,stg,anim){
   var last=lastStudyDate,t=localDateKey(),R=load(),n=appStreak||0;
   var alive=!!last&&(last===t||last===addDays(t,-1)||covered(last,t,R));
   if(!alive)n=0;
-  return{n:n,alive:alive,studied:last===t,rest:!!R[t]}};
+  var P=(alive&&last!==t&&last!==addDays(t,-1))?plan(last,t,R):null;
+  return{n:n,alive:alive,studied:last===t,rest:!!R[t],pend:P?P.days.length:0}};
  /* ---------- allowance ---------- */
- function usedIn(R,month){return Object.keys(R).filter(function(k){return k.slice(0,7)===month}).length}
  function check(k,R){
   var t=localDateKey();
   if(R[k])return'Already a rest day';
   if(k<addDays(t,-2))return'Rest days can only be added up to 2 days back';
   if(k>addDays(t,60))return'Pick a date within the next 60 days';
-  if(usedIn(R,k.slice(0,7))>=ALLOW)return'You already have '+ALLOW+' rest days in that month';
+  if(usedIn(R,k.slice(0,7))>=ALLOW)return'You already have '+ALLOW+' freezes in that month';
+  var R2={};Object.keys(R).forEach(function(x){R2[x]=R[x]});R2[k]=1;
+  if(aliveWith(R)&&!aliveWith(R2))return'That freeze is needed to protect your missed day';
   return''}
  window.mhqRestAdd=function(k){
   var R=load(),e=check(k,R);if(e){try{toast(e)}catch(x){}return false}
@@ -6152,31 +6174,43 @@ function buddy(sp,mo,sk,stg,anim){
  window.mhqStreakSheetClose=close;
  window.mhqStreakSheet=function(){
   close();var I=window.mhqStreakInfo(),R=load(),t=localDateKey(),m=t.slice(0,7),left=Math.max(0,ALLOW-usedIn(R,m));
-  var status=I.rest?(I.studied?'Studied today ✓ (rest day)':'❄ Rest day today: your streak is protected'):I.studied?'Studied today ✓':I.alive&&I.n>0?'Study today to keep your streak':'Start a new streak today';
+  var status=(I.pend>0&&!I.studied&&!I.rest)?'Study today: '+I.pend+' missed day'+(I.pend>1?'s':'')+' will use a freeze':I.rest?(I.studied?'Studied today ✓ (rest day)':'❄ Rest day today: your streak is protected'):I.studied?'Studied today ✓':I.alive&&I.n>0?'Study today to keep your streak':'Start a new streak today';
   var upcoming=Object.keys(R).filter(function(k){return k>=addDays(t,-30)}).sort().reverse();
-  var rows=upcoming.length?upcoming.map(function(k){var past=k<t;return'<div class="rs-row'+(past?' past':'')+'"><span>'+(k===t?'Today · ':'')+esc(fmt(k))+(past?' <small>(done)</small>':'')+'</span>'+(past?'':'<button type="button" onclick="mhqRestRemove(\''+k+'\')">Remove</button>')+'</div>'}).join(''):'<div class="meta">No rest days yet.</div>';
+  var rows=upcoming.length?upcoming.map(function(k){var past=k<t;return'<div class="rs-row'+(past?' past':'')+'"><span>'+(k===t?'Today · ':'')+esc(fmt(k))+(past?(R[k]===2?' <small class="auto">(auto freeze)</small>':' <small>(done)</small>'):'')+'</span>'+(past?'':'<button type="button" onclick="mhqRestRemove(\''+k+'\')">Remove</button>')+'</div>'}).join(''):'<div class="meta">No freezes used or planned yet.</div>';
   var chips='<button type="button" onclick="mhqRestAdd(\''+t+'\')"'+(R[t]?' disabled':'')+'>❄ Rest today</button><button type="button" onclick="mhqRestAdd(\''+addDays(t,1)+'\')"'+(R[addDays(t,1)]?' disabled':'')+'>Tomorrow</button>';
   var ex='';try{ex=upcomingExams().filter(function(e){return e.date>=t&&!R[e.date]}).slice(0,3).map(function(e){return'<button type="button" onclick="mhqRestAdd(\''+e.date+'\')">📅 '+esc(e.name)+' · '+esc(fmt(e.date))+'</button>'}).join('')}catch(e){}
   sov=document.createElement('div');sov.className='hq-sheet-wrap';sov.setAttribute('role','dialog');sov.setAttribute('aria-label','Streak and rest days');
   sov.innerHTML='<div class="hq-backdrop" onclick="mhqStreakSheetClose()"></div><div class="hq-sheet"><div class="hq-sh rs-head'+(I.rest?' ice':'')+'"><button type="button" class="hq-x" onclick="mhqStreakSheetClose()" aria-label="Close">✕</button><div class="rs-big"><span>'+(I.rest?'❄️':'🔥')+'</span><b>'+I.n+'</b></div><em>day streak</em><small>'+esc(status)+'</small></div>'+
-   '<div class="hq-tl"><div class="label">REST DAYS</div><div class="meta" style="margin:4px 0 8px">A rest day keeps your streak alive on a day you choose (sick day, exam day). It doesn’t add to the streak, and studying on it counts as normal.</div>'+
+   '<div class="hq-tl"><div class="label">STREAK FREEZES</div><div class="meta" style="margin:4px 0 8px">You get 3 freezes a month. Choose a rest day ahead of time (sick day, exam day), or just miss a day: a freeze is used automatically when you come back, as long as you have one left. Freezes don’t add to the streak.</div>'+
    '<div class="rs-chips">'+chips+ex+'</div>'+
    '<div class="rs-date"><input type="date" id="rsDate" min="'+addDays(t,-2)+'" max="'+addDays(t,60)+'" aria-label="Pick a rest day"><button type="button" onclick="var v=document.getElementById(\'rsDate\').value;if(v)mhqRestAdd(v)">Add</button></div>'+
-   '<div class="meta" style="margin:8px 0">'+left+' of '+ALLOW+' rest days left in '+new Date(t+'T12:00:00').toLocaleDateString(undefined,{month:'long'})+'. You can add a day up to 2 days back, before you study today.</div>'+
-   '<div class="label" style="margin-top:10px">YOUR REST DAYS</div>'+rows+'</div></div>';
+   '<div class="meta" style="margin:8px 0">'+left+' of '+ALLOW+' freezes left in '+new Date(t+'T12:00:00').toLocaleDateString(undefined,{month:'long'})+'. You can also add a rest day up to 2 days back, before you study today.</div>'+
+   '<div class="label" style="margin-top:10px">FREEZE HISTORY</div>'+rows+'</div></div>';
   document.body.appendChild(sov)};
  /* ---------- Settings card ---------- */
  window.renderRest=function(){
   var v=$('dataView');if(!v)return;var h=$('v82Rest');
   if(!h){h=document.createElement('div');h.id='v82Rest';var t=v.querySelector(':scope > .section-switcher')||v.querySelector(':scope > .mhq-back-row');if(t)t.parentNode.insertBefore(h,t.nextSibling);else v.insertBefore(h,v.firstChild)}
-  var I=window.mhqStreakInfo(),R=load(),n=Object.keys(R).filter(function(k){return k>=localDateKey()}).length;
-  var html='<div class="section card"><div class="label">STREAK</div><h2 style="margin:4px 0">❄ Rest days</h2><div class="meta">'+I.n+' day streak · '+n+' rest day'+(n===1?'':'s')+' scheduled</div><button type="button" class="primary" style="width:100%;margin-top:10px" onclick="mhqStreakSheet()">Choose rest days</button></div>';
+  var I=window.mhqStreakInfo(),R=load();
+  var html='<div class="section card"><div class="label">STREAK</div><h2 style="margin:4px 0">❄ Streak freezes</h2><div class="meta">'+I.n+' day streak · '+Math.max(0,ALLOW-usedIn(R,localDateKey().slice(0,7)))+' of '+ALLOW+' freezes left this month</div><button type="button" class="primary" style="width:100%;margin-top:10px" onclick="mhqStreakSheet()">Streak freezes</button></div>';
   if(h.dataset.h!==html){h.innerHTML=html;h.dataset.h=html}};
  /* keep the stored counter honest when a streak has really been broken */
  window.mhqStreakNormalize=function(){try{var I=window.mhqStreakInfo();if(!I.alive&&appStreak>0)appStreak=0}catch(e){}};
  var r0=window.renderHQ;
  window.renderHQ=function(){try{window.mhqStreakNormalize();window.renderRest()}catch(e){}return r0&&r0.apply(this,arguments)};
  try{window.renderHQ()}catch(e){}
+})();
+</script>
+<script id="mhq-fade">
+(function(){
+ var SEL='.section-switcher,.filters';
+ function upd(el){if(!el.clientWidth){return}var m=el.scrollWidth-el.clientWidth;
+  if(m<6){el.classList.remove('hq-fade-l','hq-fade-r');return}
+  el.classList.toggle('hq-fade-l',el.scrollLeft>6);el.classList.toggle('hq-fade-r',el.scrollLeft<m-6)}
+ function all(){try{document.querySelectorAll(SEL).forEach(upd)}catch(e){}}
+ document.addEventListener('scroll',function(e){var t=e.target;if(t&&t.matches&&t.matches(SEL))upd(t)},true);
+ document.addEventListener('click',function(){setTimeout(all,120);setTimeout(all,600)},true);
+ window.addEventListener('resize',all);window.addEventListener('load',function(){all();setTimeout(all,800);setTimeout(all,2500)});
 })();
 </script>
 </body>
