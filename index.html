@@ -1138,12 +1138,54 @@ html[data-theme="dark"]{--v-prog:#6fb0f0;--v-watch:#b794f0}
 .hq-fade-l{-webkit-mask-image:linear-gradient(to right,transparent,#000 28px);mask-image:linear-gradient(to right,transparent,#000 28px)}
 .hq-fade-l.hq-fade-r{-webkit-mask-image:linear-gradient(to right,transparent,#000 28px,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(to right,transparent,#000 28px,#000 calc(100% - 28px),transparent)}
 .rs-row .auto{color:var(--muted);font-size:11px}
+
+/* ---- v8.2.0 motion ---- */
+.view.active{animation:mhqIn var(--mo-dur,.26s) cubic-bezier(.2,.8,.2,1) backwards}
+@keyframes mhqIn{from{opacity:0;transform:translate3d(var(--mo-dx,0px),9px,0)}}
+html[data-fx=subtle]{--mo-dur:.16s}
+html[data-fx=off] .view.active{animation:none}
+.nav .mo-pill{position:absolute;left:0;top:0;width:0;height:0;border-radius:17px;background:var(--soft);pointer-events:none;opacity:0;z-index:0;will-change:transform,width}
+.nav.mo-on .mo-pill{opacity:1}
+.nav.mo-go .mo-pill{transition:transform .34s cubic-bezier(.34,1.35,.5,1),width .34s cubic-bezier(.34,1.35,.5,1)}
+html[data-fx=subtle] .nav.mo-go .mo-pill{transition:transform .2s ease-out,width .2s ease-out}
+html[data-fx=off] .nav.mo-go .mo-pill{transition:none}
+.nav.mo-on button{position:relative;z-index:1}
+.nav.mo-on button.active{background:transparent}
+.nav button.active .ic{animation:moIcon .42s cubic-bezier(.3,1.5,.5,1) backwards}
+@keyframes moIcon{0%{transform:translateY(3px) scale(.8)}60%{transform:translateY(-4px) scale(1.12)}100%{transform:translateY(-1px)}}
+html[data-fx=off] .nav button.active .ic{animation:none}
+.primary:not(:disabled):active,.next-go:active,.hq-st:active,.add-btn:active,.hq-sheet button:active,.cs-sheet button:active,.section-switcher button:active,.filters button:active,.nav button:active,.bd-act:active{transform:scale(.965);transition:transform .08s ease-out}
+.hq-st.on .fl{display:inline-block;transform-origin:50% 88%;animation:moFlame 2.4s ease-in-out infinite}
+@keyframes moFlame{0%,100%{transform:scale(1) rotate(0)}22%{transform:scale(1.06,1.1) rotate(-3deg)}48%{transform:scale(.97,1.03) rotate(2deg)}72%{transform:scale(1.04,1.08) rotate(-1.5deg)}}
+html[data-fx=subtle] .hq-st.on .fl,html[data-fx=off] .hq-st.on .fl{animation:none}
+.mo-stamp{position:relative;width:max-content;margin:12px auto 0;pointer-events:none;z-index:4;transform:rotate(-6deg)}
+.mo-stamp span{display:block;padding:4px 12px;border:3px solid var(--cel,var(--accent));border-radius:8px;color:var(--cel,var(--accent));font-weight:900;font-size:15px;letter-spacing:.2em;background:color-mix(in srgb,var(--surface) 82%,transparent);opacity:0;animation:moStamp .5s cubic-bezier(.2,.9,.3,1.2) .55s forwards}
+@keyframes moStamp{0%{opacity:0;transform:scale(2.9) rotate(9deg)}55%{opacity:1;transform:scale(.9)}78%{transform:scale(1.07)}100%{opacity:1;transform:scale(1)}}
+html[data-skin=egypt] .mo-stamp span{border-style:double;border-width:5px;border-radius:4px}
+html[data-skin=ninja] .mo-stamp span{border-radius:12px 2px 12px 2px}
+html[data-skin=elite] .mo-stamp span{border-radius:3px;box-shadow:0 0 14px -2px var(--glow)}
+.mo-ring{position:absolute;left:50%;top:50%;width:0;height:0;pointer-events:none;z-index:3}
+.mo-ring i{position:absolute;left:-60px;top:-60px;width:120px;height:120px;border-radius:50%;border:3px solid var(--cel,var(--accent));opacity:0;animation:moRing .95s ease-out forwards}
+.mo-ring i+i{left:-45px;top:-45px;width:90px;height:90px;border-width:2px;animation-delay:.13s}
+@keyframes moRing{0%{opacity:.9;transform:scale(.25)}100%{opacity:0;transform:scale(3.3)}}
+html[data-skin=egypt] .mo-ring i{border-style:double;border-width:5px}
+html[data-skin=ninja] .mo-ring i{border-radius:10px;rotate:45deg}
+html[data-skin=elite] .mo-ring i{box-shadow:0 0 18px var(--glow),inset 0 0 12px var(--glow)}
+.cel-total.mo-pop{animation:moPop .38s cubic-bezier(.3,1.6,.5,1)}
+@keyframes moPop{0%{transform:scale(1)}45%{transform:scale(1.22)}100%{transform:scale(1)}}
+.mo-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0}
+.mo-sw{min-width:64px;padding:7px 12px;border-radius:99px;font-weight:800;background:var(--surface2);border:1px solid var(--line);color:var(--muted)}
+.mo-sw.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.mo-slot{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+.mo-slot code{font-size:12px;font-weight:700}.mo-slot small{display:block;color:var(--muted);font-size:11.5px}
+.mo-slot .st{margin-left:auto;font-size:11.5px;color:var(--muted);white-space:nowrap}.mo-slot .st.ok{color:var(--accent);font-weight:700}
+.mo-slot button{padding:4px 9px;border-radius:9px;font-size:12px;background:var(--surface2);border:1px solid var(--line)}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.1.4</span></small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.2.0</span></small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -6211,6 +6253,152 @@ function buddy(sp,mo,sk,stg,anim){
  document.addEventListener('scroll',function(e){var t=e.target;if(t&&t.matches&&t.matches(SEL))upd(t)},true);
  document.addEventListener('click',function(){setTimeout(all,120);setTimeout(all,600)},true);
  window.addEventListener('resize',all);window.addEventListener('load',function(){all();setTimeout(all,800);setTimeout(all,2500)});
+})();
+</script>
+<script id="mhq-motion">
+/* v8.2.0 Motion: sliding nav pill, direction-aware screens, stamp + XP count-up + ring burst on celebrations,
+   vibration (on by default, switch in the gear sheet) and sound slots for effects you add later. */
+(function(){
+ var root=document.documentElement;
+ function reduced(){return!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)}
+ function fxm(){return root.dataset.fx||'full'}
+ function animOk(){return fxm()!=='off'&&!reduced()}
+ var $=function(i){return document.getElementById(i)};
+ function esc(x){return String(x).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+
+ /* ---------- settings (global on this device) ---------- */
+ var KEY='mhqMotionV82',S0=window.mhqStore;
+ function loadS(){var o={};try{if(S0&&S0.raw)o=JSON.parse(S0.raw.get(KEY))||{}}catch(e){}return{vib:o.vib!==false}}
+ function saveS(o){try{if(S0&&S0.raw)S0.raw.set(KEY,JSON.stringify(o))}catch(e){}}
+ var cfg=loadS();
+
+ /* ---------- vibration ---------- */
+ var canVib=!!(navigator&&typeof navigator.vibrate==='function'),lastBuzz=0;
+ function buzz(p){if(!cfg.vib||!canVib)return;var n=Date.now();if(n-lastBuzz<70)return;lastBuzz=n;try{navigator.vibrate(p)}catch(e){}}
+ /* every existing sound gets a matching buzz; edit this list to change the feel */
+ var HAPTIC={study_step:14,lecture_clear:[16,30,16],mcq_correct:16,mcq_wrong:[28,40,28],mcq_perfect:[20,30,20,30,50],mcq_recovery:[14,30,22],
+  clinical_correct:16,achievement:[20,40,30],level_up:[30,50,30,50,70],boss_warning:[50,60,50],boss_incoming:[50,60,50],boss_defeat:[70,40,70,40,120],
+  focus_start:20,focus_checkpoint:12,focus_complete:[40,60,40,60,80],streak_flame:[14,30,24],mission_start:18,review_due:[14,40,14],review_alert:[14,40,14],
+  buddy_pet:10,buddy_cheer:[12,30,12]};
+ var origPlay=window.playSfx;
+ if(typeof origPlay==='function'){window.playSfx=function(name){try{var h=HAPTIC[name];if(h)buzz(h)}catch(e){}return origPlay.apply(this,arguments)}}
+
+ /* ---------- sound slots: drop an mp3 named like the slot into the sfx/ folder ---------- */
+ var SLOTS=[
+  ['nav_slide','Bottom bar pill slides to a new tab'],
+  ['screen_in','A screen eases in'],
+  ['press_soft','A main button is pressed'],
+  ['stamp_thump','The CLEARED stamp lands'],
+  ['xp_count','Each tick while XP counts up'],
+  ['xp_land','The XP count finishes'],
+  ['burst_pop','The ring burst on a celebration']
+ ];
+ try{SLOTS.forEach(function(x){if(typeof SFX_LIBRARY!=='undefined'&&!SFX_LIBRARY[x[0]])SFX_LIBRARY[x[0]]='sfx/'+x[0]+'.mp3?v='+SFX_VERSION;if(typeof SFX_NAMES!=='undefined'&&SFX_NAMES.indexOf(x[0])<0)SFX_NAMES.push(x[0])})}catch(e){}
+ var miss={};
+ function slot(name,gain){
+  try{if(typeof audioSettings==='undefined'||!audioSettings.enabled)return;
+   var m=miss[name];if(m&&Date.now()-m<300000)return;
+   ensureAudioContext().then(function(ok){if(!ok)return;return loadSfx(name).then(function(b){if(!b){miss[name]=Date.now();return}playSfx(name,gain==null?.5:gain)})})}catch(e){}
+ }
+
+ /* ---------- sliding nav pill ---------- */
+ var nav=document.querySelector('.nav'),pill=null,placed=false,lastBtn=null,raf=0;
+ function place(){
+  raf=0;if(!nav||!pill)return;
+  var b=nav.querySelector('button.active');
+  if(!b||!b.offsetWidth){nav.classList.remove('mo-on');return}
+  pill.style.width=b.offsetWidth+'px';pill.style.height=b.offsetHeight+'px';
+  try{pill.style.borderRadius=getComputedStyle(b).borderRadius}catch(e){}
+  pill.style.transform='translate('+b.offsetLeft+'px,'+b.offsetTop+'px)';
+  nav.classList.add('mo-on');
+  if(!placed){placed=true;requestAnimationFrame(function(){requestAnimationFrame(function(){nav.classList.add('mo-go')})})}
+  else if(lastBtn&&lastBtn!==b){slot('nav_slide',.3)}
+  lastBtn=b;
+ }
+ function queue(){if(!raf)raf=requestAnimationFrame(place)}
+ if(nav){
+  pill=document.createElement('i');pill.className='mo-pill';pill.setAttribute('aria-hidden','true');nav.insertBefore(pill,nav.firstChild);
+  new MutationObserver(queue).observe(nav,{subtree:true,attributes:true,attributeFilter:['class']});
+  window.addEventListener('resize',queue);window.addEventListener('load',function(){queue();setTimeout(queue,600)});
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(queue);
+  queue();
+ }
+
+ /* ---------- direction-aware screens ---------- */
+ function navIdx(){var bs=[].slice.call(document.querySelectorAll('.nav button')),a=bs.findIndex(function(b){return b.classList.contains('active')});return a}
+ var prevIdx=navIdx(),prevView=(document.querySelector('.view.active')||{}).id;
+ var sv=window.showView;
+ if(typeof sv==='function')window.showView=function(id,btn){
+  var r=sv.apply(this,arguments);
+  try{var i=navIdx(),cur=(document.querySelector('.view.active')||{}).id,dx=0;
+   if(fxm()==='full'&&i>=0&&prevIdx>=0&&i!==prevIdx)dx=(i>prevIdx?1:-1)*16;
+   root.style.setProperty('--mo-dx',dx+'px');
+   if(cur&&cur!==prevView&&animOk())slot('screen_in',.22);
+   prevIdx=i;prevView=cur}catch(e){}
+  return r};
+
+ /* ---------- main-button press sound ---------- */
+ document.addEventListener('pointerdown',function(e){var t=e.target;if(t&&t.closest&&t.closest('button.primary,.next-go'))slot('press_soft',.3)},true);
+
+ /* ---------- celebrations: ring burst, stamp, XP count-up, buzz ---------- */
+ function countUp(el){
+  var raw=el.textContent,m=/^(\D*)(\d[\d,]*)(.*)$/.exec(raw);if(!m)return;
+  var pre=m[1],end=parseInt(m[2].replace(/,/g,''),10),post=m[3];if(!(end>0))return;
+  var t0=0,dur=Math.min(1100,500+end*3),ticks=0,lastTick=0;
+  el.textContent=pre+'0'+post;
+  function step(ts){
+   if(!t0)t0=ts;var k=Math.min(1,(ts-t0)/dur),e=1-Math.pow(1-k,3);
+   el.textContent=pre+Math.round(end*e).toLocaleString()+post;
+   if(k<1){if(ts-lastTick>110&&ticks<8){ticks++;lastTick=ts;slot('xp_count',.28)}requestAnimationFrame(step)}
+   else{el.textContent=raw;el.classList.add('mo-pop');slot('xp_land',.5);buzz(18);setTimeout(function(){el.classList.remove('mo-pop')},420)}
+  }
+  setTimeout(function(){requestAnimationFrame(step)},420);
+ }
+ function onCel(el){
+  if(el.dataset.mo)return;el.dataset.mo='1';
+  var kick=((el.querySelector('.cel-kicker')||{}).textContent||'').toUpperCase(),card=el.querySelector('.cel-card'),ok=animOk();
+  if(ok){
+   var ring=document.createElement('div');ring.className='mo-ring';ring.setAttribute('aria-hidden','true');ring.innerHTML='<i></i><i></i>';el.appendChild(ring);
+   setTimeout(function(){slot('burst_pop',.45)},120);
+  }
+  var tot=el.querySelector('.cel-total');if(tot&&ok)countUp(tot);
+  if(/LECTURE/.test(kick)){
+   if(ok&&card){
+    var st=document.createElement('div');st.className='mo-stamp';st.setAttribute('aria-hidden','true');st.innerHTML='<span>✓ CLEARED</span>';var sub=card.querySelector('.cel-sub');if(sub&&sub.parentNode)sub.parentNode.insertBefore(st,sub.nextSibling);else card.appendChild(st);
+    setTimeout(function(){try{card.animate([{translate:'0 0'},{translate:'0 6px'},{translate:'0 -2px'},{translate:'0 0'}],{duration:260,easing:'ease-out'})}catch(e){}
+     slot('stamp_thump',.7);buzz([38,30,22])},830);
+   }else buzz([38,30,22]);
+  }
+ }
+ new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes.forEach(function(n){if(n.nodeType===1&&n.classList&&n.classList.contains('celebrate'))onCel(n)})})}).observe(document.body,{childList:true});
+
+ /* ---------- settings card (gear sheet) ---------- */
+ function slotRows(){return SLOTS.map(function(x){return'<div class="mo-slot"><div><code>'+esc(x[0])+'.mp3</code><small>'+esc(x[1])+'</small></div><span class="st" data-slot="'+esc(x[0])+'">tap to check</span><button type="button" onclick="mhqMotion.play(\''+x[0]+'\')" aria-label="Play '+esc(x[0])+'">▶</button></div>'}).join('')}
+ function card(){
+  var v=$('dataView');if(!v)return;var h=$('moCard');
+  if(!h){h=document.createElement('div');h.id='moCard';var a=$('v82Rest');if(a&&a.parentNode)a.parentNode.insertBefore(h,a.nextSibling);else v.insertBefore(h,v.firstChild)}
+  var det=h.querySelector('details'),open=det&&det.open;
+  var html='<div class="section card"><div class="label">FEEL</div><h2 style="margin:4px 0">📳 Motion &amp; vibration</h2>'+
+   '<div class="mo-row"><span>Vibration</span><button type="button" class="mo-sw'+(cfg.vib&&canVib?' on':'')+'" role="switch" aria-checked="'+(cfg.vib&&canVib)+'" onclick="mhqMotion.toggleVib()">'+(cfg.vib?'On':'Off')+'</button></div>'+
+   '<div class="meta">'+(canVib?'A light buzz on study steps, answers, level-ups and bosses. Turn it off any time.':'This browser doesn’t support vibration (iPhone browsers don’t). The switch is saved for when you use a phone that does.')+'</div>'+
+   (canVib?'<button type="button" style="margin-top:8px" onclick="mhqMotion.testBuzz()">Test buzz</button>':'')+
+   '<details class="mo-slots" style="margin-top:12px"'+(open?' open':'')+'><summary><b>Sound slots</b> · for effects you add later</summary>'+
+   '<div class="meta" style="margin:6px 0">Add an mp3 with exactly this name to your <b>sfx/</b> folder on GitHub and it plays at that moment. No code change. Slots without a file stay silent.</div>'+slotRows()+'</details></div>';
+  if(h.dataset.h!==html){h.innerHTML=html;h.dataset.h=html;var d=h.querySelector('details');if(d)d.addEventListener('toggle',function(){if(d.open)check()})}
+ }
+ function check(){
+  try{ensureAudioContext().then(function(){[].slice.call(document.querySelectorAll('#moCard .st')).forEach(function(el){var n=el.dataset.slot;delete miss[n];
+   loadSfx(n).then(function(b){el.textContent=b?'✓ ready':'empty';el.classList.toggle('ok',!!b)})})})}catch(e){}
+ }
+ window.mhqMotion={
+  toggleVib:function(){cfg.vib=!cfg.vib;saveS(cfg);if(cfg.vib){canVib&&navigator.vibrate&&navigator.vibrate(30)}card()},
+  testBuzz:function(){if(!canVib)return;var l=lastBuzz;lastBuzz=0;buzz([30,50,30,50,70]);lastBuzz=Date.now()},
+  play:function(n){try{ensureAudioContext().then(function(){delete miss[n];loadSfx(n).then(function(b){var el=document.querySelector('#moCard .st[data-slot="'+n+'"]');if(b){playSfx(n,.9)}else{try{toast('No file yet: add sfx/'+n+'.mp3')}catch(e){}}if(el){el.textContent=b?'✓ ready':'empty';el.classList.toggle('ok',!!b)}})})}catch(e){}},
+  slots:SLOTS,buzz:buzz
+ };
+ var r0=window.renderHQ;
+ window.renderHQ=function(){var r=r0&&r0.apply(this,arguments);try{card()}catch(e){}return r};
+ try{card()}catch(e){}
 })();
 </script>
 </body>
