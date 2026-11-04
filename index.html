@@ -1303,12 +1303,50 @@ html[data-theme=dark] .k-hourglass{--ic:#EF9F27}
 html[data-theme=dark] .k-shield{--ic:#85B7EB}
 html[data-theme=dark] .k-castle{--ic:#B4B2A9}
 html[data-theme=dark] .k-phone{--ic:#5DCAA5}
+
+/* ---- v8.4.0 living pulse + boss intro ---- */
+:root{--m-flat:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 14'%3E%3Cpath d='M0 7H40L42 5.5L44 8.5L46 7H64' fill='none' stroke='black' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E")}
+html[data-pulse=alive]:not([data-skin]) .top::after{opacity:.95;animation-duration:2.4s}
+html[data-pulse=risk]:not([data-skin]) .top::after{-webkit-mask-image:var(--m-flat);mask-image:var(--m-flat);background:var(--danger);opacity:.6;animation-duration:7s}
+html[data-intensity=adrenaline]:not([data-pulse=risk]):not([data-skin]) .top::after{animation-duration:1.4s;background:var(--danger);opacity:.85}
+html[data-skin=egypt][data-pulse=alive] .top::after{opacity:1;filter:brightness(1.15)}
+html[data-skin=ninja][data-pulse=alive] .top::after{filter:brightness(1.25) saturate(1.3)}
+html[data-skin=egypt][data-pulse=risk] .top::after,html[data-skin=ninja][data-pulse=risk] .top::after{opacity:.35;filter:grayscale(1)}
+html[data-skin=elite][data-pulse=alive] .top::after{animation-duration:2.4s}
+html[data-skin=elite][data-pulse=risk] .top::after{animation-duration:7s;opacity:.4;filter:grayscale(1)}
+html[data-intensity=adrenaline][data-skin=elite]:not([data-pulse=risk]) .top::after{animation-duration:1.5s}
+html[data-intensity=adrenaline][data-skin=egypt]:not([data-pulse=risk]) .top::after,html[data-intensity=adrenaline][data-skin=ninja]:not([data-pulse=risk]) .top::after{filter:hue-rotate(-25deg) saturate(1.7)}
+.top .ecg-spike{position:absolute;left:0;bottom:-1px;width:54px;height:14px;margin-left:-54px;pointer-events:none;z-index:2;opacity:0;background:radial-gradient(closest-side,#fff 0,color-mix(in srgb,var(--accent) 80%,#fff) 30%,transparent 72%)}
+.top .ecg-spike.go{animation:ecgSpike .85s cubic-bezier(.4,0,.6,1)}
+@keyframes ecgSpike{0%{opacity:0;transform:translateX(0)}10%{opacity:1}85%{opacity:1}100%{opacity:0;transform:translateX(calc(100vw + 54px))}}
+html[data-fx=off] .top .ecg-spike,html[data-fx=subtle] .top .ecg-spike{display:none}
+.bsplash{position:fixed;inset:0;z-index:10060;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(circle at 50% 45%,rgba(34,5,5,.92),rgba(0,0,0,.97));opacity:0;animation:bsFade .28s ease-out forwards;cursor:pointer;text-align:center;color:#fff}
+.bsplash.out{animation:bsOut .3s ease-in forwards}
+@keyframes bsOut{from{opacity:1}to{opacity:0}}
+@keyframes bsFade{to{opacity:1}}
+.bs-body{width:100%;max-width:340px}
+.bs-k{font-size:var(--fs-12);font-weight:900;letter-spacing:.3em;color:var(--danger,#ff6b6b);opacity:0;animation:bsFade .3s .25s forwards}
+.bs-ic{font-size:64px;line-height:1;margin:14px 0 6px;opacity:0;animation:bsSlam .45s cubic-bezier(.2,.9,.3,1.2) .25s forwards}
+.bs-ic .mi{width:1em;height:1em}
+.bs-t{font-size:var(--fs-28);font-weight:900;letter-spacing:.02em;opacity:0;animation:bsSlam .45s cubic-bezier(.2,.9,.3,1.2) .3s forwards;text-shadow:0 0 24px color-mix(in srgb,var(--danger,#f55) 70%,transparent)}
+@keyframes bsSlam{0%{opacity:0;transform:scale(2.6)}60%{opacity:1;transform:scale(.92)}80%{transform:scale(1.04)}100%{opacity:1;transform:scale(1)}}
+.bs-hp{margin:22px auto 0;opacity:0;animation:bsFade .3s .65s forwards}
+.bs-hp-top{display:flex;justify-content:space-between;font-size:var(--fs-11);font-weight:800;letter-spacing:.08em;margin-bottom:6px;color:rgba(255,255,255,.82)}
+.bs-bar{height:12px;border-radius:99px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);overflow:hidden}
+.bs-bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--danger,#e24b4a),#ffb45a)}
+.bs-s{margin-top:14px;font-size:var(--fs-13);color:rgba(255,255,255,.75);opacity:0;animation:bsFade .3s 1.9s forwards}
+.bs-h{margin-top:18px;font-size:var(--fs-11);letter-spacing:.2em;color:rgba(255,255,255,.55);opacity:0;animation:bsFade .3s 2.1s forwards,bsPulse 1.2s 2.4s ease-in-out infinite}
+@keyframes bsPulse{50%{opacity:.35}}
+.bsplash.q .bs-k,.bsplash.q .bs-ic,.bsplash.q .bs-t,.bsplash.q .bs-hp{animation-delay:0s;animation-duration:.2s}
+.bsplash.q .bs-s,.bsplash.q .bs-h{display:none}
+.bs-flash{position:fixed;inset:0;z-index:10070;background:#fff;opacity:0;pointer-events:none;animation:bsFlash .5s ease-out}
+@keyframes bsFlash{0%{opacity:.85}100%{opacity:0}}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.3.0</span></small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.4.0</span></small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -6414,7 +6452,10 @@ function buddy(sp,mo,sk,stg,anim){
   ['stamp_thump','The CLEARED stamp lands'],
   ['xp_count','Each tick while XP counts up'],
   ['xp_land','The XP count finishes'],
-  ['burst_pop','The ring burst on a celebration']
+  ['burst_pop','The ring burst on a celebration'],
+  ['boss_slam','A boss encounter slams in'],
+  ['hp_fill','The boss HP bar fills'],
+  ['victory_flash','The flash when a boss is defeated']
  ];
  try{SLOTS.forEach(function(x){if(typeof SFX_LIBRARY!=='undefined'&&!SFX_LIBRARY[x[0]])SFX_LIBRARY[x[0]]='sfx/'+x[0]+'.mp3?v='+SFX_VERSION;if(typeof SFX_NAMES!=='undefined'&&SFX_NAMES.indexOf(x[0])<0)SFX_NAMES.push(x[0])})}catch(e){}
  var miss={};
@@ -6485,9 +6526,10 @@ function buddy(sp,mo,sk,stg,anim){
    setTimeout(function(){slot('burst_pop',.45)},120);
   }
   var tot=el.querySelector('.cel-total');if(tot&&ok)countUp(tot);
-  if(/LECTURE/.test(kick)){
+  var stampLab=/LECTURE/.test(kick)?'CLEARED':/BOSS/.test(kick)?'DEFEATED':'';
+  if(stampLab){
    if(ok&&card){
-    var st=document.createElement('div');st.className='mo-stamp';st.setAttribute('aria-hidden','true');st.innerHTML='<span>✓ CLEARED</span>';var sub=card.querySelector('.cel-sub');if(sub&&sub.parentNode)sub.parentNode.insertBefore(st,sub.nextSibling);else card.appendChild(st);
+    var st=document.createElement('div');st.className='mo-stamp';st.setAttribute('aria-hidden','true');st.innerHTML='<span>✓ '+stampLab+'</span>';var sub=card.querySelector('.cel-sub');if(sub&&sub.parentNode)sub.parentNode.insertBefore(st,sub.nextSibling);else card.appendChild(st);
     setTimeout(function(){try{card.animate([{translate:'0 0'},{translate:'0 6px'},{translate:'0 -2px'},{translate:'0 0'}],{duration:260,easing:'ease-out'})}catch(e){}
      slot('stamp_thump',.7);buzz([38,30,22])},830);
    }else buzz([38,30,22]);
@@ -6517,7 +6559,7 @@ function buddy(sp,mo,sk,stg,anim){
   toggleVib:function(){cfg.vib=!cfg.vib;saveS(cfg);if(cfg.vib){canVib&&navigator.vibrate&&navigator.vibrate(30)}card()},
   testBuzz:function(){if(!canVib)return;var l=lastBuzz;lastBuzz=0;buzz([30,50,30,50,70]);lastBuzz=Date.now()},
   play:function(n){try{ensureAudioContext().then(function(){delete miss[n];loadSfx(n).then(function(b){var el=document.querySelector('#moCard .st[data-slot="'+n+'"]');if(b){playSfx(n,.9)}else{try{toast('No file yet: add sfx/'+n+'.mp3')}catch(e){}}if(el){el.textContent=b?'✓ ready':'empty';el.classList.toggle('ok',!!b)}})})}catch(e){}},
-  slots:SLOTS,buzz:buzz
+  slots:SLOTS,buzz:buzz,slotPlay:slot
  };
  var r0=window.renderHQ;
  window.renderHQ=function(){var r=r0&&r0.apply(this,arguments);try{card()}catch(e){}return r};
@@ -6554,6 +6596,75 @@ function buddy(sp,mo,sk,stg,anim){
  new MutationObserver(function(ms){ms.forEach(function(m){if(m.type==='characterData')push(m.target);else m.addedNodes.forEach(function(n){if(n.nodeType===1||n.nodeType===3)push(n)})})}).observe(document.body,{childList:true,subtree:true,characterData:true});
  walk(document.body);
  window.mhqIcons={map:MAP,refresh:function(){walk(document.body)}};
+})();
+</script>
+<script id="mhq-pulse-boss">
+/* v8.4.0 Living ECG header states + boss intro (first time full, then a quick one once per app open) */
+(function(){
+ var root=document.documentElement,$=function(i){return document.getElementById(i)};
+ function fxm(){return root.dataset.fx||'full'}
+ function reduced(){return!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)}
+ function animOk(){return fxm()!=='off'&&!reduced()}
+ function esc(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+
+ /* ---------- header pulse states ---------- */
+ function calc(){try{var I=window.mhqStreakInfo&&window.mhqStreakInfo();if(!I)return;
+  var st=I.studied?'alive':(I.alive&&I.n>0&&!I.rest)?'risk':'idle';if(root.dataset.pulse!==st)root.dataset.pulse=st}catch(e){}}
+ var top=document.querySelector('.top'),spk=null;
+ function spike(){if(!top||!animOk()||fxm()!=='full')return;if(!spk){spk=document.createElement('i');spk.className='ecg-spike';spk.setAttribute('aria-hidden','true');top.appendChild(spk)}
+  spk.classList.remove('go');void spk.offsetWidth;spk.classList.add('go')}
+ var r0=window.renderHQ;
+ window.renderHQ=function(){var r=r0&&r0.apply(this,arguments);calc();return r};
+ new MutationObserver(calc).observe(root,{attributes:true,attributeFilter:['data-intensity']});
+ setInterval(calc,30000);document.addEventListener('visibilitychange',calc);calc();setTimeout(calc,800);
+
+ /* ---------- boss helpers ---------- */
+ function hpNow(b){var s=bossStats(b),L=s.lectures.length?s.cleared/s.lectures.length:0,A=s.accuracy===null?0:Math.min(s.accuracy/70,1),T=Math.min(s.attempts/3,1);return Math.max(10,Math.round(100-90*(.5*L+.25*A+.25*T)))}
+ function readyBoss(id){try{var d=bossDefinitions.filter(function(b){return!bossVictories[b.id]&&bossStats(b).ready});if(id){var t=d.find(function(b){return b.id===id});if(t)return t}return d[0]||null}catch(e){return null}}
+ var KEY='mhqBossSeenV84',S0=window.mhqStore,ever={},sess={},target=null;
+ try{if(S0&&S0.raw)ever=JSON.parse(S0.raw.get(KEY))||{}}catch(e){}
+ function keyOf(b){return((typeof COURSE!=='undefined'&&COURSE&&COURSE.name)||'')+'|'+b.id}
+ function slot(n,g){try{window.mhqMotion&&mhqMotion.slotPlay&&mhqMotion.slotPlay(n,g)}catch(e){}}
+ function tween(el,from,to,ms,fmt){var t0=0;(function f(ts){if(!el.isConnected)return;if(!t0)t0=ts;var k=Math.min(1,(ts-t0)/ms),e=1-Math.pow(1-k,3);el.textContent=fmt(Math.round(from+(to-from)*e));if(k<1)requestAnimationFrame(f)})(performance.now())}
+ function shake(el,amp){try{el.animate([{translate:'0 0'},{translate:(-amp)+'px '+(amp*.4)+'px'},{translate:amp+'px '+(-amp*.4)+'px'},{translate:(-amp*.6)+'px 0'},{translate:(amp*.5)+'px 0'},{translate:'0 0'}],{duration:380,easing:'ease-out'})}catch(e){}}
+
+ /* ---------- boss intro ---------- */
+ function intro(b){
+  if(!animOk()||document.querySelector('.bsplash'))return;
+  var k=keyOf(b);if(sess[k])return;sess[k]=1;
+  var first=!ever[k];ever[k]=1;try{if(S0&&S0.raw)S0.raw.set(KEY,JSON.stringify(ever))}catch(e){}
+  var quick=!first||fxm()==='subtle',hp=hpNow(b),ico=b.icon||'⚔️';
+  var el=document.createElement('div');el.className='bsplash'+(quick?' q':'');el.setAttribute('role','dialog');el.setAttribute('aria-label',b.name+' boss encounter');
+  el.innerHTML='<div class="bs-body"><div class="bs-k">'+(b.final?'FINAL BOSS':'TERRITORY BOSS')+'</div><div class="bs-ic" aria-hidden="true">'+esc(ico)+'</div><div class="bs-t">'+esc(b.name)+'</div>'+
+   '<div class="bs-hp"><div class="bs-hp-top"><span class="bs-lab">BOSS HP</span><b class="bs-num">'+(quick?hp:0)+'/100</b></div><div class="bs-bar"><i style="width:'+(quick?hp:0)+'%"></i></div></div>'+
+   '<div class="bs-s">Pass the final trial to defeat it</div><div class="bs-h">TAP TO FACE IT</div></div>';
+  document.body.appendChild(el);
+  var bar=el.querySelector('.bs-bar i'),num=el.querySelector('.bs-num'),lab=el.querySelector('.bs-lab'),body=el.querySelector('.bs-body'),view=document.querySelector('.view.active'),tm=[],gone=0;
+  function T(f,ms){tm.push(setTimeout(f,ms))}
+  function close(){if(gone)return;gone=1;tm.forEach(clearTimeout);el.classList.add('out');setTimeout(function(){el.remove()},320)}
+  function setLab(){lab.textContent=hp<=10?'ARMORED · PASS THE TRIAL':'BOSS HP'}
+  el.addEventListener('click',close);
+  if(quick){slot('boss_slam',.4);try{mhqMotion.buzz(24)}catch(e){}setLab();T(close,1100);return}
+  T(function(){slot('boss_slam',.7);try{playSfx('boss_warning',.8)}catch(e){}shake(body,9);if(view)shake(view,7)},250);
+  T(function(){slot('hp_fill',.5);bar.style.transition='width .55s ease-out';bar.style.width='100%';tween(num,0,100,550,function(v){return v+'/100'})},700);
+  T(function(){bar.style.transition='width .75s cubic-bezier(.3,.1,.2,1)';bar.style.width=hp+'%';tween(num,100,hp,750,function(v){return v+'/100'});setTimeout(setLab,760);shake(body,5)},1400);
+  T(close,3900);
+ }
+ /* hooks: arriving at the boss screen with a boss ready to face */
+ var sv=window.showView;
+ if(typeof sv==='function')window.showView=function(id){var r=sv.apply(this,arguments);
+  try{if(id==='bossView'){var b=readyBoss(target);target=null;if(b)(function w(n){if(document.querySelector('.tsplash,.celebrate')&&n<14)return setTimeout(function(){w(n+1)},500);intro(b)})(0)}}catch(e){}return r};
+ var oc=window.openCampaignTerritory;
+ if(typeof oc==='function')window.openCampaignTerritory=function(id){try{target=id}catch(e){}return oc.apply(this,arguments)};
+
+ /* ---------- celebrations: header spike + victory flash ---------- */
+ new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes.forEach(function(n){
+  if(n.nodeType!==1||!n.classList||!n.classList.contains('celebrate'))return;
+  var kick=((n.querySelector('.cel-kicker')||{}).textContent||'').toUpperCase();
+  if(/LECTURE|LEVEL|BOSS|TERRITORY/.test(kick))setTimeout(spike,200);
+  if(/BOSS/.test(kick)&&animOk()){var f=document.createElement('div');f.className='bs-flash';f.setAttribute('aria-hidden','true');document.body.appendChild(f);slot('victory_flash',.6);setTimeout(function(){f.remove()},600)}
+ })})}).observe(document.body,{childList:true});
+ window.mhqPulse={calc:calc,spike:spike,intro:function(id){var b=bossDefinitions.find(function(x){return x.id===id})||bossDefinitions[0];if(b){delete sess[keyOf(b)];intro(b)}},resetSeen:function(){ever={};try{S0.raw.set(KEY,'{}')}catch(e){}}};
 })();
 </script>
 </body>
