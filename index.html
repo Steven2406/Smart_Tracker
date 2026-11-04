@@ -1341,12 +1341,71 @@ html[data-fx=off] .top .ecg-spike,html[data-fx=subtle] .top .ecg-spike{display:n
 .bsplash.q .bs-s,.bsplash.q .bs-h{display:none}
 .bs-flash{position:fixed;inset:0;z-index:10070;background:#fff;opacity:0;pointer-events:none;animation:bsFlash .5s ease-out}
 @keyframes bsFlash{0%{opacity:.85}100%{opacity:0}}
+
+/* ---- v8.5.0 focus scene ---- */
+.fscene{position:fixed;inset:0;z-index:10040;display:flex;flex-direction:column;color:#fff;background:#0d1210;opacity:0;animation:fsIn .5s ease-out forwards;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.fscene.out{animation:fsOut .4s ease-in forwards}
+@keyframes fsIn{to{opacity:1}}@keyframes fsOut{from{opacity:1}to{opacity:0}}
+.fs-art{position:absolute;inset:0;overflow:hidden;pointer-events:none;background:radial-gradient(120% 80% at 50% 100%,#1b1510 0,#0e0b08 60%,#070605 100%)}
+.fs-art i{position:absolute;display:block}
+.fs-art .a1{left:50%;top:-12%;width:150%;aspect-ratio:1;transform:translateX(-50%);background:radial-gradient(closest-side,rgba(255,196,110,.34),rgba(255,160,70,.12) 45%,transparent 70%);animation:fsLamp 6s ease-in-out infinite}
+.fs-art .a2{left:0;right:0;bottom:0;height:20%;background:linear-gradient(#2a1d12,#150e08);border-top:1px solid rgba(255,200,130,.25)}
+.fs-art .a3{left:50%;top:5%;width:64px;height:64px;margin-left:-32px;border-radius:50%;background:radial-gradient(#fff3d6,#ffc46e 40%,transparent 70%);opacity:.85;animation:fsLamp 6s ease-in-out infinite}
+@keyframes fsLamp{0%,100%{opacity:.85}50%{opacity:1}}
+html[data-skin=sage] .fs-art{background:linear-gradient(#10201b,#0a1512)}
+html[data-skin=sage] .fs-art .a1{left:0;top:0;width:100%;height:100%;aspect-ratio:auto;transform:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='240'%3E%3Cg stroke='%23bfe6d7' stroke-linecap='round' fill='none'%3E%3Cpath d='M18 10l-5 36' stroke-opacity='.34' stroke-width='1.4'/%3E%3Cpath d='M62 70l-4 30' stroke-opacity='.26' stroke-width='1.2'/%3E%3Cpath d='M98 20l-6 44' stroke-opacity='.3' stroke-width='1.4'/%3E%3Cpath d='M40 130l-5 38' stroke-opacity='.3' stroke-width='1.3'/%3E%3Cpath d='M84 150l-4 30' stroke-opacity='.24' stroke-width='1.2'/%3E%3Cpath d='M12 190l-4 32' stroke-opacity='.26' stroke-width='1.2'/%3E%3Cpath d='M106 205l-5 30' stroke-opacity='.3' stroke-width='1.3'/%3E%3C/g%3E%3C/svg%3E") 0 0/120px 240px repeat;animation:fsRain .9s linear infinite}
+html[data-skin=sage] .fs-art .a2{inset:0;height:auto;border:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='240'%3E%3Cg stroke='%23bfe6d7' stroke-linecap='round' fill='none'%3E%3Cpath d='M18 10l-5 36' stroke-opacity='.34' stroke-width='1.4'/%3E%3Cpath d='M62 70l-4 30' stroke-opacity='.26' stroke-width='1.2'/%3E%3Cpath d='M98 20l-6 44' stroke-opacity='.3' stroke-width='1.4'/%3E%3Cpath d='M40 130l-5 38' stroke-opacity='.3' stroke-width='1.3'/%3E%3Cpath d='M84 150l-4 30' stroke-opacity='.24' stroke-width='1.2'/%3E%3Cpath d='M12 190l-4 32' stroke-opacity='.26' stroke-width='1.2'/%3E%3Cpath d='M106 205l-5 30' stroke-opacity='.3' stroke-width='1.3'/%3E%3C/g%3E%3C/svg%3E") 40px 90px/180px 360px repeat;opacity:.6;animation:fsRain2 1.5s linear infinite}
+html[data-skin=sage] .fs-art .a3{inset:6% 7%;left:7%;top:6%;width:auto;height:auto;margin:0;border-radius:18px;background:none;border:2px solid rgba(190,230,215,.14);box-shadow:inset 0 0 80px rgba(120,190,170,.12);animation:none;opacity:1}
+@keyframes fsRain{to{background-position:0 240px}}@keyframes fsRain2{to{background-position:40px 450px}}
+html[data-skin=egypt] .fs-art{background:linear-gradient(#2b1d0f,#140d06)}
+html[data-skin=egypt] .fs-art .a1{left:-30%;top:22%;width:90%;transform:none;background:radial-gradient(closest-side,rgba(255,160,50,.46),transparent 70%);animation:fsTorch 2.2s ease-in-out infinite}
+html[data-skin=egypt] .fs-art .a2{left:auto;right:-30%;top:22%;bottom:auto;width:90%;height:auto;aspect-ratio:1;border:0;background:radial-gradient(closest-side,rgba(255,160,50,.46),transparent 70%);animation:fsTorch 2.7s ease-in-out infinite}
+html[data-skin=egypt] .fs-art .a3{inset:0;left:0;top:0;width:auto;height:auto;margin:0;border-radius:0;background:none;border-top:10px double rgba(230,185,90,.35);border-bottom:10px double rgba(230,185,90,.35);opacity:1;animation:none}
+@keyframes fsTorch{0%,100%{opacity:.75;transform:scale(1)}30%{opacity:1;transform:scale(1.06)}60%{opacity:.82;transform:scale(.97)}}
+html[data-skin=ninja] .fs-art{background:linear-gradient(#0b1428,#05080f)}
+html[data-skin=ninja] .fs-art .a1{left:auto;right:12%;top:8%;width:84px;height:84px;aspect-ratio:auto;transform:none;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff,#dfe8ff 60%,#aebfe6);box-shadow:0 0 60px 20px rgba(160,190,255,.35);animation:none}
+html[data-skin=ninja] .fs-art .a2{left:-20%;right:-20%;top:55%;bottom:auto;height:30%;border:0;background:linear-gradient(transparent,rgba(160,190,255,.12),transparent);animation:fsMist 14s ease-in-out infinite alternate}
+html[data-skin=ninja] .fs-art .a3{inset:0;left:0;top:0;width:auto;height:auto;margin:0;border-radius:0;background:repeating-linear-gradient(90deg,transparent 0 46px,rgba(120,150,210,.07) 46px 48px);opacity:1;animation:none}
+@keyframes fsMist{to{transform:translateX(8%)}}
+html[data-skin=elite] .fs-art{background:radial-gradient(100% 70% at 50% 100%,#0a1f24,#04090b)}
+html[data-skin=elite] .fs-art .a1{left:0;top:0;width:100%;height:100%;aspect-ratio:auto;transform:none;background:repeating-linear-gradient(transparent 0 3px,rgba(80,220,200,.05) 3px 4px);animation:none}
+html[data-skin=elite] .fs-art .a2{left:0;right:0;top:76%;bottom:auto;height:46px;border:0;background:var(--accent);-webkit-mask:var(--m-ecg) 0 0/96px 46px repeat-x;mask:var(--m-ecg) 0 0/96px 46px repeat-x;opacity:.55;animation:fsEcg 3.2s linear infinite}
+html[data-skin=elite] .fs-art .a3{inset:0;left:0;top:0;width:auto;height:auto;margin:0;border-radius:0;background-image:linear-gradient(rgba(80,220,200,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(80,220,200,.05) 1px,transparent 1px);background-size:32px 32px;opacity:1;animation:none}
+@keyframes fsEcg{to{-webkit-mask-position:-96px 0;mask-position:-96px 0}}
+.fs-top{position:relative;z-index:2;display:flex;align-items:center;gap:10px;padding:14px 14px 0}
+.fs-x{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#fff;font-size:20px;line-height:1}
+.fs-lec{flex:1;font-size:var(--fs-13);color:rgba(255,255,255,.7);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fs-mid{position:relative;z-index:2;flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:0 20px}
+.fs-ringwrap{position:relative;width:min(68vw,280px);aspect-ratio:1;display:grid;place-items:center}
+.fs-halo{position:absolute;inset:-7%;border-radius:50%;border:2px solid color-mix(in srgb,var(--accent) 70%,#fff);box-shadow:0 0 40px color-mix(in srgb,var(--accent) 55%,transparent),inset 0 0 40px color-mix(in srgb,var(--accent) 30%,transparent);opacity:.75;animation:fsBreath 8s ease-in-out infinite paused}
+.fscene.running .fs-halo{animation-play-state:running}
+@keyframes fsBreath{0%,100%{transform:scale(.92)}50%{transform:scale(1.05)}}
+.fs-svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.fs-svg circle{fill:none;stroke-width:5;stroke-linecap:round}
+.fs-bg{stroke:rgba(255,255,255,.14)}.fs-fg{stroke:var(--accent);transition:stroke-dashoffset .5s linear}
+.fs-clock{position:relative;font-size:56px;font-weight:800;letter-spacing:.02em;text-shadow:0 2px 20px rgba(0,0,0,.5)}
+.fs-br{position:absolute;left:0;right:0;bottom:19%;height:18px;text-align:center;font-size:var(--fs-12);letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.62)}
+.fs-br span{position:absolute;left:0;right:0;opacity:0;animation:fsBrIn 8s ease-in-out infinite}
+.fs-br span+span{animation-name:fsBrOut}
+@keyframes fsBrIn{0%,42%{opacity:.9}55%,100%{opacity:0}}
+@keyframes fsBrOut{0%,45%{opacity:0}58%,92%{opacity:.9}100%{opacity:0}}
+.fscene:not(.running) .fs-br{display:none}
+.fs-bud{width:84px;height:84px}.fs-bud:empty{display:none}
+.fs-bud svg,.fs-bud img{width:100%;height:100%;display:block}
+.fs-state{font-size:var(--fs-14);color:rgba(255,255,255,.82);text-align:center;max-width:300px;min-height:1.4em}
+.fs-bot{position:relative;z-index:2;display:flex;gap:10px;justify-content:center;padding:0 20px 24px}
+.fs-go{min-width:170px;height:52px;border-radius:26px;background:var(--accent);color:var(--accent-ink,#fff);font-weight:800;font-size:var(--fs-16);border:0}
+.fs-end{height:52px;padding:0 20px;border-radius:26px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#fff;font-weight:700}
+.fscene.done .fs-halo{animation:none;opacity:1}
+html[data-fx=off] .fs-art i,html[data-fx=subtle] .fs-art i,html[data-fx=off] .fs-halo,html[data-fx=subtle] .fs-halo,html[data-fx=off] .fs-br span,html[data-fx=subtle] .fs-br span{animation:none!important}
+html[data-fx=off] .fs-br,html[data-fx=subtle] .fs-br{display:none}
+@media (prefers-reduced-motion:reduce){.fs-art i,.fs-halo,.fs-br span{animation:none!important}.fs-br{display:none}}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.4.0</span></small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.5.0</span></small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -6455,9 +6514,10 @@ function buddy(sp,mo,sk,stg,anim){
   ['burst_pop','The ring burst on a celebration'],
   ['boss_slam','A boss encounter slams in'],
   ['hp_fill','The boss HP bar fills'],
-  ['victory_flash','The flash when a boss is defeated']
+  ['victory_flash','The flash when a boss is defeated'],
+  ['ambient_loop','Loops softly while the Focus scene is open and a session runs (keep the file small)']
  ];
- try{SLOTS.forEach(function(x){if(typeof SFX_LIBRARY!=='undefined'&&!SFX_LIBRARY[x[0]])SFX_LIBRARY[x[0]]='sfx/'+x[0]+'.mp3?v='+SFX_VERSION;if(typeof SFX_NAMES!=='undefined'&&SFX_NAMES.indexOf(x[0])<0)SFX_NAMES.push(x[0])})}catch(e){}
+ try{SLOTS.forEach(function(x){if(typeof SFX_LIBRARY!=='undefined'&&!SFX_LIBRARY[x[0]])SFX_LIBRARY[x[0]]='sfx/'+x[0]+'.mp3?v='+SFX_VERSION;if(x[0]!=='ambient_loop'&&typeof SFX_NAMES!=='undefined'&&SFX_NAMES.indexOf(x[0])<0)SFX_NAMES.push(x[0])})}catch(e){}
  var miss={};
  function slot(name,gain){
   try{if(typeof audioSettings==='undefined'||!audioSettings.enabled)return;
@@ -6665,6 +6725,95 @@ function buddy(sp,mo,sk,stg,anim){
   if(/BOSS/.test(kick)&&animOk()){var f=document.createElement('div');f.className='bs-flash';f.setAttribute('aria-hidden','true');document.body.appendChild(f);slot('victory_flash',.6);setTimeout(function(){f.remove()},600)}
  })})}).observe(document.body,{childList:true});
  window.mhqPulse={calc:calc,spike:spike,intro:function(id){var b=bossDefinitions.find(function(x){return x.id===id})||bossDefinitions[0];if(b){delete sess[keyOf(b)];intro(b)}},resetSeen:function(){ever={};try{S0.raw.set(KEY,'{}')}catch(e){}}};
+})();
+</script>
+<script id="mhq-scene">
+/* v8.5.0 Focus scene: optional full-screen scene for a running session. The normal timer is untouched. */
+(function(){
+ var root=document.documentElement,$=function(i){return document.getElementById(i)};
+ function esc(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+ var KEY='mhqSceneV85',S0=window.mhqStore,cfg={auto:false,wake:true};
+ try{if(S0&&S0.raw){var o=JSON.parse(S0.raw.get(KEY))||{};cfg.auto=o.auto===true;cfg.wake=o.wake!==false}}catch(e){}
+ function save(){try{if(S0&&S0.raw)S0.raw.set(KEY,JSON.stringify(cfg))}catch(e){}}
+ try{if(typeof SFX_LIBRARY!=='undefined'&&!SFX_LIBRARY.ambient_loop)SFX_LIBRARY.ambient_loop='sfx/ambient_loop.mp3?v='+SFX_VERSION}catch(e){}
+
+ var el=null,open=false,timer=0,wl=null,amb=null,ambMiss=0,prevRun=null,endArm=0,done=false;
+ function state(){var run=!!studyRunning,rem=run?Math.max(0,Math.ceil((studyEndAt-Date.now())/1000)):studyRemaining;return{run:run,rem:rem}}
+
+ /* ----- keep screen on (only while the scene is open and visible) ----- */
+ function lock(){try{if(!cfg.wake||!open||document.hidden||wl||!navigator.wakeLock)return;navigator.wakeLock.request('screen').then(function(l){wl=l;l.addEventListener('release',function(){wl=null});if(!open)unlock()}).catch(function(){})}catch(e){}}
+ function unlock(){try{if(wl)wl.release()}catch(e){}wl=null}
+ /* ----- ambient loop (add sfx/ambient_loop.mp3 to use it) ----- */
+ function ambStart(){if(amb||!open||document.hidden||typeof audioSettings==='undefined'||!audioSettings.enabled)return;if(ambMiss&&Date.now()-ambMiss<300000)return;amb={};
+  ensureAudioContext().then(function(ok){if(!ok){amb=null;return}return loadSfx('ambient_loop').then(function(b){
+   if(!b){ambMiss=Date.now();amb=null;return}if(!open||!amb){amb=null;return}
+   var src=audioCtx.createBufferSource(),g=audioCtx.createGain();src.buffer=b;src.loop=true;g.gain.value=0;g.gain.setTargetAtTime(.5*audioSettings.volume,audioCtx.currentTime,.6);src.connect(g);g.connect(audioCtx.destination);src.start();amb={src:src,g:g}})}).catch(function(){amb=null})}
+ function ambStop(){if(!amb)return;var a=amb;amb=null;try{if(a.g){a.g.gain.setTargetAtTime(0,audioCtx.currentTime,.25);setTimeout(function(){try{a.src.stop()}catch(e){}},900)}}catch(e){}}
+
+ /* ----- scene ----- */
+ function lecLabel(){var s=$('studyLecture');try{var t=s&&s.options[s.selectedIndex]?s.options[s.selectedIndex].textContent:'';return t?t.replace(/\s+/g,' ').trim():''}catch(e){return ''}}
+ function build(){
+  var n=document.createElement('div');n.className='fscene';n.id='fscene';n.setAttribute('role','dialog');n.setAttribute('aria-label','Focus scene');
+  var C=2*Math.PI*46;
+  n.innerHTML='<div class="fs-art" aria-hidden="true"><i class="a1"></i><i class="a2"></i><i class="a3"></i></div>'+
+   '<div class="fs-top"><button type="button" class="fs-x" aria-label="Leave the scene">✕</button><div class="fs-lec"></div></div>'+
+   '<div class="fs-mid"><div class="fs-ringwrap"><div class="fs-halo" aria-hidden="true"></div>'+
+   '<svg class="fs-svg" viewBox="0 0 100 100" aria-hidden="true"><circle class="fs-bg" cx="50" cy="50" r="46"/><circle class="fs-fg" cx="50" cy="50" r="46" style="stroke-dasharray:'+C.toFixed(2)+'"/></svg>'+
+   '<div class="fs-clock" aria-live="off">00:00</div><div class="fs-br" aria-hidden="true"><span>Breathe in</span><span>Breathe out</span></div></div>'+
+   '<div class="fs-bud" aria-hidden="true"></div><div class="fs-state"></div></div>'+
+   '<div class="fs-bot"><button type="button" class="fs-go primary">Start</button><button type="button" class="fs-end">End</button></div>';
+  n.querySelector('.fs-x').addEventListener('click',close);
+  n.querySelector('.fs-go').addEventListener('click',function(){var s=state();if(done||(!s.run&&s.rem<=0)){close();return}try{toggleStudyTimer()}catch(e){}setTimeout(update,60)});
+  n.querySelector('.fs-end').addEventListener('click',function(){var b=this;if(!endArm||Date.now()-endArm>3000){endArm=Date.now();b.textContent='Tap again to end';setTimeout(function(){if(endArm&&Date.now()-endArm>=2900){endArm=0;b.textContent='End'}},3100);return}
+   endArm=0;b.textContent='End';done=false;n.classList.remove('done');try{resetStudyTimer()}catch(e){}setTimeout(update,60)});
+  return n}
+ function update(){
+  if(!open||!el||document.hidden)return;
+  var s=state(),tot=studyTotal||1,frac=Math.max(0,Math.min(1,s.rem/tot)),C=2*Math.PI*46;
+  var fin=!s.run&&s.rem<=0;if(prevRun===true&&fin)done=true;if(s.run)done=false;prevRun=s.run;
+  el.classList.toggle('running',s.run);el.classList.toggle('done',done||fin);
+  el.querySelector('.fs-clock').textContent=formatClock(s.rem);
+  el.querySelector('.fs-fg').style.strokeDashoffset=(C*(1-frac)).toFixed(2);
+  el.querySelector('.fs-state').textContent=(done||fin)?'Session complete. Nice work.':studyStateText();
+  el.querySelector('.fs-lec').textContent=lecLabel()||'Focus session';
+  el.querySelector('.fs-go').textContent=(done||fin)?'Done':s.run?'Pause':(s.rem<studyTotal?'Resume':'Start');
+  if(s.run)ambStart();else ambStop();
+  if(done||fin)unlock();
+ }
+ function openScene(){
+  if(open)return;open=true;done=false;prevRun=null;
+  el=build();document.body.appendChild(el);
+  try{var av=document.querySelector('#bdPetF svg,#bdPetF img');var b=el.querySelector('.fs-bud');if(av&&b)b.appendChild(av.cloneNode(true))}catch(e){}
+  update();lock();clearInterval(timer);timer=setInterval(update,500);
+  try{el.querySelector('.fs-go').focus({preventScroll:true})}catch(e){}
+ }
+ function close(){
+  if(!open)return;open=false;clearInterval(timer);ambStop();unlock();var n=el;el=null;
+  if(n){n.classList.add('out');setTimeout(function(){n.remove()},420)}
+ }
+ document.addEventListener('visibilitychange',function(){if(!document.hidden&&open){update();lock()}else if(document.hidden){unlock();ambStop()}});
+ document.addEventListener('keydown',function(e){if(e.key==='Escape'&&open)close()});
+
+ /* ----- optional auto-open when a session starts (ignores a session restored on load) ----- */
+ var t0=Date.now();
+ setInterval(function(){try{var run=!!studyRunning;if(prevAuto===null)prevAuto=run;
+  if(run&&!prevAuto&&cfg.auto&&!open&&!document.hidden&&Date.now()-t0>3500)openScene();prevAuto=run}catch(e){}},700);
+ var prevAuto=null;
+
+ /* ----- controls in the Focus tab ----- */
+ function sw(id,on){var b=$(id);if(!b)return;b.classList.toggle('on',!!on);b.textContent=on?'On':'Off';b.setAttribute('aria-checked',String(!!on))}
+ function inject(){
+  var v=$('studyView');if(!v||$('fsCtl'))return;var ref=$('sessionReview');if(!ref||!ref.parentNode)return;
+  var d=document.createElement('div');d.id='fsCtl';d.className='card';d.style.cssText='text-align:left;margin-top:12px';
+  d.innerHTML='<div class="label">FOCUS SCENE</div><button type="button" class="primary" style="width:100%;margin-top:8px" onclick="mhqScene.open()">🌙 Open focus scene</button>'+
+   '<div class="mo-row"><span>Open it when I start a session</span><button type="button" id="fsAuto" class="mo-sw" role="switch" onclick="mhqScene.toggle(\'auto\')">Off</button></div>'+
+   '<div class="mo-row"><span>Keep the screen on in the scene</span><button type="button" id="fsWake" class="mo-sw" role="switch" onclick="mhqScene.toggle(\'wake\')">On</button></div>'+
+   '<div class="meta">Optional. Your timer keeps running if you leave the app, with or without the scene.</div>';
+  ref.parentNode.insertBefore(d,ref);sw('fsAuto',cfg.auto);sw('fsWake',cfg.wake);
+ }
+ window.mhqScene={open:openScene,close:close,cfg:cfg,
+  toggle:function(k){cfg[k]=!cfg[k];save();sw(k==='auto'?'fsAuto':'fsWake',cfg[k]);if(k==='wake'){if(cfg.wake)lock();else unlock()}}};
+ inject();setTimeout(inject,500);
 })();
 </script>
 </body>
