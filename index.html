@@ -12,6 +12,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Medical HQ">
 <meta name="theme-color" content="#f4f5f1">
+<style id="mhq-boot">html.mhq-boot #homeView{visibility:hidden}</style>
+<script>(function(){var h=document.documentElement,done=function(){h.classList.remove('mhq-boot')};h.classList.add('mhq-boot');setTimeout(done,3000);addEventListener('load',function(){requestAnimationFrame(function(){requestAnimationFrame(done)})})})()</script>
 <script>window.mhqStorageFail=function(){var n=Date.now();if(n-(window.__mhqSF||0)<60000)return;window.__mhqSF=n;try{toast("⚠ Couldn't save: storage is full or blocked. Export a backup now (⚙).")}catch(e){}};</script>
 <script id="mhq-courses-shim">
 /* Multi-course storage: every course keeps its own copy of the app's data. The first course uses the original keys, so existing progress is untouched. */
@@ -1471,7 +1473,7 @@ html[data-theme=dark] .k-play{--ic:#85B7EB}html[data-theme=dark] .k-list{--ic:#A
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.7.1</span></small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.7.2</span></small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
