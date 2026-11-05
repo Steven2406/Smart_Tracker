@@ -1473,7 +1473,7 @@ html[data-theme=dark] .k-play{--ic:#85B7EB}html[data-theme=dark] .k-list{--ic:#A
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.7.2</span></small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.7.4</span></small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -6588,11 +6588,11 @@ function buddy(sp,mo,sk,stg,anim){
  function place(){
   raf=0;if(!nav||!pill)return;
   var b=nav.querySelector('button.active');
-  if(!b||!b.offsetWidth){nav.classList.remove('mo-on');return}
+  if(!b||!b.offsetWidth){if(nav.classList.contains('mo-on'))nav.classList.remove('mo-on');return}
   pill.style.width=b.offsetWidth+'px';pill.style.height=b.offsetHeight+'px';
   try{pill.style.borderRadius=getComputedStyle(b).borderRadius}catch(e){}
   pill.style.transform='translate('+b.offsetLeft+'px,'+b.offsetTop+'px)';
-  nav.classList.add('mo-on');
+  if(!nav.classList.contains('mo-on'))nav.classList.add('mo-on'); /* re-adding an existing class still fires the observer: that made place() loop every frame */
   if(!placed){placed=true;requestAnimationFrame(function(){requestAnimationFrame(function(){nav.classList.add('mo-go')})})}
   else if(lastBtn&&lastBtn!==b){slot('nav_slide',.3)}
   lastBtn=b;
@@ -6889,6 +6889,8 @@ function buddy(sp,mo,sk,stg,anim){
  var cb=window.calculateBaseXP,ct=window.calculateTodayXP;
  if(typeof cb==='function')window.calculateBaseXP=function(){return cb.apply(this,arguments)+Math.max(0,P().xp||0)};
  if(typeof ct==='function')window.calculateTodayXP=function(){return ct.apply(this,arguments)+Math.max(0,(P().lg||{})[today()]||0)};
+ /* load() ran before this wrapper existed, so it filed the Practical XP as "legacy". Take it back out so it is counted once. */
+ try{legacyBonusXP=Math.max(0,legacyBonusXP-Math.max(0,P().xp||0));syncXP()}catch(e){}
  function done(it){if(it.t==='pages')return it.total>0&&it.cur>=it.total;if(it.t==='parts')return it.parts.length>0&&it.parts.every(function(x){return x.d});return!!it.d}
  function itemXP(it){if(it.t==='pages')return Math.floor(Math.min(it.cur,it.total)/25)+(done(it)?6:0);if(it.t==='parts'){var n=it.parts.filter(function(x){return x.d}).length;return n*3+(done(it)?4:0)}return it.d?6:0}
  function secDone(sec){return sec.items.length>0&&sec.items.every(done)}
@@ -7102,6 +7104,23 @@ function buddy(sp,mo,sk,stg,anim){
  /* rest-day rejected */
  var ra=window.mhqRestAdd;
  if(typeof ra==='function')window.mhqRestAdd=function(){var r=ra.apply(this,arguments);if(r===false){lastErr=Date.now();slot('soft_error',.4)}return r};
+})();
+</script>
+<script id="mhq-pass-cache">
+/* v8.7.4: during one render pass the same read-only calculations are requested for the same lecture dozens of times.
+   Remember each answer until the pass ends (and clear on every pass start, so nothing stale can survive a change). */
+(function(){
+ var depth=0,caches={};
+ function memo(name){var f=window[name];if(typeof f!=='function')return;
+  window[name]=function(l){
+   if(!depth||arguments.length!==1||!l||typeof l!=='object')return f.apply(this,arguments);
+   var c=caches[name]||(caches[name]=new Map());
+   if(c.has(l))return c.get(l);
+   var v=f.call(this,l);c.set(l,v);return v}}
+ function pass(name){var f=window[name];if(typeof f!=='function')return;
+  window[name]=function(){depth++;caches={};try{return f.apply(this,arguments)}finally{depth--;caches={}}}}
+ ['learningProfile','lectureStatus','lecturePriority','reviewStatus','reviewIntervalFor','clinicalApplicationForLecture'].forEach(memo);
+ ['render','renderExtraViews','showView'].forEach(pass);
 })();
 </script>
 </body>
