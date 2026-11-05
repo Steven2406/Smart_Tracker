@@ -1471,7 +1471,7 @@ html[data-theme=dark] .k-play{--ic:#85B7EB}html[data-theme=dark] .k-list{--ic:#A
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.7.0</span></small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.7.1</span></small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -2253,9 +2253,6 @@ function scheduleReview(lecture){
 function externalTestsForLecture(lectureId){
   return externalTests.filter(t=>Number(t.lectureId)===Number(lectureId));
 }
-function externalTestsForSubject(subject){
-  return externalTests.filter(t=>t.subject===subject || (t.scope==="module" && subject));
-}
 function externalStatsForLecture(lectureId){
   const rows=externalTestsForLecture(lectureId); if(!rows.length)return {sessions:0,average:null,correct:0,questions:0,confidence:null,lastDate:null};
   const questions=rows.reduce((n,t)=>n+safeNumber(t.total,0),0),correct=rows.reduce((n,t)=>n+safeNumber(t.correct,0),0);
@@ -2395,15 +2392,6 @@ const clinicalCases = Array.isArray(COURSE.clinicalCases)?COURSE.clinicalCases:[
 
 
 let clinicalState={};
-function loadClinicalState(){
-  try{
-    const s=JSON.parse(localStorage.getItem("medicalHQ"));
-    clinicalState=(s&&s.clinicalState&&typeof s.clinicalState==="object")?s.clinicalState:{};
-  }catch(e){clinicalState={};}
-}
-function saveClinicalState(){
-  save();
-}
 function clinicalInfo(){
   const attempted=clinicalCases.filter(c=>clinicalState[c.id]?.attempts>0);
   const solved=clinicalCases.filter(c=>clinicalState[c.id]?.correct);
@@ -2897,10 +2885,6 @@ function runHealthCheck(){
   renderFoundationAudit();
 }
 
-function parseScore(score){
-  const m=String(score||"").match(/^\s*(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)\s*$/);
-  return m?{got:Number(m[1]),max:Number(m[2])}:null;
-}
 function todayActions(){
   const actions=[];
   data.forEach(x=>{
@@ -3566,7 +3550,6 @@ function toggleStep(i,v){
  syncXP();
  save();render();openLecture(current.id);
 }
-function updateMastery(v){current.mastery=Number(v);document.getElementById("masteryValue").textContent=v;save()}
 function setLectureImportance(value){
  if(!current)return; current.importance=["A","B","C"].includes(value)?value:"B"; save(); render(); openLecture(current.id);
 }
@@ -4039,7 +4022,8 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
 (function(){
  const KEY='mhqMotivationV52';
  const LEGACY='mhqMotivationV51';
- function readCore(){try{return JSON.parse(localStorage.getItem('medicalHQ'))||{}}catch(e){return {}}}
+ let rcRaw=null,rcVal=null;
+ function readCore(){try{const r=localStorage.getItem('medicalHQ');if(rcVal&&r===rcRaw)return rcVal;const v=JSON.parse(r)||{};rcRaw=r;rcVal=v;return v}catch(e){return {}}}
  let M=JSON.parse(localStorage.getItem(KEY)||'null');
  if(!M){const legacy=JSON.parse(localStorage.getItem(LEGACY)||'null')||{};const earned=Math.floor(Number(readCore().xp||0)/250);M={dailyTarget:legacy.dailyTarget||3,weeklyTarget:legacy.weeklyTarget||15,campaignGoal:legacy.campaignGoal||'Clear '+COURSE.short+' campaign',redeemed:legacy.redeemed||[],rewardCreditsEarned:Math.max(earned,Number(legacy.rewardCreditsEarned||0)),rewardCreditsSpent:Number(legacy.rewardCreditsSpent||0),ownedItems:legacy.ownedItems||[],shopVersion:2};localStorage.setItem(KEY,JSON.stringify(M));}
  M.rewardCreditsEarned=Number(M.rewardCreditsEarned||0);M.rewardCreditsSpent=Number(M.rewardCreditsSpent||0);M.ownedItems=Array.isArray(M.ownedItems)?M.ownedItems:[];
@@ -6261,11 +6245,6 @@ function buddy(sp,mo,sk,stg,anim){
  if(typeof rhe==='function')window.renderHomeExam=function(){var r=rhe.apply(this,arguments);try{gauge()}catch(e){}return r};
  /* ---------- home layout ---------- */
  function ringSVG(p,n,col){var f=n?Math.min(1,p/n):0;return'<svg viewBox="0 0 44 44" class="v81-r"><circle cx="22" cy="22" r="17" fill="none" stroke="var(--line)" stroke-width="6"/>'+(f>0?'<circle cx="22" cy="22" r="17" fill="none" stroke="'+(col||'var(--accent)')+'" stroke-width="6" stroke-linecap="round" pathLength="100" stroke-dasharray="'+Math.round(f*100)+' '+(100-Math.round(f*100))+'" transform="rotate(-90 22 22)"/>':'')+'<text x="22" y="26" text-anchor="middle" style="font-size:var(--fs-11);font-weight:700;fill:var(--text)">'+(f>=1?'✓':p+'/'+n)+'</text></svg>'}
- function paintRings(){
-  var h=$('todayRings');if(!h)return;
-  var it=window.__mhqRounds||[],goal=(typeof XP2!=='undefined'&&XP2.goalSteps)||3,short=function(t){t=String(t).replace(/^(Complete|Finish a|Log an|Do a|Solve a|Test yourself on)\s*/i,'');return t.length>16?t.slice(0,15)+'…':t};
-  var cells='<button type="button" class="v81-rc" onclick="startMission()">'+ringSVG(Math.min(todaySteps,goal),goal,'var(--accent)')+'<span>Study steps</span></button>'+it.map(function(i){return'<button type="button" class="v81-rc" onclick="'+i.go+'">'+ringSVG(i.p,i.n,i.p>=i.n?'var(--good)':'var(--v-prog)')+'<span>'+esc(short(i.t))+'</span></button>'}).join('');
-  put(h,'<div class="section card"><div class="label">TODAY</div><div class="v81-rs">'+cells+'</div></div>')}
  var laid=false;
  function layout(){
   if(laid)return;var hv=$('homeView');if(!hv)return;
@@ -6330,7 +6309,6 @@ function buddy(sp,mo,sk,stg,anim){
  if(typeof sv==='function')window.showView=function(id,btn){if(REMAP[id])id=REMAP[id];var r=sv.call(this,id,btn);try{syncTopNav(id)}catch(e){}try{window.renderV81&&window.renderV81()}catch(e){}return r};
  /* ---------- card homes ---------- */
  function after(view,el){var v=$(view);if(!v||!el)return;var t=v.querySelector(':scope > .section-switcher')||v.querySelector(':scope > .mhq-back-row');if(t)t.parentNode.insertBefore(el,t.nextSibling);else v.insertBefore(el,v.firstChild)}
- function appendTo(view,el){var v=$(view);if(v&&el)v.appendChild(el)}
  function kids(view){var v=$(view);return v?[].filter.call(v.children,function(c){return!c.matches('.mhq-back-row,.section-switcher,.hero')}):[]}
  var moved=false;
  function reorg(){
