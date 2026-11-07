@@ -1469,6 +1469,15 @@ html[data-theme=dark] .k-play{--ic:#85B7EB}html[data-theme=dark] .k-list{--ic:#A
 .pr-undo{position:fixed;left:12px;right:12px;bottom:calc(88px + env(safe-area-inset-bottom,0px));z-index:10030;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#222;color:#fff;border-radius:14px;padding:12px 14px;animation:prUp .25s}
 .pr-undo button{background:none;border:0;color:#8fd3ff;font-weight:800;padding:4px 8px}
 
+
+/* ---- v8.8.2 page ranges ---- */
+.pr-bar.rg{position:relative;overflow:hidden}
+.pr-bar.rg i{position:absolute;top:0;bottom:0;height:auto;border-radius:2px;transition:none}
+.pr-scale{display:flex;justify-content:space-between;font-size:var(--fs-11);color:var(--muted);margin:-4px 0 4px}
+.pr-rcs{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 2px;align-items:center}
+.pr-rc{padding:3px 9px;border-radius:99px;font-size:var(--fs-12);font-weight:700;background:var(--soft);border:1px solid var(--line);color:inherit}
+.pr-fromto{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pr-err{color:#d64545;font-size:var(--fs-13);min-height:1.3em;margin-top:6px}
 /* ---- v8.8.0 Anatomy Atlas skin ---- */
 .k-book{--ic:#A63D2F}html[data-theme=dark] .k-book{--ic:#E5877A}
 :root{--atlas-noise-l:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .36 0 0 0 0 .2 0 0 0 .32 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");--atlas-noise-d:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 .9 0 0 0 0 .8 0 0 0 0 .6 0 0 0 .16 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
@@ -1515,7 +1524,7 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.8.0</span></small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.8.2</span></small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -2088,6 +2097,11 @@ const makeFreshData=()=>raw.map((x,i)=>({id:i+1,title:x[0],subject:x[1],steps:[f
 let data=makeFreshData();
 let activeFilter="All", current=null;
 let appXP=0, appStreak=0, todayXp=0, todaySteps=0, legacyBonusXP=0;
+/* Practical XP lives in the motivation store. It is read here, so every XP calculation (including the one load() does) counts it from the start. */
+let prXpRaw=null,prXpVal=null;
+function prXpState(){try{const r=localStorage.getItem('mhqMotivationV52');if(r!==prXpRaw){prXpRaw=r;const m=r?JSON.parse(r):null;prXpVal=(m&&m.pr&&typeof m.pr==='object')?m.pr:null}return prXpVal}catch(e){return null}}
+function practicalXpTotal(){const p=prXpState();return p?Math.max(0,Number(p.xp)||0):0}
+function practicalXpToday(){const p=prXpState();return p&&p.lg?Math.max(0,Number(p.lg[todayKey])||0):0}
 /* ===== XP rules v2 =====
    Activity dated on/after xpRulesFrom earns XP under these rules; older activity keeps the XP it had when it was earned,
    so your total never changes just because the rules did. */
@@ -2612,6 +2626,7 @@ function calculateBaseXP(){
   total+=Object.values(bossVictories).reduce((n,v)=>n+safeNumber(v?.xp,0),0);
   total+=clinicalCases.reduce((n,c)=>n+clinicalXpFor(clinicalState[c.id]),0);
   total+=externalTests.reduce((n,t)=>n+safeNumber(t.xp,0),0);
+  total+=practicalXpTotal();
   return total;
 }
 function calculateTodayXP(){
@@ -2629,6 +2644,7 @@ function calculateTodayXP(){
   total+=Object.values(bossVictories).filter(v=>v?.date===todayKey).reduce((n,v)=>n+safeNumber(v?.xp,0),0);
   total+=externalTests.filter(t=>t.dateKey===todayKey).reduce((n,t)=>n+safeNumber(t.xp,0),0);
   total+=achievementIds.filter(id=>achievementDates[id]===todayKey).reduce((n,id)=>n+(achievementDefinitions().find(a=>a.id===id)?.xp||0),0);
+  total+=practicalXpToday();
   return total;
 }
 function syncXP(){
@@ -6931,15 +6947,19 @@ function buddy(sp,mo,sk,stg,anim){
  function uid(){return Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-3)}
  var ST=window.mhqPracticalStore;if(!ST)return;
  (function init(){var p=ST.get();if(!Array.isArray(p.sections)){ST.set({v:1,sections:[],exams:[],srcs:[],lg:{},xp:0})}})();
- function P(){var p=ST.get();p.sections=p.sections||[];p.exams=p.exams||[];p.srcs=p.srcs||[];p.lg=p.lg||{};p.xp=p.xp||0;return p}
+ function P(){var p=ST.get();p.sections=p.sections||[];p.exams=p.exams||[];p.srcs=p.srcs||[];p.lg=p.lg||{};p.xp=p.xp||0;
+  p.sections.forEach(function(sec){sec.items.forEach(function(it){if(it.t==='pages'&&!Array.isArray(it.rg))it.rg=it.cur>0?[[1,Math.min(it.cur,it.total)]]:[]})});return p}
  function today(){return typeof localDateKey==='function'?localDateKey():new Date().toISOString().slice(0,10)}
+ /* pages are tracked as ranges, so you can read in any order: [[200,225],[300,310]] */
+ function rgNorm(a,total){var r=a.filter(function(x){return x[0]<=total&&x[1]>=1&&x[0]<=x[1]}).map(function(x){return[Math.max(1,x[0]),Math.min(total,x[1])]}).sort(function(x,y){return x[0]-y[0]});var o=[];r.forEach(function(x){var l=o[o.length-1];if(l&&x[0]<=l[1]+1){if(x[1]>l[1])l[1]=x[1]}else o.push([x[0],x[1]])});return o}
+ function rgCount(a){return a.reduce(function(n,x){return n+x[1]-x[0]+1},0)}
+ function rgAdd(a,s0,e0,total){return rgNorm((a||[]).concat([[s0,e0]]),total)}
+ function rgSub(a,s0,e0,total){var o=[];(a||[]).forEach(function(x){if(x[1]<s0||x[0]>e0){o.push(x);return}if(x[0]<s0)o.push([x[0],s0-1]);if(x[1]>e0)o.push([e0+1,x[1]])});return rgNorm(o,total)}
+ function rgGap(a,total){var pos=1;for(var q=0;q<a.length;q++){if(a[q][0]>pos)return[pos,a[q][0]-1];pos=a[q][1]+1}return pos<=total?[pos,total]:null}
+ function applyRg(it,rg){var before=it.cur||0;it.rg=rgNorm(rg,it.total);it.cur=rgCount(it.rg);it.pl=it.pl||{};it.pl[today()]=(it.pl[today()]||0)+(it.cur-before)}
 
  /* ---------- XP: derived from state, so unticking takes it back ---------- */
- var cb=window.calculateBaseXP,ct=window.calculateTodayXP;
- if(typeof cb==='function')window.calculateBaseXP=function(){return cb.apply(this,arguments)+Math.max(0,P().xp||0)};
- if(typeof ct==='function')window.calculateTodayXP=function(){return ct.apply(this,arguments)+Math.max(0,(P().lg||{})[today()]||0)};
- /* load() ran before this wrapper existed, so it filed the Practical XP as "legacy". Take it back out so it is counted once. */
- try{legacyBonusXP=Math.max(0,legacyBonusXP-Math.max(0,P().xp||0));syncXP()}catch(e){}
+ /* XP is counted by calculateBaseXP / calculateTodayXP in the main script (practicalXpTotal), so it is included from the first calculation. */
  function done(it){if(it.t==='pages')return it.total>0&&it.cur>=it.total;if(it.t==='parts')return it.parts.length>0&&it.parts.every(function(x){return x.d});return!!it.d}
  function itemXP(it){if(it.t==='pages')return Math.floor(Math.min(it.cur,it.total)/25)+(done(it)?6:0);if(it.t==='parts'){var n=it.parts.filter(function(x){return x.d}).length;return n*3+(done(it)?4:0)}return it.d?6:0}
  function secDone(sec){return sec.items.length>0&&sec.items.every(done)}
@@ -6992,11 +7012,14 @@ function buddy(sp,mo,sk,stg,anim){
    h+='<button type="button" class="pr-ck'+(it.d?' on':'')+'" role="checkbox" aria-checked="'+(!!it.d)+'" aria-label="Mark done" onclick="mhqPr.tog(\''+sid+'\',\''+iid+'\')">'+(it.d?'✓':'')+'</button>'+
    '<div class="pr-b"><div class="pr-n'+(it.d?' done':'')+'">'+ic(ICON[it.t])+' '+esc(it.name)+'</div><div>'+tags(it)+'</div></div>'}
   else if(it.t==='pages'){
-   var pc=it.total?Math.min(100,Math.round(it.cur/it.total*100)):0,pa=paceOf(it),tdy=(it.pl||{})[today()]||0;
+   var pa=paceOf(it),tdy=(it.pl||{})[today()]||0,gap=rgGap(it.rg||[],it.total),rg=it.rg||[];
+   var segs=rg.map(function(x){var l=(x[0]-1)/it.total*100,w=Math.max(.7,(x[1]-x[0]+1)/it.total*100);return'<i style="left:'+l.toFixed(3)+'%;width:'+w.toFixed(3)+'%"></i>'}).join('');
+   var chips=rg.slice(0,8).map(function(x){return'<button type="button" class="pr-rc" onclick="mhqPr.rangeSheet(\''+sid+'\',\''+iid+'\','+x[0]+','+x[1]+',\'un\')" aria-label="Pages '+x[0]+' to '+x[1]+', tap to unmark">'+(x[0]===x[1]?x[0]:x[0]+'–'+x[1])+'</button>'}).join('')+(rg.length>8?'<span class="pr-m">+'+(rg.length-8)+' more</span>':'');
    h+='<div class="pr-b"><div class="pr-n'+(done(it)?' done':'')+'">'+ic('note')+' '+esc(it.name)+'<span class="pr-c">'+it.cur+' / '+it.total+' pages</span></div>'+
-   '<div class="pr-bar"><i style="width:'+pc+'%"></i></div><div>'+tags(it)+'</div>'+
-   '<div class="pr-m">'+(done(it)?'All pages done':(pa?'About '+pa.n+' pages a day to finish before '+esc(pa.e.name)+' ('+pa.days+(pa.days===1?' day':' days')+' left)':'Add an exam date to see your daily pace'))+(tdy?' · today +'+tdy:'')+'</div>'+
-   '<div class="pr-btns"><button type="button" onclick="mhqPr.pg(\''+sid+'\',\''+iid+'\',10)">+10</button><button type="button" onclick="mhqPr.pg(\''+sid+'\',\''+iid+'\',50)">+50</button><button type="button" onclick="mhqPr.pg(\''+sid+'\',\''+iid+'\',100)">+100</button><button type="button" onclick="mhqPr.setPg(\''+sid+'\',\''+iid+'\')">Set</button></div></div>'}
+   '<div class="pr-bar rg" role="img" aria-label="Pages read: '+it.cur+' of '+it.total+'">'+segs+'</div><div class="pr-scale"><span>1</span><span>'+it.total+'</span></div><div>'+tags(it)+'</div>'+
+   (chips?'<div class="pr-rcs">'+chips+'</div>':'')+
+   '<div class="pr-m">'+(done(it)?'All pages read':(gap?'Next unread: '+gap[0]+(gap[1]>gap[0]?'–'+gap[1]:'')+'. ':'')+(pa?'About '+pa.n+' pages a day to finish before '+esc(pa.e.name)+' ('+pa.days+(pa.days===1?' day':' days')+' left)':'Add an exam date to see your daily pace'))+(tdy>0?' · today +'+tdy:'')+'</div>'+
+   '<div class="pr-btns"><button type="button" onclick="mhqPr.rangeSheet(\''+sid+'\',\''+iid+'\')">+ Add pages</button><button type="button" onclick="mhqPr.pg(\''+sid+'\',\''+iid+'\',25)">Continue +25</button></div></div>'}
   else{
    var n=it.parts.filter(function(x){return x.d}).length;
    h+='<div class="pr-b"><div class="pr-n'+(done(it)?' done':'')+'">'+ic('list')+' '+esc(it.name)+'<span class="pr-c">'+n+'/'+it.parts.length+'</span></div><div>'+tags(it)+'</div><div class="pr-parts">'+
@@ -7009,7 +7032,7 @@ function buddy(sp,mo,sk,stg,anim){
     '<div class="pr-add"><button type="button" class="primary" onclick="mhqPr.fromSubjects()">Start from my subjects</button><button type="button" onclick="mhqPr.startEmpty()">Start empty</button></div></div>'+
     '<div class="pr-add"><button type="button" onclick="mhqPr.examSheet()">+ Add exam</button></div>';return}
   var pct=T.t?Math.round(T.d/T.t*100):0,html='<div class="pr-card"><div class="pr-h"><div><div class="pr-lab">PRACTICAL · '+esc((typeof COURSE!=='undefined'&&(COURSE.short||COURSE.name))||'Module')+'</div><h2>'+T.d+' of '+T.t+' items</h2></div><b style="font-size:var(--fs-24)">'+pct+'%</b></div><div class="pr-bar"><i style="width:'+pct+'%"></i></div>'+
-   (T.pt?'<div class="pr-m">Pages '+T.pc+' / '+T.pt+'</div>':'');
+   '<div class="pr-m">'+(T.pt?'Pages '+T.pc+' / '+T.pt+' · ':'')+'XP from Practical: '+computeXP(p)+'</div>';
   if(p.exams.length){html+='<div class="pr-exs">'+p.exams.slice().sort(function(a,b){return dl(a)-dl(b)}).map(function(e){var ms=left(e),urg=ms>0&&ms<864e5*2;
    return'<div class="pr-ex'+(view.filter===e.id?' on':'')+(urg?' urgent':'')+'"><button type="button" class="pr-exb" onclick="mhqPr.filter(\''+e.id+'\')" aria-pressed="'+(view.filter===e.id)+'"><b>'+esc(e.name)+'</b><span class="t">'+fmtLeft(e)+'</span><span class="s">'+dayLabel(e)+' · '+itemsLeft(e.id)+' left</span></button><button type="button" class="pr-exe" onclick="mhqPr.examSheet(\''+e.id+'\')" aria-label="Edit exam">⋯</button></div>'}).join('')+'</div>'+
    '<div class="pr-m" style="margin-top:8px">Countdowns end at 00:00 on the exam day. Tap an exam to see only what is left for it.</div>'}
@@ -7037,7 +7060,7 @@ function buddy(sp,mo,sk,stg,anim){
  /* ---------- sheets ---------- */
  function removeSheet(){var a=$('prBg'),b=$('prSh');if(a)a.remove();if(b)b.remove()}
  function closeSheet(){removeSheet();sh=null}
- function openSheet(html){removeSheet();var bg=document.createElement('div');bg.id='prBg';bg.className='pr-bg';bg.onclick=closeSheet;var d=document.createElement('div');d.id='prSh';d.className='pr-sh';d.setAttribute('role','dialog');d.innerHTML=html;document.body.appendChild(bg);document.body.appendChild(d);return d}
+ function openSheet(html){removeSheet();var bg=document.createElement('div');bg.id='prBg';bg.className='pr-bg';bg.onclick=closeSheet;var d=document.createElement('div');d.id='prSh';d.className='pr-sh';d.setAttribute('role','dialog');d.innerHTML=html;d.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target&&e.target.tagName==='INPUT'){e.preventDefault();var b=d.querySelector('.pr-row .primary');if(b)b.click()}});d.addEventListener('focusin',function(e){if(e.target&&e.target.type==='number'){try{e.target.select()}catch(x){}}});document.body.appendChild(bg);document.body.appendChild(d);return d}
  function findSec(id){return P().sections.find(function(x){return x.id===id})}
  function findItem(sid,iid){var s=findSec(sid);return s?s.items.find(function(x){return x.id===iid}):null}
  function chip(label,on,fn){return'<button type="button" class="'+(on?'on':'')+'" onclick="'+fn+'" aria-pressed="'+(!!on)+'">'+esc(label)+'</button>'}
@@ -7069,9 +7092,17 @@ function buddy(sp,mo,sk,stg,anim){
  function examSheet(id){var e=id?P().exams.find(function(x){return x.id===id}):null;sh={kind:'exam',id:id||null};
   openSheet('<h3>'+(e?'Edit exam':'Add exam')+'</h3><label>NAME</label><input type="text" id="prExName" placeholder="e.g. Computer lab" value="'+esc(e?e.name:'')+'" maxlength="60" autocomplete="off"><label>DATE</label><input type="date" id="prExDate" value="'+esc(e?e.date:'')+'"><div class="pr-m" style="margin-top:8px">The countdown ends at 00:00 at the start of this day.</div><div class="pr-row">'+(e?'<button type="button" class="danger" onclick="mhqPr.delExam()">Delete</button>':'')+'<button type="button" onclick="mhqPr.closeSheet()">Cancel</button><button type="button" class="primary" onclick="mhqPr.saveExam()">'+(e?'Save':'Add')+'</button></div>');
   var n=$('prExName');if(n&&!e)setTimeout(function(){try{n.focus()}catch(x){}},120)}
- function pgSheet(sid,iid){var it=findItem(sid,iid);if(!it)return;sh={kind:'pg',sec:sid,id:iid};
-  openSheet('<h3>Pages done so far</h3><label>'+esc(it.name)+' (TOTAL '+it.total+')</label><input type="number" id="prPg" inputmode="numeric" min="0" max="'+it.total+'" value="'+it.cur+'"><div class="pr-row"><button type="button" onclick="mhqPr.closeSheet()">Cancel</button><button type="button" class="primary" onclick="mhqPr.savePg()">Save</button></div>');
-  setTimeout(function(){var n=$('prPg');if(n){try{n.focus();n.select()}catch(e){}}},120)}
+ function rangeSheet(sid,iid,a0,b0,mode){var it=findItem(sid,iid);if(!it)return;var gap=rgGap(it.rg||[],it.total);
+  sh={kind:'rg',sec:sid,id:iid,mode:mode==='un'?'un':'add',a:a0||'',b:b0||''};
+  if(!sh.a&&gap){sh.a=gap[0];sh.b=Math.min(it.total,gap[0]+24)}
+  drawRange()}
+ function keepRg(){var f=$('prFrom'),t=$('prTo');if(sh&&f){sh.a=f.value;sh.b=t?t.value:''}}
+ function drawRange(){var it=findItem(sh.sec,sh.id);if(!it)return;var gap=rgGap(it.rg||[],it.total);
+  openSheet('<h3>'+esc(it.name)+'</h3><div class="pr-m">'+it.cur+' of '+it.total+' pages read</div><label>WHAT DID YOU DO?</label><div class="pr-chips">'+chip('I read these pages',sh.mode==='add','mhqPr.rgMode(\'add\')')+chip('Not read (unmark)',sh.mode==='un','mhqPr.rgMode(\'un\')')+'</div>'+
+   '<div class="pr-fromto"><div><label>FROM PAGE</label><input type="number" id="prFrom" inputmode="numeric" min="1" max="'+it.total+'" value="'+esc(sh.a)+'"></div><div><label>TO PAGE</label><input type="number" id="prTo" inputmode="numeric" min="1" max="'+it.total+'" value="'+esc(sh.b)+'"></div></div>'+
+   '<div class="pr-m" style="margin-top:6px">One page? Use the same number in both boxes.'+(gap?' Next unread page: '+gap[0]+'.':'')+'</div><div class="pr-err" id="prRgErr" role="alert"></div>'+
+   '<div class="pr-row"><button type="button" onclick="mhqPr.closeSheet()">Cancel</button><button type="button" class="primary" onclick="mhqPr.saveRange()">'+(sh.mode==='un'?'Unmark':'Save')+'</button></div>');
+  var f=$('prFrom');if(f)setTimeout(function(){try{f.focus();f.select()}catch(e){}},120)}
 
  /* ---------- undo ---------- */
  function offerUndo(msg,snap){undoSnap=snap;var old=$('prUndo');if(old)old.remove();var d=document.createElement('div');d.id='prUndo';d.className='pr-undo';d.innerHTML='<span>'+esc(msg)+'</span><button type="button" onclick="mhqPr.undo()">Undo</button>';document.body.appendChild(d);clearTimeout(undoT);undoT=setTimeout(function(){var x=$('prUndo');if(x)x.remove();undoSnap=null},7000)}
@@ -7086,9 +7117,14 @@ function buddy(sp,mo,sk,stg,anim){
   startEmpty:function(){mut(function(p){p.sections.push({id:uid(),name:'Section 1',items:[]})})},
   tog:function(sid,iid){mut(function(){var it=findItem(sid,iid);if(it){it.d=!it.d;it.dd=it.d?today():null;snd(it.d?'item_check':'item_uncheck',.5)}})},
   part:function(sid,iid,pid){mut(function(){var it=findItem(sid,iid),x=it&&it.parts.find(function(q){return q.id===pid});if(x){x.d=!x.d;snd(x.d?'item_check':'item_uncheck',.5)}})},
-  pg:function(sid,iid,n){mut(function(){var it=findItem(sid,iid);if(!it)return;if(n>0)snd('pages_add',.5);var nv=Math.max(0,Math.min(it.total,it.cur+n)),dlt=nv-it.cur;it.cur=nv;it.pl=it.pl||{};it.pl[today()]=(it.pl[today()]||0)+dlt})},
-  setPg:pgSheet,
-  savePg:function(){var v=parseInt(($('prPg')||{}).value,10),sid=sh.sec,iid=sh.id;if(isNaN(v)){err();return}closeSheet();mut(function(){var it=findItem(sid,iid);if(!it)return;var nv=Math.max(0,Math.min(it.total,v)),dlt=nv-it.cur;it.cur=nv;it.pl=it.pl||{};it.pl[today()]=(it.pl[today()]||0)+dlt})},
+  pg:function(sid,iid,n){mut(function(){var it=findItem(sid,iid);if(!it)return;var g=rgGap(it.rg||[],it.total);if(!g)return;var before=it.cur;applyRg(it,rgAdd(it.rg,g[0],Math.min(it.total,g[0]+n-1),it.total));if(it.cur>before)snd('pages_add',.5)})},
+  rangeSheet:rangeSheet,setPg:function(sid,iid){rangeSheet(sid,iid)},
+  rgMode:function(m){keepRg();sh.mode=m;drawRange()},
+  saveRange:function(){keepRg();var it=findItem(sh.sec,sh.id);if(!it)return;var a=parseInt(sh.a,10),b=parseInt(sh.b,10);if(isNaN(b)&&!isNaN(a))b=a;var msg='';
+   if(isNaN(a)||isNaN(b))msg='Enter the page numbers.';else if(a<1||b>it.total)msg='Pages must be between 1 and '+it.total+'.';else if(a>b)msg='"From" must be smaller than or equal to "To".';
+   if(msg){err();var e=$('prRgErr');if(e)e.textContent=msg;return}
+   var sid=sh.sec,iid=sh.id,mode=sh.mode;closeSheet();
+   mut(function(){var x=findItem(sid,iid);if(!x)return;var before=x.cur;applyRg(x,mode==='un'?rgSub(x.rg,a,b,x.total):rgAdd(x.rg,a,b,x.total));if(x.cur>before)snd('pages_add',.5)})},
   setType:function(t){keepForm();sh.t=t;redraw()},
   addPart:function(){keepForm();sh.parts.push({id:uid(),name:'',d:false});redraw();var ins=document.querySelectorAll('[data-pi]');if(ins.length)try{ins[ins.length-1].focus()}catch(e){}},
   rmPart:function(i){keepForm();sh.parts.splice(i,1);if(!sh.parts.length)sh.parts.push({id:uid(),name:'',d:false});redraw()},
@@ -7103,9 +7139,9 @@ function buddy(sp,mo,sk,stg,anim){
    var s0=JSON.parse(JSON.stringify(sh));closeSheet();
    mut(function(p){
     if(src&&p.srcs.indexOf(src)<0){p.srcs.unshift(src);p.srcs=p.srcs.slice(0,12)}
-    if(s0.id){var it=findItem(s0.sec,s0.id);if(it){it.name=name;it.src=src;it.ex=s0.ex.length?s0.ex:null;if(it.t==='pages'){it.total=total>0?total:it.total;it.cur=Math.min(it.cur,it.total)}if(it.t==='parts'){var old={};it.parts.forEach(function(x){old[x.id]=x.d});it.parts=parts.map(function(x){return{id:x.id,name:x.name,d:!!old[x.id]}})}}}
+    if(s0.id){var it=findItem(s0.sec,s0.id);if(it){it.name=name;it.src=src;it.ex=s0.ex.length?s0.ex:null;if(it.t==='pages'){it.total=total>0?total:it.total;applyRg(it,it.rg||[])}if(it.t==='parts'){var old={};it.parts.forEach(function(x){old[x.id]=x.d});it.parts=parts.map(function(x){return{id:x.id,name:x.name,d:!!old[x.id]}})}}}
     else{var targets=s0.all?p.sections:[findSec(s0.sec)];targets.forEach(function(sec){if(!sec)return;var it={id:uid(),t:s0.t,name:name,src:src,ex:s0.ex.length?s0.ex.slice():null,d:false};
-      if(s0.t==='pages'){it.total=total;it.cur=0;it.pl={}}if(s0.t==='parts')it.parts=parts.map(function(x){return{id:uid(),name:x.name,d:false}});sec.items.push(it)});
+      if(s0.t==='pages'){it.total=total;it.cur=0;it.rg=[];it.pl={}}if(s0.t==='parts')it.parts=parts.map(function(x){return{id:uid(),name:x.name,d:false}});sec.items.push(it)});
       view.open[s0.sec]=true}})},
   delItem:function(){var sid=sh.sec,iid=sh.id;closeSheet();var snap=JSON.stringify(P());mut(function(p){var s=findSec(sid);if(s)s.items=s.items.filter(function(x){return x.id!==iid})});offerUndo('Item deleted',snap)},
   move:function(dir){var sid=sh.sec,iid=sh.id;mut(function(p){var s=findSec(sid);if(!s)return;var i=s.items.findIndex(function(x){return x.id===iid}),j=i+dir;if(i<0||j<0||j>=s.items.length)return;var t=s.items[i];s.items[i]=s.items[j];s.items[j]=t})},
