@@ -2079,7 +2079,9 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
             if(j.backupType==="medical-hq-all"){if(typeof mhqRestoreAllObject==="function"){mhqRestoreAllObject(j);return}throw new Error("Please try again in a moment.")}
             if(j.backupType==="medical-hq-backup"){
               if(!j.course||!Array.isArray(j.course.lectures))throw new Error("This backup has no course in it. Import your course pack first, then import the backup from Data tools.");
-              const {course,motivation:bkMot,...state}=j;if(isNew){commitNew(course,state);return}localStorage.setItem(KEY,JSON.stringify(course));localStorage.setItem("medicalHQ",JSON.stringify(state));try{mhqRestoreMotivation(bkMot)}catch(e){}location.reload();return;
+              {const se=mhqStateShapeError(j);if(se)throw new Error("This backup's saved data is damaged ("+se+"). Nothing was changed.")}
+              const {course,motivation:bkMot,...state}=j;if(isNew){commitNew(course,state);return}
+              mhqReplaceGate("importNoConfirm").then(ok=>{if(!ok)return;try{localStorage.setItem(KEY,JSON.stringify(course));localStorage.setItem("medicalHQ",JSON.stringify(state));try{mhqRestoreMotivation(bkMot)}catch(e){}mhqMarkRestore("import");location.reload()}catch(err){msg(err.message||"Could not read that file.")}});return;
             }
             if(!Array.isArray(j.lectures)||!j.lectures.length)throw new Error("This file has no lectures.");
             const lectures=j.lectures.map(l=>({title:clean(l.title,220),subject:clean(l.subject,40)||"General",territory:clean(l.territory,60)})).filter(l=>l.title).slice(0,1000);
@@ -2673,9 +2675,104 @@ function syncXP(){
   appXP=calculateBaseXP()+safeNumber(legacyBonusXP,0);
   todayXp=calculateTodayXP();
 }
-function load(){
+/* ===== Load protection (Task 01 / F1) =====
+   If saved data exists but cannot be loaded, the exact original string is kept under "medicalHQ_recovery_v1" and, for the rest of this
+   page session, nothing may write the main state ("medicalHQ") or upload to the cloud. The in-memory fallback is never treated as saved data.
+   The recovery key is read and written through the normal localStorage shim, so it is course-scoped exactly like "medicalHQ" itself
+   (default course: "medicalHQ_recovery_v1"; other courses: "...@<course id>"). */
+const MHQ_RECOVERY_KEY="medicalHQ_recovery_v1";
+const MHQ_LOAD_PROTECT=window.mhqLoadProtect={active:false,recovered:false,recoveryKey:null,reason:"",warnedAt:0,afterRestore:null};
+function mhqProtectWarn(force){
+  const P=MHQ_LOAD_PROTECT,now=Date.now();
+  if(!force&&now-P.warnedAt<20000)return;
+  P.warnedAt=now;
+  try{toast(P.afterRestore?(P.recovered?"⚠ The restored backup couldn't be loaded either. Every earlier copy is kept safe and nothing was overwritten. Try a different backup.":"⚠ The restored backup couldn't be loaded and no recovery copy could be made. Nothing else was overwritten."):P.recovered?"⚠ Saved data couldn't be read. The original is kept safe, but changes won't be saved. Restore a backup.":"⚠ Saved data couldn't be read and no recovery copy could be made. Nothing is overwritten, but changes won't be saved.")}catch(e){}
+}
+function mhqKeepRecoveryCopy(raw){
+  if(typeof raw!=="string")return null;
   try{
-    const s=JSON.parse(localStorage.getItem("medicalHQ"));
+    for(let i=1;i<=9;i++){
+      const k=i===1?MHQ_RECOVERY_KEY:MHQ_RECOVERY_KEY+"_"+i;
+      const cur=localStorage.getItem(k);
+      if(cur===raw)return k;                       /* this exact copy is already kept */
+      if(cur===null){                              /* free slot: never overwrite an existing recovery copy */
+        localStorage.setItem(k,raw);
+        return localStorage.getItem(k)===raw?k:null; /* verify the write really happened */
+      }
+    }
+  }catch(e){}
+  return null;
+}
+function mhqProtectLoad(raw,err){
+  const P=MHQ_LOAD_PROTECT;
+  P.active=true;
+  P.reason=String(err&&err.message||err||"unknown");
+  P.recoveryKey=mhqKeepRecoveryCopy(raw);
+  P.recovered=!!P.recoveryKey;
+  try{console.error("[Medical HQ] Saved data could not be loaded. Saving and cloud backup are paused for this session.",P.recovered?"Original kept under "+P.recoveryKey:"Recovery copy FAILED",err)}catch(e){}
+  mhqProtectWarn(true);
+  setTimeout(()=>mhqProtectWarn(true),2500);
+}
+/* ===== F1 hardening: destructive-action gate, backup shape check, honest restore verdict =====
+   While load protection is active, replacing or deleting this course's saved state is only possible after a deliberate confirmation.
+   If no recovery copy exists (recovered===false) the warning says plainly that the original may be lost for good. */
+function mhqAsk(o){
+  if(!window.mhqConfirmDialog)return Promise.resolve(window.confirm(o.title+"\n\n"+o.message));
+  const pr=window.mhqConfirmDialog(o);
+  try{const el=document.getElementById("mhqGenericConfirm");if(el)el.style.zIndex="900"}catch(e){}   /* the course sheets (z-index 500/600) would otherwise cover this dialog */
+  return pr;
+}
+function mhqReplaceGate(kind){
+  const P=MHQ_LOAD_PROTECT;
+  if(!P.active)return Promise.resolve(true);
+  if(P.recovered){
+    if(kind!=="importNoConfirm")return Promise.resolve(true);   /* the other flows already ask; this one did not */
+    return mhqAsk({icon:"📦",title:"Replace the unreadable saved data?",message:"This course's saved data could not be read. A copy of it is kept on this device ("+P.recoveryKey+"). Importing this file will replace the saved data.",confirmText:"Replace with this backup"});
+  }
+  return mhqAsk({icon:"⚠️",title:"Original data may be permanently lost",message:"This course's saved data could not be read, and a recovery copy could NOT be made. If you continue you will "+(kind==="delete"?"delete this course and its saved data":"replace this course's saved data")+", and the original may be gone for good. Only continue if you already have a backup of your own.",confirmText:kind==="delete"?"Delete anyway":"Replace anyway"});
+}
+function mhqStateShapeError(st){   /* returns a reason string, or null only when the state was fully checked and is fine; any surprise = rejected */
+  try{
+    if(!st||typeof st!=="object"||Array.isArray(st))return "it is not a saved-state record";
+    for(const k of ["xpLedger","activityLedger"]){
+      if(!Object.prototype.hasOwnProperty.call(st,k))continue;   /* older backups simply do not have these fields */
+      const what=k==="xpLedger"?"XP":"activity",v=st[k];
+      if(!Array.isArray(v))return "its "+what+" history is not a list";
+      if(v.some(x=>!x||typeof x!=="object"||Array.isArray(x)))return "its "+what+" history has damaged entries";
+    }
+    return null;
+  }catch(e){return "it could not be checked"}
+}
+function mhqBackupStateProblem(j){   /* returns a message, or null only when every course was fully checked; any surprise = rejected */
+  try{
+    const isRec=x=>!!x&&typeof x==="object"&&!Array.isArray(x),has=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
+    if(!isRec(j)||!Array.isArray(j.courses))return "This backup is damaged (its course list is malformed). Nothing was changed.";
+    const base=window.mhqStore&&Array.isArray(window.mhqStore.BASE)?window.mhqStore.BASE:["medicalHQ","mhqCourseV59","mhqLastLectureV58","mhqMotivationV52","mhqMotivationV51"];
+    for(const c of j.courses){
+      if(!isRec(c)||typeof c.id!=="string"||!/^[a-z0-9_-]{1,30}$/i.test(c.id)||!isRec(c.keys))return "This backup is damaged (a course entry is malformed). Nothing was changed.";
+      let name="one course";try{const o=JSON.parse(c.keys.mhqCourseV59);if(isRec(o)&&typeof o.name==="string"&&o.name)name="“"+o.name+"”"}catch(e){}
+      for(const k of base)if(has(c.keys,k)&&typeof c.keys[k]!=="string")return "The backup's saved data for "+name+" is damaged ("+k+" is not text). Nothing was changed.";
+      if(!has(c.keys,"medicalHQ"))continue;   /* a course with no saved state at all is fine */
+      let st;try{st=JSON.parse(c.keys.medicalHQ)}catch(e){return "The backup's saved data for "+name+" is damaged and cannot be read. Nothing was changed."}
+      const err=!isRec(st)?"it is not a saved-state record":!validateBackupPayload(st)?"its lecture list is missing or damaged":mhqStateShapeError(st);
+      if(err)return "The backup's saved data for "+name+" is damaged ("+err+"). Nothing was changed."
+    }
+    return null;
+  }catch(e){return "This backup could not be checked safely. Nothing was changed."}
+}
+function mhqMarkRestore(kind){try{sessionStorage.setItem("mhqRestoreAttemptV1",kind)}catch(e){}}
+function mhqRestoreVerdict(){   /* called once after load(): only now can we say whether a restore really worked */
+  let k=null;try{k=sessionStorage.getItem("mhqRestoreAttemptV1");sessionStorage.removeItem("mhqRestoreAttemptV1")}catch(e){}
+  if(!k)return;
+  if(MHQ_LOAD_PROTECT.active){MHQ_LOAD_PROTECT.afterRestore=k;mhqProtectWarn(true)}
+  else{try{toast("✅ Backup restored and loaded")}catch(e){}}
+}
+function load(){
+  let storedRaw=null,loadFailed=false,loadError=null;
+  try{
+    storedRaw=localStorage.getItem("medicalHQ");
+    const s=JSON.parse(storedRaw);
+    if(storedRaw!==null&&(!s||typeof s!=="object"||Array.isArray(s)))throw new Error("Saved data is not a valid state object");
     if(s){
       data=migrateData(s.data);
       const savedTodayKey=typeof s.todayKey==="string"?s.todayKey:null;
@@ -2723,9 +2820,10 @@ function load(){
       save();
       return;
     }
-  }catch(e){}
+  }catch(e){loadFailed=true;loadError=e}
   data=makeFreshData();appXP=0;appStreak=0;todayXp=0;todaySteps=0;lastStudyDate=null;legacyBonusXP=0;xpRulesFrom=null;reviewRepairDone=true;exams=[];studySessions=[];achievementIds=[];achievementDates={};bossVictories={};reviewCards={};activityLedger=[];xpLedger=[];externalTests=[];externalReviewCards={};rpgLastSeenLevel=null;clinicalState={};audioSettings={enabled:true,volume:.68};
   syncXP();
+  if(loadFailed)mhqProtectLoad(storedRaw,loadError);
   save();
 }
 function buildPersistedState(){
@@ -2736,6 +2834,7 @@ function save(){
   normalizeLearningEvidence();
   syncXP();
   reconcileXpLedger();
+  if(MHQ_LOAD_PROTECT.active){mhqProtectWarn();return}
   try{localStorage.setItem("medicalHQ",JSON.stringify(buildPersistedState()))}catch(e){try{window.mhqStorageFail(e)}catch(x){}}
 }
 
@@ -2756,6 +2855,7 @@ function renderFoundationAudit(){
   el.innerHTML=`<div class="badge ${a.ok?'done':''}">${a.ok?'✓ FOUNDATION AUDIT CLEAN':'⚠ FOUNDATION AUDIT FOUND ISSUES'}</div><div class="meta" style="margin-top:8px">Schema ${SCHEMA_VERSION} · XP ledger ${a.ledgerTotal} · ${a.activityEvents} activity events</div>${a.issues.length?`<div class="meta" style="margin-top:6px">${a.issues.join(" · ")}</div>`:''}`;
 }
 function exportBackup(){
+  if(MHQ_LOAD_PROTECT.active){mhqProtectWarn(true);return}
   save();
   const courseCopy={...COURSE};delete courseCopy.voice;
   const payload={...buildPersistedState(),backupType:"medical-hq-backup",exportedAt:new Date().toISOString(),course:courseCopy,motivation:mhqMotivationRaw()};
@@ -2772,13 +2872,16 @@ function importBackupFile(input){
     try{
       const payload=JSON.parse(reader.result);
       if(!validateBackupPayload(payload))throw new Error("Invalid backup shape");
+      {const se=mhqStateShapeError(payload);if(se)throw new Error("This backup's saved data is damaged ("+se+"). Nothing was changed.")}
       if(payload.schemaVersion && String(payload.schemaVersion)>SCHEMA_VERSION)throw new Error("Backup is newer than this app");
       const approved=await window.mhqConfirmDialog({title:"Replace current progress?",message:"This backup will replace the study data currently saved in this browser. Export a backup first if you want to keep it.",confirmText:"Import backup",icon:"📦",danger:true});
       if(!approved)return;
+      if(!(await mhqReplaceGate("import")))return;
       const {course:bkCourse,motivation:bkMot,...state}=payload;
       if(bkCourse&&Array.isArray(bkCourse.lectures)&&bkCourse.lectures.length){const prev=readCourse(),c={...bkCourse};if(prev&&prev.voice&&!c.voice)c.voice=prev.voice;localStorage.setItem(COURSE_KEY,JSON.stringify(c))}
       localStorage.setItem("medicalHQ",JSON.stringify(state));
       mhqRestoreMotivation(bkMot);
+      mhqMarkRestore("import");
       location.reload();
     }catch(e){toast(`❌ ${e.message||'Invalid Medical HQ backup'}`);}
     finally{input.value="";}
@@ -4026,7 +4129,7 @@ function updateAudioUI(){
   if(label)label.textContent=pct+"%";
 }
 function persistAudioOnly(){
-  try{
+  if(!MHQ_LOAD_PROTECT.active)try{
     const s=JSON.parse(localStorage.getItem("medicalHQ"))||{};
     s.audioSettings=audioSettings;
     localStorage.setItem("medicalHQ",JSON.stringify(s));
@@ -4088,6 +4191,7 @@ function testSound(){
 }
 function toast(t){const el=document.getElementById("toast");el.textContent=t;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),1800)}
 load();
+mhqRestoreVerdict();
 repairReviewSchedulesOnce();
 tightenReviewsForExams();
 render();
@@ -4361,7 +4465,7 @@ window.mhqMotivationRender=()=>{reconcileWallet();render()};
   const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
   let deferred=null;
   const say=t=>{try{toast(t)}catch(e){}};
-  window.markBackupDone=function(){set(LAST,String(Date.now()));renderProtectCard();renderStorage()};
+  window.markBackupDone=function(){if(window.mhqLoadProtect&&window.mhqLoadProtect.active)return;set(LAST,String(Date.now()));renderProtectCard();renderStorage()};
   window.mhqSnooze=function(){set(SNOOZE,String(Date.now()+DAY));renderProtectCard()};
   window.mhqDismissInstall=function(){set(IDISMISS,String(Date.now()+7*DAY));renderProtectCard()};
   function hasProgress(){try{return data.some(x=>x.steps.some(Boolean)||x.mcqs.length)||externalTests.length>0}catch(e){return false}}
@@ -4376,6 +4480,7 @@ window.mhqMotivationRender=()=>{reconcileWallet();render()};
     el.innerHTML=h;
   };
   window.mhqShareBackup=async function(){
+    if(window.mhqLoadProtect&&window.mhqLoadProtect.active){mhqProtectWarn(true);return}
     try{
       save();const c={...COURSE};delete c.voice;
       const payload={...buildPersistedState(),backupType:"medical-hq-backup",exportedAt:new Date().toISOString(),course:c,motivation:mhqMotivationRaw()};
@@ -4463,11 +4568,12 @@ window.mhqMotivationRender=()=>{reconcileWallet();render()};
     d.addEventListener("click",e=>{
       const b=e.target.closest("[data-act]");if(!b)return;
       if(b.dataset.act==="cancel")mhqOpenCourses();
-      else if(b.dataset.act==="backup"){download(`medical-hq-${(x.short||"course").toLowerCase().replace(/[^a-z0-9]+/g,"-")}-backup.json`,JSON.stringify(dump([id]),null,2));say("💾 Backup downloaded")}
+      else if(b.dataset.act==="backup"){if(window.mhqLoadProtect&&window.mhqLoadProtect.active){mhqProtectWarn(true);return}download(`medical-hq-${(x.short||"course").toLowerCase().replace(/[^a-z0-9]+/g,"-")}-backup.json`,JSON.stringify(dump([id]),null,2));say("💾 Backup downloaded")}
       else if(b.dataset.act==="del")doDelete(id);
     });
   }
-  function doDelete(id){
+  function doDelete(id,gated){
+    if(!gated&&id===S.active&&window.mhqLoadProtect&&window.mhqLoadProtect.active){mhqReplaceGate("delete").then(ok=>{if(ok)doDelete(id,true)});return}
     const reg=S.registry();
     S.keysOf(id).forEach(k=>S.raw.remove(k));
     reg.list=reg.list.filter(x=>x!==id);
@@ -4481,6 +4587,7 @@ window.mhqMotivationRender=()=>{reconcileWallet();render()};
   }
   function download(name,text){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:"application/json"}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
   window.mhqBackupAll=async function(){
+    if(window.mhqLoadProtect&&window.mhqLoadProtect.active){mhqProtectWarn(true);return}   /* no save(), export, share, download or "backed up" mark while saved data is unreadable */
     try{save()}catch(e){}
     const text=JSON.stringify(dump(S.registry().list),null,2),name=`medical-hq-all-courses-${(typeof localDateKey==="function"?localDateKey():new Date().toISOString().slice(0,10))}.json`;
     try{
@@ -4498,17 +4605,22 @@ window.mhqMotivationRender=()=>{reconcileWallet();render()};
   window.mhqRestoreAllObject=function(j){
     {
       if(!j||j.backupType!=="medical-hq-all"||!Array.isArray(j.courses)||!j.courses.length){say("That is not an all-courses backup.");return}
+      {const bad=mhqBackupStateProblem(j);if(bad){say(bad);return}}
       const names=j.courses.map(c=>{const o=parse(c.keys&&c.keys.mhqCourseV59);return o&&o.name?esc(o.name):"Untitled"});
       const d=open(`<div class="cs-confirm"><h2>Restore ${j.courses.length} course${j.courses.length===1?"":"s"}?</h2><p>${names.join(", ")}.<br>Courses with the same ID in this app are replaced by the backup. Other courses stay as they are.</p><div class="row"><button type="button" class="primary" data-act="go">Restore</button><button type="button" data-act="cancel">Cancel</button></div></div>`);
       d.addEventListener("click",e=>{
         const b=e.target.closest("[data-act]");if(!b)return;
         if(b.dataset.act==="cancel"){close();return}
+        const go=()=>{
         const reg=S.registry();
         j.courses.forEach(c=>{if(!c||!/^[a-z0-9_-]{1,30}$/i.test(c.id)||!c.keys)return;
           S.BASE.forEach(k=>{const kk=S.key(k,c.id);if(typeof c.keys[k]==="string")S.raw.set(kk,c.keys[k]);else S.raw.remove(kk)});
           if(reg.list.indexOf(c.id)<0)reg.list.push(c.id)});
         if(j.active&&reg.list.indexOf(j.active)>=0)reg.active=j.active;
+        mhqMarkRestore("restore");
         S.saveRegistry(reg);S.freeze();location.reload();
+        };
+        if(window.mhqLoadProtect&&window.mhqLoadProtect.active&&j.courses.some(c=>c&&c.id===S.active))mhqReplaceGate("restore").then(ok=>{if(ok)go()});else go();
       });
     }
   };
@@ -4542,10 +4654,14 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
  const load=()=>{try{return JSON.parse(S.raw.get(KEY))||{}}catch(e){return{}}};
  const store=o=>{try{S.raw.set(KEY,JSON.stringify(o))}catch(e){}};
  let busy=false,paused=false,timer=null,lastNudge=0,note="",conflict=null;
+ /* Load protection: while the saved data could not be loaded, no upload of any kind may happen (push, scheduled push, first-time gist creation). */
+ const blocked=()=>!!(window.mhqLoadProtect&&window.mhqLoadProtect.active);
+ const blockedMsg="Cloud backup is paused: your saved data couldn't be read this session, so nothing is uploaded.";
  const norm=s=>typeof s==="string"?s.replace(/"savedAt":"[^"]*",?/,""):s;
  function hash(snap){let h=2166136261>>>0;const feed=s=>{s=String(s);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0}};
   feed(snap.active);snap.courses.forEach(c=>{feed(c.id);Object.keys(c.keys).sort().forEach(k=>{feed(k);feed(norm(c.keys[k]))})});return h.toString(36)}
  function snapshot(){
+  if(blocked())throw Object.assign(new Error("cloud sync protected"),{status:0,protected:true});
   try{origSave&&origSave()}catch(e){}
   const reg=S.registry();
   return {backupType:"medical-hq-all",version:1,exportedAt:new Date().toISOString(),active:reg.active,
@@ -4570,6 +4686,7 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
  function nudgeBackupDone(){if(Date.now()-lastNudge>6e5){lastNudge=Date.now();try{markBackupDone()}catch(e){}}}
  async function push(force,overwrite){
   const st=load();if(!st.token||!st.gistId||paused||busy)return;
+  if(blocked()){note=blockedMsg;draw();return}
   if(navigator.onLine===false)return;
   const snap=snapshot(),h=hash(snap);
   if(!force&&h===st.lastHash)return;
@@ -4586,7 +4703,7 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
    store({...load(),error:e.status===401||e.status===403?"auth":e.status===404?"missing":"net"});
   }finally{busy=false;draw();drawNotice()}
  }
- function schedule(){clearTimeout(timer);timer=setTimeout(()=>push(false),25000)}
+ function schedule(){clearTimeout(timer);if(blocked())return;timer=setTimeout(()=>push(false),25000)}
  async function onConflict(rem){
   paused=true;conflict={updated:rem.updated_at,gist:rem};draw();drawNotice();
  }
@@ -4596,7 +4713,7 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
    const rem=await gh("/gists/"+st.gistId);
    if(st.pending){
     // A restore from the cloud was applied on this device just before the reload.
-    store({...st,pending:null,remoteUpdatedAt:st.pending.updated,lastHash:hash(snapshot()),lastPushAt:Date.now(),error:null});
+    store({...st,pending:null,remoteUpdatedAt:st.pending.updated,lastHash:blocked()?null:hash(snapshot()),lastPushAt:Date.now(),error:null});
     draw();return;
    }
    const st2=load();
@@ -4609,15 +4726,18 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
  async function restoreFrom(g){
   let j;try{j=JSON.parse(await gistContent(g))}catch(e){say("Could not read the cloud backup");return}
   if(!j||j.backupType!=="medical-hq-all"||!Array.isArray(j.courses)||!j.courses.length){say("The cloud backup is not in the expected format");return}
+  {const bad=typeof mhqBackupStateProblem==="function"?mhqBackupStateProblem(j):null;if(bad){say(bad);return}}
   const names=j.courses.map(c=>{try{const o=JSON.parse(c.keys.mhqCourseV59);return o&&o.name?o.name:"Untitled"}catch(e){return"Untitled"}}).join(", ");
   const ok=await (window.mhqConfirmDialog?mhqConfirmDialog({icon:"☁️",title:"Replace data on this device?",message:"Restores "+names+" from the cloud backup saved "+fmt(g.updated_at)+". The same courses on this device are replaced.",confirmText:"Restore"}):Promise.resolve(true));
   if(!ok)return;
+  if(window.mhqLoadProtect&&window.mhqLoadProtect.active&&j.courses.some(c=>c&&c.id===S.active)){if(!(await mhqReplaceGate("restore")))return}
   store({...load(),pending:{updated:g.updated_at}});
   const reg=S.registry();
   j.courses.forEach(c=>{if(!c||!/^[a-z0-9_-]{1,30}$/i.test(c.id)||!c.keys)return;
    S.BASE.forEach(k=>{const kk=S.key(k,c.id);if(typeof c.keys[k]==="string")S.raw.set(kk,c.keys[k]);else S.raw.remove(kk)});
    if(reg.list.indexOf(c.id)<0)reg.list.push(c.id)});
   if(j.active&&reg.list.indexOf(j.active)>=0)reg.active=j.active;
+  mhqMarkRestore("restore");
   S.saveRegistry(reg);S.freeze();location.reload();
  }
  async function connect(token){
@@ -4626,6 +4746,7 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
   try{
    const g=await findGist();
    if(g){conflict={updated:g.updated_at,gist:g,first:true};store({token,gistId:g.id,remoteUpdatedAt:null});paused=true;note="";draw();drawNotice();return}
+   if(blocked()){store({});note=blockedMsg;draw();drawNotice();return}
    const snap=snapshot();
    const out=await gh("/gists",{method:"POST",body:JSON.stringify({description:"Medical HQ backup (automatic)",public:false,files:{[FILE]:{content:JSON.stringify(snap)}}})});
    store({token,gistId:out.id,lastHash:hash(snap),lastPushAt:Date.now(),remoteUpdatedAt:out.updated_at});
@@ -4680,11 +4801,11 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
   const b=e.target.closest&&e.target.closest("[data-cloud]");if(!b)return;
   const a=b.dataset.cloud;
   if(a==="connect")connect(($("cloudToken")||{}).value);
-  else if(a==="now"){const st=load();if(conflict){say("Choose which copy to keep first");return}push(true).then(()=>say(load().error?"Backup failed — check connection":"☁️ Backed up"))}
+  else if(a==="now"){const st=load();if(blocked()){say("☁️ Cloud backup paused: saved data couldn't be read");return}if(conflict){say("Choose which copy to keep first");return}push(true).then(()=>say(load().error?"Backup failed — check connection":"☁️ Backed up"))}
   else if(a==="restore"){const st=load();if(!st.gistId)return;gh("/gists/"+st.gistId).then(restoreFrom).catch(()=>say("Could not reach the cloud backup"))}
   else if(a==="off")disconnect();
   else if(a==="usecloud"){const g=conflict&&conflict.gist;if(g)restoreFrom(g)}
-  else if(a==="usedevice"){if(load().gistId)keepThisDevice();else{const g=conflict&&conflict.gist;if(g)keepThisDevice()}}
+  else if(a==="usedevice"){if(blocked()){say("☁️ Cloud backup paused: saved data couldn't be read");return}if(load().gistId)keepThisDevice();else{const g=conflict&&conflict.gist;if(g)keepThisDevice()}}
  });
  if(typeof origSave==="function"){window.save=function(){const r=origSave.apply(this,arguments);if(load().token&&!paused)schedule();return r}}
  document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden"&&load().token&&!paused)push(false)});
