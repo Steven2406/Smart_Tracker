@@ -19,7 +19,7 @@
 /* Multi-course storage: every course keeps its own copy of the app's data. The first course uses the original keys, so existing progress is untouched. */
 (function(){
   var REG="mhqRegistryV60",BASE=["medicalHQ", "mhqCourseV59", "mhqLastLectureV58", "mhqMotivationV52", "mhqMotivationV51"];
-  var GLOBAL=/^(medicalHQThemeV57|mhqRegistryV60|mhqBackupMetaV60|mhqProtectSnoozeV60|mhqInstallDismissV60)$/;
+  var GLOBAL=/^(medicalHQThemeV57|mhqRegistryV60|mhqBackupMetaV60|mhqProtectSnoozeV60|mhqInstallDismissV60|mhqGlobalAccountV1|mhqGlobalLogV1)$/;
   var L=null;try{L=window.localStorage;L.getItem("x")}catch(e){L=null}
   if(!L){window.mhqStore={active:"default",blocked:true};return}
   var P=Storage.prototype,g=P.getItem,s=P.setItem,r=P.removeItem,frozen=false;
@@ -35,6 +35,410 @@
     saveRegistry:function(x){raw.set(REG,JSON.stringify(x))},
     freeze:function(){frozen=true},
     keysOf:function(id){return BASE.map(function(k){return key(k,id)})}};
+})();
+</script>
+<script id="mhq-global">
+/* Global account (v8.10.0, V6 Task 01).
+   ONE identity for every course/module: XP and level, wallet, owned and equipped rewards, achievements, streak.
+   Stored under its own key (mhqGlobalAccountV1) which the course shim does NOT namespace.
+   XP in this app is DERIVED from each course's own data (it is not a running counter), so the global XP is never "added to":
+   it is always  sum over courses of that course's XP (without achievements)  +  each achievement's XP counted once.
+   Every update ASSIGNS a course's contribution (never increments), so repeating a sync, a reload or the migration can never double-count.
+   Practical XP (pr.xp) is already inside each course's stored xp, so it is never added again.
+   Nothing here deletes or edits the old per-course keys. */
+(function(){
+  var S=window.mhqStore;
+  var KEY="mhqGlobalAccountV1",LOGKEY="mhqGlobalLogV1",SCHEMA=1,POLICY=1;
+  var G={KEY:KEY,LOGKEY:LOGKEY,SCHEMA:SCHEMA,ready:false,status:"init",acct:null,report:null,problems:[],booted:false,dirty:false};
+  window.mhqGlobal=G;
+  if(!S||S.blocked||!S.raw){G.status="no-storage";return}
+  var raw=S.raw;
+  var isRec=function(x){return !!x&&typeof x==="object"&&!Array.isArray(x)};
+  var num=function(x,d){var n=Number(x);return isFinite(n)?n:(d||0)};
+  var parse=function(t){try{return JSON.parse(t)}catch(e){return undefined}};
+  var clone=function(x){return JSON.parse(JSON.stringify(x))};
+  var protectedNow=function(){return !!(window.mhqLoadProtect&&window.mhqLoadProtect.active)};
+  var dayOk=function(s){return typeof s==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(s)};
+  var todayKey=function(){try{return typeof localDateKey==="function"?localDateKey():new Date().toISOString().slice(0,10)}catch(e){return new Date().toISOString().slice(0,10)}};
+  var ACHXP={},MODSET={};
+  /* Achievements are either LIFETIME (one global record, XP once) or MODULE-specific (one record per module, XP per module). */
+  G.setAchievementXp=function(map,moduleIds){ACHXP=isRec(map)?map:{};MODSET={};(Array.isArray(moduleIds)?moduleIds:[]).forEach(function(i){MODSET[i]=1})};
+  var isLife=function(id){return ACHXP[id]!==undefined&&!MODSET[id]};
+  G.isLifetime=isLife;
+  var achXp=function(id){return num(ACHXP[id],0)};
+  var strs=function(a){return Array.isArray(a)?a.filter(function(x){return typeof x==="string"}):[]};
+  var uniq=function(a){var o=[],seen={};a.forEach(function(x){if(!seen[x]){seen[x]=1;o.push(x)}});return o};
+
+  /* FNV-1a over every per-course key of the given courses: proves the migration did not touch any old data. */
+  function fingerprint(ids){
+    var h=2166136261>>>0,feed=function(s){s=String(s);for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0}};
+    ids.forEach(function(id){feed("#"+id);S.BASE.forEach(function(k){var v=raw.get(S.key(k,id));feed(k);feed(v===null?"\u0000null":v)})});
+    return h.toString(36);
+  }
+  G.fingerprint=fingerprint;
+
+  /* ---------- reading one course from storage (read-only) ---------- */
+  function readCourse(id){
+    var c={id:id,problems:[],warnings:[],state:null,course:null,mot:null};
+    var rs=raw.get(S.key("medicalHQ",id)),rm=raw.get(S.key("mhqMotivationV52",id)),rl=raw.get(S.key("mhqMotivationV51",id)),rc=raw.get(S.key("mhqCourseV59",id));
+    if(rs!==null){var s=parse(rs);if(!isRec(s))c.problems.push("its saved study data is unreadable");else c.state=s}
+    if(rm!==null){var m=parse(rm);if(!isRec(m))c.problems.push("its reward/practical data is unreadable");else c.mot=m}
+    else if(rl!==null&&c.state)c.problems.push("it only has an old V5.1 reward record");
+    if(rc!==null){var cc=parse(rc);if(isRec(cc))c.course=cc;else c.problems.push("its course definition is unreadable")}
+    if(c.state){
+      var s2=c.state;
+      if(!Array.isArray(s2.data))c.problems.push("its lecture list is missing");
+      if(s2.xp!==undefined&&(!isFinite(Number(s2.xp))||Number(s2.xp)<0))c.problems.push("its XP total is not a valid number");
+      ["xpLedger","activityLedger"].forEach(function(k){
+        if(s2[k]===undefined)return;
+        if(!Array.isArray(s2[k])||s2[k].some(function(x){return !isRec(x)}))c.problems.push("its "+(k==="xpLedger"?"XP":"activity")+" history is damaged")});
+      if(s2.achievementIds!==undefined&&!Array.isArray(s2.achievementIds))c.problems.push("its achievement list is damaged");
+    }
+    if(c.mot){
+      var w=c.mot;
+      ["rewardCreditsEarned","rewardCreditsSpent","bonusCredits"].forEach(function(k){if(w[k]!==undefined&&(!isFinite(Number(w[k]))||Number(w[k])<0))c.problems.push("its wallet value "+k+" is invalid")});
+      if(w.ownedItems!==undefined&&(!Array.isArray(w.ownedItems)||w.ownedItems.some(function(x){return typeof x!=="string"})))c.problems.push("its owned-items list is damaged");
+      if(w.equipped!==undefined&&!isRec(w.equipped))c.problems.push("its equipped items are damaged");
+    }
+    return c;
+  }
+  function contribOf(c){
+    var s=c.state,o={xp:0,xpNoAch:0,ach:[],lectures:0,steps:0,cleared:0,mcqs:0,focusMin:0,sessions:0,bosses:0};
+    if(!s)return o;
+    o.xp=s.xp===undefined?0:Number(s.xp);
+    var d=Array.isArray(s.data)?s.data:[];
+    o.lectures=d.length;
+    d.forEach(function(l){if(!l||!Array.isArray(l.steps))return;var n=l.steps.filter(Boolean).length;o.steps+=n;if(l.steps.length&&n===l.steps.length)o.cleared++;o.mcqs+=Array.isArray(l.mcqs)?l.mcqs.length:0});
+    var ss=Array.isArray(s.studySessions)?s.studySessions:[];o.sessions=ss.length;o.focusMin=ss.reduce(function(n,x){return n+(x&&Number(x.minutes)>0?Number(x.minutes):0)},0);
+    o.bosses=isRec(s.bossVictories)?Object.keys(s.bossVictories).length:0;
+    o.ach=uniq(strs(s.achievementIds));
+    o.xpNoAch=o.xp-o.ach.filter(isLife).reduce(function(n,id){return n+achXp(id)},0);   /* only LIFETIME achievement XP is lifted out (counted once globally) */
+    return o;
+  }
+  function round2(n){return Math.round(n*100)/100}
+  function formulaEarned(xp,v80){
+    if(isRec(v80)&&v80.applied===true){var cx=num(v80.cxp,250)||250;return num(v80.baseC,0)+Math.floor(Math.max(0,xp-num(v80.xpAt,0))/cx)}
+    return Math.floor(xp/250);
+  }
+
+  /* ---------- totals ---------- */
+  function totalXpOf(a){
+    var t=0;Object.keys(a.xp.contrib).forEach(function(id){t+=num(a.xp.contrib[id].xpNoAch,0)});
+    Object.keys(a.ach).forEach(function(id){if(isLife(id))t+=achXp(id)});
+    return round2(t);
+  }
+  G.totalXP=function(){return G.ready?totalXpOf(G.acct):null};
+
+  /* ---------- validation of an account object ---------- */
+  function validate(a){
+    if(!isRec(a))return "not an object";
+    if(a.v!==SCHEMA)return "unknown schema";
+    if(!isRec(a.xp)||!isRec(a.xp.contrib))return "missing XP section";
+    for(var id in a.xp.contrib){var c=a.xp.contrib[id];if(!isRec(c)||!isFinite(Number(c.xp))||!isFinite(Number(c.xpNoAch)))return "bad contribution for "+id}
+    if(!isRec(a.ach))return "missing achievements";
+    if(a.modAch!==undefined&&!isRec(a.modAch))return "bad module achievements";
+    if(!isRec(a.wallet)||!["earned","spent","bonus"].every(function(k){return isFinite(Number(a.wallet[k]))&&Number(a.wallet[k])>=0}))return "bad wallet";
+    if(!isRec(a.wallet.rates))return "missing rates";
+    if(!Array.isArray(a.owned)||!Array.isArray(a.redeemed))return "bad ownership";
+    if(!isRec(a.equipped))return "bad equipped";
+    if(!isRec(a.streak)||!isFinite(Number(a.streak.count)))return "bad streak";
+    if(!isRec(a.migration))return "missing migration record";
+    return null;
+  }
+  G.validate=validate;
+
+  /* record one module's achievements: lifetime ones once globally (earliest date), module ones under that module */
+  function recordAch(a,cid,ids,dates){
+    var changed=false;a.modAch=isRec(a.modAch)?a.modAch:{};
+    ids.forEach(function(aid){
+      var dt=dayOk(dates[aid])?dates[aid]:null;
+      if(isLife(aid)){
+        if(a.ach[aid]===undefined){a.ach[aid]=dt||todayKey();changed=true}else if(dt&&dt<a.ach[aid]){a.ach[aid]=dt;changed=true}
+      }else if(ACHXP[aid]!==undefined){
+        var m=a.modAch[cid]=isRec(a.modAch[cid])?a.modAch[cid]:{};
+        if(m[aid]===undefined){m[aid]=dt||todayKey();changed=true}else if(dt&&dt<m[aid]){m[aid]=dt;changed=true}
+      }
+    });
+    return changed;
+  }
+  /* ---------- the migration ---------- */
+  function pickSource(ids,courses){
+    for(var i=0;i<ids.length;i++){var cc=courses[ids[i]].course;if(cc&&(/\bGIT\b/i.test(String(cc.short||""))||/\bGIT\b/i.test(String(cc.name||""))))return ids[i]}
+    if(ids.indexOf("default")>=0)return "default";
+    return ids[0];
+  }
+  function build(ids){
+    var courses={},problems=[],warnings=[];
+    ids.forEach(function(id){courses[id]=readCourse(id)});
+    ids.forEach(function(id){courses[id].problems.forEach(function(p){problems.push("Course “"+id+"”: "+p)})});
+    if(problems.length)return {problems:problems};
+    var src=pickSource(ids,courses),a={v:SCHEMA,createdAt:new Date().toISOString(),updatedAt:null,
+      migration:{policy:POLICY,status:"done",at:new Date().toISOString(),sourceCourse:src,courses:ids.slice(),fingerprint:fingerprint(ids)},
+      xp:{contrib:{},total:0},ach:{},modAch:{},achV:2,streak:{count:0,last:null},
+      wallet:{earned:0,spent:0,bonus:0,rates:{scaled:false,xpl:100,cxp:250,baseC:0,xpAt:0,lec:0}},
+      owned:[],redeemed:[],equipped:{},lastSeenLevel:null};
+    var rep={policy:POLICY,sourceCourse:src,courses:[],duplicateAchievements:[],duplicatePurchases:[],warnings:warnings,before:{sumOfCourseXp:0},after:{}};
+    var achSeen={},ownSeen={},redKeys={},streakBest=null,earnedSum=0,spentSum=0,bonusSum=0;
+    ids.forEach(function(id){
+      var c=courses[id],o=contribOf(c),m=c.mot||{},st=c.state||{};
+      a.xp.contrib[id]={xp:round2(o.xp),xpNoAch:round2(o.xpNoAch),ach:o.ach,lectures:o.lectures,steps:o.steps,cleared:o.cleared,mcqs:o.mcqs,focusMin:o.focusMin,sessions:o.sessions,bosses:o.bosses,at:a.createdAt};
+      rep.before.sumOfCourseXp+=o.xp;
+      /* ledgers are audit trails of the same number: compare, never add */
+      if(Array.isArray(st.xpLedger)&&st.xpLedger.length){var ls=st.xpLedger.reduce(function(n,x){return n+num(x.amount,0)},0);if(Math.abs(ls-o.xp)>1)warnings.push("Course “"+id+"”: XP history adds up to "+round2(ls)+" but the stored balance is "+round2(o.xp)+" (the stored balance was used; the history is only an audit trail).")}
+      var d0=isRec(st.achievementDates)?st.achievementDates:{};
+      recordAch(a,id,o.ach,d0);
+      o.ach.filter(isLife).forEach(function(aid){(achSeen[aid]=achSeen[aid]||[]).push(id)});
+      var earned=Math.max(num(m.rewardCreditsEarned,0),formulaEarned(o.xp,m.v80));
+      earnedSum+=earned;spentSum+=num(m.rewardCreditsSpent,0);bonusSum+=Math.max(0,num(m.bonusCredits,0));
+      strs(m.ownedItems).forEach(function(it){(ownSeen[it]=ownSeen[it]||[]).push(id);if(a.owned.indexOf(it)<0)a.owned.push(it)});
+      (Array.isArray(m.redeemed)?m.redeemed:[]).forEach(function(r){if(!isRec(r))return;var k=JSON.stringify(r);if(!redKeys[k]){redKeys[k]=1;a.redeemed.push(r)}});
+      var last=dayOk(st.lastStudyDate)?st.lastStudyDate:null,cnt=Math.max(0,num(st.streak,0));
+      if(!streakBest||(last&&(!streakBest.last||last>streakBest.last))||(last===streakBest.last&&cnt>streakBest.count))streakBest={count:cnt,last:last,from:id};
+      rep.courses.push({id:id,name:c.course?c.course.name:null,xp:round2(o.xp),xpWithoutAchievements:round2(o.xpNoAch),achievements:o.ach.length,lectures:o.lectures,
+        legacyBonusXpInside:round2(num(st.legacyBonusXP,0)),practicalXpAlreadyInside:round2(num(m.pr&&m.pr.xp,0)),creditsEarned:earned,creditsSpent:num(m.rewardCreditsSpent,0),ownedItems:strs(m.ownedItems).length,streak:cnt,lastStudyDate:last});
+    });
+    Object.keys(achSeen).forEach(function(k){if(achSeen[k].length>1)rep.duplicateAchievements.push({id:k,xp:achXp(k),inCourses:achSeen[k]})});
+    Object.keys(ownSeen).forEach(function(k){if(ownSeen[k].length>1)rep.duplicatePurchases.push({item:k,inCourses:ownSeen[k]})});
+    if(rep.duplicatePurchases.length)warnings.push("Some reward items were bought in more than one course ("+rep.duplicatePurchases.map(function(x){return x.item}).join(", ")+"). You own each once; credits already spent were NOT refunded.");
+    a.streak={count:streakBest?streakBest.count:0,last:streakBest?streakBest.last:null};
+    a.migration.streakFrom=streakBest?streakBest.from:null;
+    var sm=courses[src].mot||{},sst=courses[src].state||{},v=isRec(sm.v80)?sm.v80:{},scaled=v.applied===true;
+    var xpl=num(v.xpl,100)>=20?num(v.xpl,100):100,cxp=scaled?(num(v.cxp,250)||250):250;
+    var srcXp=num(sst.xp,0),rem=scaled?Math.max(0,srcXp-num(v.xpAt,0))%cxp:srcXp%250;
+    a.equipped=isRec(sm.equipped)?clone(sm.equipped):{};
+    a.xp.total=totalXpOf(a);
+    a.wallet={earned:earnedSum,spent:spentSum,bonus:bonusSum,rates:{scaled:scaled,xpl:scaled?xpl:100,cxp:cxp,baseC:earnedSum,xpAt:round2(a.xp.total-rem),lec:scaled?num(v.lec,0):0}};
+    a.lastSeenLevel=Math.floor(a.xp.total/(scaled?xpl:100))+1;
+    rep.after={totalXp:a.xp.total,creditsEarned:earnedSum,creditsSpent:spentSum,bonus:bonusSum,balance:Math.max(0,earnedSum+bonusSum-spentSum),owned:a.owned.length,achievements:Object.keys(a.ach).length,moduleAchievements:Object.keys(a.modAch).reduce(function(n,k){return n+Object.keys(a.modAch[k]).length},0),streak:a.streak,level:a.lastSeenLevel};
+    return {acct:a,report:rep,problems:[],warnings:warnings};
+  }
+  function writeVerified(a,ids,fpBefore){
+    var text=JSON.stringify(a);
+    try{raw.set(KEY,text)}catch(e){return "could not write ("+(e&&e.message||e)+")"}
+    var back=raw.get(KEY);
+    if(back!==text){try{raw.remove(KEY)}catch(e){}return "read-back did not match what was written"}
+    var b=parse(back),why=validate(b);
+    if(why){raw.remove(KEY);return "verification failed ("+why+")"}
+    if(totalXpOf(b)!==a.xp.total){raw.remove(KEY);return "verification failed (XP total differs)"}
+    if(fingerprint(ids)!==fpBefore){/* old keys must be byte-identical: they are never written here, so this can only mean another tab changed them */
+      raw.remove(KEY);return "old data changed while migrating"}
+    return null;
+  }
+  function logProblem(kind,details){
+    G.problems=details.slice();
+    if(!protectedNow())try{raw.set(LOGKEY,JSON.stringify({at:new Date().toISOString(),kind:kind,details:details}))}catch(e){}
+    try{console.error("[Medical HQ] Global account: "+kind,details)}catch(e){}
+  }
+  G.migrate=function(){
+    if(protectedNow()){G.status="protected";return G.status}
+    if(raw.get(KEY)!==null){G.status="exists";return G.status}   /* never overwrite an existing global record */
+    var ids=S.registry().list.slice(),r=build(ids);
+    if(r.problems.length){G.status="blocked";logProblem("migration blocked: original data left untouched",r.problems);return G.status}
+    var fpBefore=r.acct.migration.fingerprint,err=writeVerified(r.acct,ids,fpBefore);
+    if(err){G.status="failed";logProblem("migration failed: original data left untouched",[err]);return G.status}
+    try{raw.remove(LOGKEY)}catch(e){}
+    G.acct=r.acct;G.report=r.report;G.ready=true;G.status="migrated";
+    return G.status;
+  };
+
+  /* ---------- boot: open (or create) the account ---------- */
+  G.boot=function(){
+    if(G.booted)return G.status;G.booted=true;
+    var t=raw.get(KEY);
+    if(t!==null){
+      var a=parse(t),why=a===undefined?"not valid JSON":validate(a);
+      if(why){G.status="damaged";logProblem("global account is unreadable and was left untouched",[why]);return G.status}
+      G.acct=a;G.ready=true;G.status="ready";
+      if(a.achV!==2){   /* record from the first 8.10.0 build: module-specific ids must not be global; reconcile re-derives them from each module's own data */
+        Object.keys(a.ach).forEach(function(id){if(!isLife(id))delete a.ach[id]});
+        a.modAch=isRec(a.modAch)?a.modAch:{};a.achV=2;G.dirty=true
+      }
+      if(!protectedNow())G.reconcile();
+      return G.status;
+    }
+    return G.migrate();
+  };
+
+  /* reconcile: re-derive each course's contribution from its stored data (assignment, never addition). Handles restores, new and deleted courses. */
+  G.reconcile=function(){
+    if(!G.ready||protectedNow())return;
+    var a=G.acct,before=JSON.stringify(a),ids=S.registry().list.slice(),keep={};
+    ids.forEach(function(id){
+      var c=readCourse(id);
+      if(c.problems.length){if(a.xp.contrib[id])keep[id]=a.xp.contrib[id];return}   /* unreadable: keep what we had, never guess */
+      var o=contribOf(c),old=a.xp.contrib[id];
+      var n={xp:round2(o.xp),xpNoAch:round2(o.xpNoAch),ach:o.ach,lectures:o.lectures,steps:o.steps,cleared:o.cleared,mcqs:o.mcqs,focusMin:o.focusMin,sessions:o.sessions,bosses:o.bosses,at:old?old.at:new Date().toISOString()};
+      keep[id]=(old&&JSON.stringify(Object.assign({},old,{at:0}))===JSON.stringify(Object.assign({},n,{at:0})))?old:n;
+      var d0=c.state&&isRec(c.state.achievementDates)?c.state.achievementDates:{};
+      recordAch(a,id,o.ach,d0);
+      if(c.mot)strs(c.mot.ownedItems).forEach(function(it){if(a.owned.indexOf(it)<0)a.owned.push(it)});
+    });
+    a.xp.contrib=keep;
+    Object.keys(a.modAch||{}).forEach(function(k){if(ids.indexOf(k)<0)delete a.modAch[k]});   /* a deleted module's own achievements leave with it */
+    a.xp.total=totalXpOf(a);
+    if(JSON.stringify(a)!==before)G.dirty=true;
+    G.flush();
+  };
+
+  /* ---------- live updates from the open course ---------- */
+  G.live=function(id,o){
+    if(!G.ready||protectedNow()||!o)return;
+    var a=G.acct,ach=uniq(strs(o.ach)),nx=o.xp-ach.filter(isLife).reduce(function(n,x){return n+achXp(x)},0);
+    var n={xp:round2(o.xp),xpNoAch:round2(nx),ach:ach,lectures:o.lectures|0,steps:o.steps|0,cleared:o.cleared|0,mcqs:o.mcqs|0,focusMin:round2(o.focusMin),sessions:o.sessions|0,bosses:o.bosses|0,at:a.xp.contrib[id]?a.xp.contrib[id].at:new Date().toISOString()};
+    var old=a.xp.contrib[id];
+    if(!old||JSON.stringify(Object.assign({},old,{at:0}))!==JSON.stringify(Object.assign({},n,{at:0}))){a.xp.contrib[id]=n;G.dirty=true}
+    if(recordAch(a,id,ach,isRec(o.achDates)?o.achDates:{}))G.dirty=true;
+    var t=totalXpOf(a);if(t!==a.xp.total){a.xp.total=t;G.dirty=true}
+  };
+  G.hasAch=function(id){return !!(G.ready&&isLife(id)&&G.acct.ach[id]!==undefined)};   /* lifetime only */
+  G.modHas=function(cid,id){return !!(G.ready&&isRec(G.acct.modAch)&&isRec(G.acct.modAch[cid])&&G.acct.modAch[cid][id]!==undefined)};
+  /* every achievement earned, with stable ids: lifetime ones keep their id, module ones are <id>@<module> */
+  G.achievementList=function(){var o=[];if(!G.ready)return o;var a=G.acct;
+    Object.keys(a.ach).forEach(function(id){if(isLife(id))o.push({id:id,base:id,scope:"lifetime",module:null,date:a.ach[id],xp:achXp(id)})});
+    Object.keys(a.modAch||{}).forEach(function(cid){Object.keys(a.modAch[cid]).forEach(function(id){o.push({id:id+"@"+cid,base:id,scope:"module",module:cid,date:a.modAch[cid][id],xp:achXp(id)})})});return o};
+  /* totals of every module EXCEPT the open one (the open module is counted live by the caller) */
+  G.othersSum=function(cid){var o={mcqs:0,steps:0,sessions:0,focusMin:0};if(G.ready)Object.keys(G.acct.xp.contrib).forEach(function(i){if(i===cid)return;var c=G.acct.xp.contrib[i];o.mcqs+=num(c.mcqs,0);o.steps+=num(c.steps,0);o.sessions+=num(c.sessions,0);o.focusMin+=num(c.focusMin,0)});return o};
+  G.achDate=function(id){return G.ready?G.acct.ach[id]||null:null};
+  G.lectureTotal=function(){var t=0;if(G.ready)Object.keys(G.acct.xp.contrib).forEach(function(i){t+=num(G.acct.xp.contrib[i].lectures,0)});return t};
+  G.lifetime=function(){var o={xp:0,steps:0,cleared:0,mcqs:0,focusMin:0,sessions:0,bosses:0,lectures:0,achievements:0};if(!G.ready)return o;
+    Object.keys(G.acct.xp.contrib).forEach(function(i){var c=G.acct.xp.contrib[i];["steps","cleared","mcqs","focusMin","sessions","bosses","lectures"].forEach(function(k){o[k]+=num(c[k],0)})});
+    o.xp=totalXpOf(G.acct);o.achievements=Object.keys(G.acct.ach).length+Object.keys(G.acct.modAch||{}).reduce(function(n,k){return n+Object.keys(G.acct.modAch[k]).length},0);return o};
+  G.streak=function(){return G.ready?{count:Math.max(0,num(G.acct.streak.count,0)),last:dayOk(G.acct.streak.last)?G.acct.streak.last:null}:null};
+  G.setStreak=function(count,last){if(!G.ready||protectedNow())return;var s=G.acct.streak,c=Math.max(0,num(count,0)),l=dayOk(last)?last:null;if(s.count!==c||s.last!==l){s.count=c;s.last=l;G.dirty=true}};
+  G.lastSeenLevel=function(){return G.ready&&isFinite(Number(G.acct.lastSeenLevel))&&G.acct.lastSeenLevel!==null?Number(G.acct.lastSeenLevel):null};
+  G.setLevelSeen=function(n){if(!G.ready||protectedNow()||!isFinite(Number(n))||n===null)return;if(G.acct.lastSeenLevel!==Number(n)){G.acct.lastSeenLevel=Number(n);G.dirty=true}};
+  G.rates=function(){return G.ready?G.acct.wallet.rates:null};
+  G.setRates=function(v){if(!G.ready||protectedNow()||!isRec(v))return;var r=G.acct.wallet.rates,n={scaled:v.applied===true,xpl:num(v.xpl,100)>=20?num(v.xpl,100):100,cxp:num(v.cxp,250)||250,baseC:num(v.baseC,0),xpAt:num(v.xpAt,0),lec:num(v.lec,0)};
+    if(JSON.stringify(r)!==JSON.stringify(n)){G.acct.wallet.rates=n;G.dirty=true;G.flush()}};
+  G.xpPerLevel=function(){var r=G.rates();return r&&r.scaled&&r.xpl>=20?r.xpl:100};
+  G.earnedFor=function(gxp){var r=G.rates();if(!r)return 0;return r.scaled?r.baseC+Math.floor(Math.max(0,gxp-r.xpAt)/(r.cxp||250)):Math.floor(gxp/250)};
+
+  /* ---------- wallet, ownership and equipment: the course's reward record is overlaid by the global one ---------- */
+  /* The course's own reward record on disk is never rewritten with global values: it stays exactly as the course had it (rollback-safe). */
+  G._own=null;
+  G.moduleJson=function(M){
+    if(!G.ready||!G._own)return JSON.stringify(M);
+    var o=Object.assign({},M);Object.keys(G._own).forEach(function(k){if(G._own[k]===undefined)delete o[k];else o[k]=G._own[k]});
+    return JSON.stringify(o);
+  };
+  G.applyWallet=function(M){
+    if(!G.ready||!isRec(M))return;
+    var a=G.acct;
+    G._own=clone({rewardCreditsEarned:M.rewardCreditsEarned,rewardCreditsSpent:M.rewardCreditsSpent,bonusCredits:M.bonusCredits,ownedItems:M.ownedItems,redeemed:M.redeemed,equipped:M.equipped});
+    M.rewardCreditsEarned=a.wallet.earned;M.rewardCreditsSpent=a.wallet.spent;M.bonusCredits=a.wallet.bonus;
+    M.ownedItems=a.owned.slice();M.redeemed=a.redeemed.slice();
+    M.equipped=Object.assign({skin:"clinical",frame:null,emblem:null,banner:null,vmap:{},fx:"full",intensity:"standard"},clone(a.equipped));
+  };
+  G.captureWallet=function(M){
+    if(!G.ready||protectedNow()||!isRec(M))return;
+    var a=G.acct,w=a.wallet,before=JSON.stringify([w.earned,w.spent,w.bonus,a.owned,a.redeemed,a.equipped]);
+    w.earned=Math.max(w.earned,num(M.rewardCreditsEarned,0));
+    w.spent=Math.max(w.spent,num(M.rewardCreditsSpent,0));
+    w.bonus=Math.max(w.bonus,Math.max(0,num(M.bonusCredits,0)));
+    strs(M.ownedItems).forEach(function(it){if(a.owned.indexOf(it)<0)a.owned.push(it)});
+    var keys={};a.redeemed.forEach(function(r){keys[JSON.stringify(r)]=1});
+    (Array.isArray(M.redeemed)?M.redeemed:[]).forEach(function(r){if(!isRec(r))return;var k=JSON.stringify(r);if(!keys[k]){keys[k]=1;a.redeemed.push(r)}});
+    if(isRec(M.equipped))a.equipped=clone(M.equipped);
+    if(JSON.stringify([w.earned,w.spent,w.bonus,a.owned,a.redeemed,a.equipped])!==before){G.dirty=true;G.flush()}
+  };
+  G.wallet=function(){if(!G.ready)return null;var w=G.acct.wallet;return {earned:w.earned+w.bonus,spent:w.spent,balance:Math.max(0,w.earned+w.bonus-w.spent),owned:G.acct.owned.slice()}};
+
+  /* ---------- saving ---------- */
+  G.flush=function(){
+    if(!G.ready||!G.dirty)return true;
+    if(protectedNow())return false;   /* recovery protection: the global account is never written while a course's data is unreadable (changes stay pending in memory only) */
+    var a=G.acct;a.updatedAt=new Date().toISOString();
+    try{raw.set(KEY,JSON.stringify(a));G.dirty=false;return true}catch(e){try{window.mhqStorageFail&&window.mhqStorageFail(e)}catch(x){}return false}
+  };
+
+  /* ---------- backups ---------- */
+  G.backupRaw=function(){if(!G.ready)return null;G.flush();return raw.get(KEY)};
+  G.backupProblem=function(t){   /* null = fine (or absent); otherwise a short reason */
+    if(t===undefined||t===null)return null;
+    if(typeof t!=="string")return "its global account is not text";
+    var a=parse(t),why=a===undefined?"it is not valid JSON":validate(a);return why?("its global account is damaged ("+why+")"):null;
+  };
+  /* Merge a backup's global account into this device. Never loses anything: credits take the larger value, items/achievements are unioned. */
+  G.mergeBackup=function(t){
+    try{
+      if(typeof t!=="string"||G.backupProblem(t))return "ignored";
+      var b=parse(t),cur=raw.get(KEY);
+      /* mergeBackup is only called by the explicit, confirmed restore flows (which are the sanctioned way to replace data, also while protected) */
+      if(cur===null){raw.set(KEY,t);return raw.get(KEY)===t?"installed":"failed"}
+      var a=parse(cur);if(!a||validate(a))return "device-account-unreadable";   /* never overwrite a damaged record */
+      var w=a.wallet,bw=b.wallet;
+      w.earned=Math.max(w.earned,bw.earned);w.spent=Math.max(w.spent,bw.spent);w.bonus=Math.max(w.bonus,bw.bonus);
+      b.owned.forEach(function(it){if(typeof it==="string"&&a.owned.indexOf(it)<0)a.owned.push(it)});
+      var keys={};a.redeemed.forEach(function(r){keys[JSON.stringify(r)]=1});b.redeemed.forEach(function(r){if(!isRec(r))return;var k=JSON.stringify(r);if(!keys[k]){keys[k]=1;a.redeemed.push(r)}});
+      Object.keys(b.ach).forEach(function(id){if(!isLife(id))return;if(a.ach[id]===undefined||(dayOk(b.ach[id])&&b.ach[id]<a.ach[id]))a.ach[id]=b.ach[id]});
+      if(isRec(b.modAch)){a.modAch=isRec(a.modAch)?a.modAch:{};Object.keys(b.modAch).forEach(function(cid){if(!isRec(b.modAch[cid]))return;var m=a.modAch[cid]=isRec(a.modAch[cid])?a.modAch[cid]:{};Object.keys(b.modAch[cid]).forEach(function(id){if(ACHXP[id]!==undefined&&!isLife(id)&&(m[id]===undefined||b.modAch[cid][id]<m[id]))m[id]=b.modAch[cid][id]})})}
+      var bl=dayOk(b.streak.last)?b.streak.last:null,al=dayOk(a.streak.last)?a.streak.last:null;
+      if(bl&&(!al||bl>al||(bl===al&&b.streak.count>a.streak.count)))a.streak={count:b.streak.count,last:bl};
+      a.updatedAt=new Date().toISOString();
+      raw.set(KEY,JSON.stringify(a));return "merged";
+    }catch(e){return "error"}
+  };
+
+  /* ---------- unified assessments (v8.10.0) ----------
+     Written exams (module state `exams`) and practical exams (reward/practical record `pr.exams`) keep their own structures and workflows.
+     This is a READ-ONLY view that puts them on one timeline with one set of fields, so nothing can get out of sync and nothing is migrated.
+     Assessment id = <module id>:<type>:<the exam's own id>, unique across modules. */
+  function parsePercent(t){
+    if(t===undefined||t===null)return null;var s=String(t).trim(),m;
+    if((m=s.match(/^(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)$/))&&Number(m[2])>0)return Math.round(Number(m[1])/Number(m[2])*1000)/10;
+    if((m=s.match(/^(\d+(?:\.\d+)?)\s*%$/)))return Number(m[1]);
+    if((m=s.match(/^(\d+(?:\.\d+)?)$/))&&Number(m[1])<=100)return Number(m[1]);
+    return null;
+  }
+  var dateRe=/^\d{4}-\d{2}-\d{2}$/;
+  var daysFrom=function(d){return Math.round((new Date(d+"T12:00:00")-new Date(todayKey()+"T12:00:00"))/86400000)};
+  var lecDone=function(l){return !!l&&Array.isArray(l.steps)&&l.steps.length>0&&l.steps.every(Boolean)};
+  var itemDone=function(it){if(it.t==="pages")return num(it.total,0)>0&&num(it.cur,0)>=num(it.total,0);if(it.t==="parts")return Array.isArray(it.parts)&&it.parts.length>0&&it.parts.every(function(x){return x&&x.d});return !!it.d};
+  var applies=function(it,id){return !it.ex||!it.ex.length||it.ex.indexOf(id)>=0};
+  function pct(d,t){return t?Math.round(d/t*100):0}
+  function assessmentsOf(c,order){
+    var out=[],cid=c.id,nm=c.course?(c.course.name||c.course.short||cid):cid,sh=c.course?(c.course.short||nm):cid;
+    var base=function(type,e,extra){
+      var dl=daysFrom(e.date),o={id:cid+":"+type+":"+e.id,type:type,module:cid,modules:[cid],moduleName:nm,moduleShort:sh,localId:String(e.id),name:String(e.name||"Exam"),date:e.date,daysLeft:dl,order:order};
+      for(var k in extra)o[k]=extra[k];return o};
+    if(c.state&&Array.isArray(c.state.exams))c.state.exams.forEach(function(e){
+      if(!isRec(e)||!dateRe.test(String(e.date||"")))return;
+      var ids=Array.isArray(e.lectureIds)?e.lectureIds:[],byId={};(Array.isArray(c.state.data)?c.state.data:[]).forEach(function(l){if(l)byId[l.id]=l});
+      var ls=ids.map(function(i){return byId[i]}).filter(Boolean),cl=ls.filter(lecDone).length;
+      var res=isRec(e.result)?{label:e.result.score!==undefined?String(e.result.score):null,percent:parsePercent(e.result.score),rating:null,note:String(e.result.note||""),at:e.result.at||null}:null;
+      var cancelled=e.status==="cancelled",dl=daysFrom(e.date);
+      var status=cancelled?"cancelled":(e.status==="completed"||res||dl<0)?"completed":"upcoming";
+      out.push(base("written",e,{status:status,prep:{kind:"lectures",done:cl,total:ls.length,pct:pct(cl,ls.length)},topics:{lectureIds:ls.map(function(l){return l.id})},result:res,feedback:res?res.note:"",needsResult:status==="completed"&&!res}));
+    });
+    var pr=c.mot&&isRec(c.mot.pr)?c.mot.pr:null;
+    if(pr&&Array.isArray(pr.exams))pr.exams.forEach(function(e){
+      if(!isRec(e)||!dateRe.test(String(e.date||"")))return;
+      var d=0,t=0,secs=[];(Array.isArray(pr.sections)?pr.sections:[]).forEach(function(sec){var n=0;(Array.isArray(sec.items)?sec.items:[]).forEach(function(it){if(!isRec(it)||!applies(it,e.id)||it.st==="skip")return;t++;n++;if(itemDone(it))d++});if(n)secs.push(String(sec.name||""))});
+      if(e.taken&&isRec(e.snap)){d=num(e.snap.d,0);t=num(e.snap.t,0)}
+      var db=isRec(e.db)?e.db:null,res=db&&(db.res||db.r||db.note)?{label:db.res?String(db.res):null,percent:parsePercent(db.res),rating:db.r||null,note:String(db.note||""),at:db.at||null}:null;
+      var cancelled=e.cancelled===true||e.status==="cancelled",dl=daysFrom(e.date);
+      var status=cancelled?"cancelled":(e.taken||dl<0)?"completed":"upcoming";
+      out.push(base("practical",e,{status:status,prep:{kind:"items",done:d,total:t,pct:pct(d,t)},topics:{sections:secs,items:t},result:res,feedback:res?res.note:"",needsResult:status==="completed"&&!res}));
+    });
+    return out;
+  }
+  var TYPES=["written","practical"];
+  window.mhqAssess={
+    TYPES:TYPES,parsePercent:parsePercent,
+    problems:function(){var ids=S.registry().list,o=[];ids.forEach(function(id){var c=readCourse(id);if(c.problems.length)o.push({module:id,problems:c.problems})});return o},
+    list:function(){
+      var ids=S.registry().list.slice(),all=[];
+      ids.forEach(function(id,i){var c=readCourse(id);if(c.problems.length)return;all=all.concat(assessmentsOf(c,i))});
+      all.sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:(a.order-b.order)||(a.type<b.type?-1:a.type>b.type?1:0)||(a.name<b.name?-1:1)});
+      return all;
+    },
+    moduleStats:function(id){
+      var L=window.mhqAssess.list().filter(function(a){return a.module===id}),r=L.filter(function(a){return a.result&&a.result.percent!==null}).map(function(a){return a.result.percent});
+      return {module:id,total:L.length,upcoming:L.filter(function(a){return a.status==="upcoming"}).length,completed:L.filter(function(a){return a.status==="completed"}).length,cancelled:L.filter(function(a){return a.status==="cancelled"}).length,
+        written:L.filter(function(a){return a.type==="written"}).length,practical:L.filter(function(a){return a.type==="practical"}).length,
+        resultsRecorded:L.filter(function(a){return !!a.result}).length,scored:r.length,avgPercent:r.length?Math.round(r.reduce(function(a,b){return a+b},0)/r.length*10)/10:null,bestPercent:r.length?Math.max.apply(null,r):null};
+    }
+  };
 })();
 </script>
 <script>(function(){var t=null;try{t=localStorage.getItem('medicalHQThemeV57')}catch(e){}if(!t)t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;var m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='dark'?'#0e1511':'#f4f5f1'})()</script>
@@ -1546,7 +1950,7 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.9.0</span></small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.10.0</span></small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -1840,6 +2244,7 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
     <div class="hero hero-slim"><div class="label">EXAMS</div><h1>📅 Exams & Countdown</h1><div class="sub" style="margin-top:6px">Add each exam date and choose the lectures it covers. Priorities and review dates adjust automatically as it gets closer.</div></div>
     <button type="button" class="primary" onclick="openExamEditor()" style="width:100%;min-height:48px">＋ ADD EXAM</button>
     <div id="examEditor" class="card exam-editor" style="display:none"></div>
+    <div id="academicTimeline"></div>
     <div id="examList"></div>
   </div>
 
@@ -2080,8 +2485,9 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
             if(j.backupType==="medical-hq-backup"){
               if(!j.course||!Array.isArray(j.course.lectures))throw new Error("This backup has no course in it. Import your course pack first, then import the backup from Data tools.");
               {const se=mhqStateShapeError(j);if(se)throw new Error("This backup's saved data is damaged ("+se+"). Nothing was changed.")}
-              const {course,motivation:bkMot,...state}=j;if(isNew){commitNew(course,state);return}
-              mhqReplaceGate("importNoConfirm").then(ok=>{if(!ok)return;try{localStorage.setItem(KEY,JSON.stringify(course));localStorage.setItem("medicalHQ",JSON.stringify(state));try{mhqRestoreMotivation(bkMot)}catch(e){}mhqMarkRestore("import");location.reload()}catch(err){msg(err.message||"Could not read that file.")}});return;
+              {const ge=window.mhqGlobal&&window.mhqGlobal.backupProblem?window.mhqGlobal.backupProblem(j.global):null;if(ge)throw new Error("This backup is damaged ("+ge+"). Nothing was changed.")}
+              const {course,motivation:bkMot,global:bkGlobal,...state}=j;if(isNew){try{window.mhqGlobal&&window.mhqGlobal.mergeBackup(bkGlobal)}catch(e){}commitNew(course,state);return}
+              mhqReplaceGate("importNoConfirm").then(ok=>{if(!ok)return;try{localStorage.setItem(KEY,JSON.stringify(course));localStorage.setItem("medicalHQ",JSON.stringify(state));try{mhqRestoreMotivation(bkMot)}catch(e){}try{window.mhqGlobal&&window.mhqGlobal.mergeBackup(bkGlobal)}catch(e){}mhqMarkRestore("import");location.reload()}catch(err){msg(err.message||"Could not read that file.")}});return;
             }
             if(!Array.isArray(j.lectures)||!j.lectures.length)throw new Error("This file has no lectures.");
             const lectures=j.lectures.map(l=>({title:clean(l.title,220),subject:clean(l.subject,40)||"General",territory:clean(l.territory,60)})).filter(l=>l.title).slice(0,1000);
@@ -2254,13 +2660,16 @@ function normalizeExam(e){
   const date=String(e.date||"");
   if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||isNaN(new Date(date+"T12:00:00")))return null;
   const ids=[...new Set((Array.isArray(e.lectureIds)?e.lectureIds:[]).map(Number).filter(n=>Number.isInteger(n)&&n>0))].sort((a,b)=>a-b);
-  return {id:String(e.id||("exam_"+Date.now()+"_"+Math.random().toString(36).slice(2,6))),name:String(e.name||"Exam").trim().slice(0,60)||"Exam",date,lectureIds:ids};
+  const rec={id:String(e.id||("exam_"+Date.now()+"_"+Math.random().toString(36).slice(2,6))),name:String(e.name||"Exam").trim().slice(0,60)||"Exam",date,lectureIds:ids};
+  if(e.status==="cancelled"||e.status==="completed")rec.status=e.status;
+  if(e.result&&typeof e.result==="object"&&!Array.isArray(e.result))rec.result={score:String(e.result.score==null?"":e.result.score).trim().slice(0,40),note:String(e.result.note==null?"":e.result.note).trim().slice(0,400),at:typeof e.result.at==="string"?e.result.at:null};
+  return rec;
 }
 function examDaysLeft(e){return Math.round((new Date(e.date+"T12:00:00")-new Date(todayKey+"T12:00:00"))/86400000);}
 function examDaysLabel(n){return n<0?"Passed":n===0?"Today":n===1?"Tomorrow":n+" days";}
 function fmtExamDate(d){return new Date(d+"T12:00:00").toLocaleDateString(undefined,{weekday:"short",year:"numeric",month:"short",day:"numeric"});}
 function examLectureIds(e){const valid=new Set(data.map(l=>l.id));return (e.lectureIds||[]).filter(id=>valid.has(id));}
-function upcomingExams(){return exams.filter(e=>examDaysLeft(e)>=0).sort((a,b)=>a.date.localeCompare(b.date)||a.name.localeCompare(b.name));}
+function upcomingExams(){return exams.filter(e=>examDaysLeft(e)>=0&&e.status!=="cancelled").sort((a,b)=>a.date.localeCompare(b.date)||a.name.localeCompare(b.name));}
 function nearestExamFor(lectureId){return upcomingExams().find(e=>examLectureIds(e).includes(lectureId))||null;}
 /* Lectures in a close exam rise in "Do this next" */
 function examPriorityBonus(lecture){
@@ -2674,6 +3083,31 @@ function calculateTodayXP(){
 function syncXP(){
   appXP=calculateBaseXP()+safeNumber(legacyBonusXP,0);
   todayXp=calculateTodayXP();
+  try{mhqGlobalLive()}catch(e){}
+}
+/* ===== Global account hooks (v8.10.0): XP/level, streak, wallet and achievements are shared by every course. XP of THIS course (appXP) stays the course's own statistic. ===== */
+function mhqGXP(){const G=window.mhqGlobal;if(G&&G.ready){const t=G.totalXP();if(t!==null)return t}return appXP}
+function mhqLecTot(){const G=window.mhqGlobal;if(G&&G.ready){const t=G.lectureTotal();if(t>0)return t}return data.length}
+function mhqAchOn(id){return achievementIds.includes(id)||!!(window.mhqGlobal&&window.mhqGlobal.hasAch(id))}
+function mhqGlobalLive(){
+  const G=window.mhqGlobal;if(!G||!G.ready||(window.mhqLoadProtect&&window.mhqLoadProtect.active)||!Array.isArray(data))return;
+  let steps=0,cleared=0,mcqs=0;data.forEach(l=>{const n=l.steps.filter(Boolean).length;steps+=n;if(l.steps.length&&n===l.steps.length)cleared++;mcqs+=l.mcqs.length});
+  G.live(window.mhqStore.active,{xp:appXP,ach:achievementIds,achDates:achievementDates,lectures:data.length,steps,cleared,mcqs,
+    focusMin:studySessions.reduce((n,x)=>n+(Number(x.minutes)>0?Number(x.minutes):0),0),sessions:studySessions.length,bosses:Object.keys(bossVictories).length});
+}
+function mhqGlobalSync(){
+  const G=window.mhqGlobal;if(!G||!G.ready||(window.mhqLoadProtect&&window.mhqLoadProtect.active))return;
+  G.setStreak(appStreak,lastStudyDate);G.setLevelSeen(rpgLastSeenLevel);G.flush();
+}
+function mhqGlobalBoot(){
+  const G=window.mhqGlobal;if(!G||typeof G.boot!=="function")return;
+  try{G.setAchievementXp(Object.fromEntries(achievementDefinitions().map(a=>[a.id,a.xp])),MHQ_MODULE_ACH)}catch(e){}
+  G.boot();
+  if(!G.ready)return;
+  if(window.mhqLoadProtect&&window.mhqLoadProtect.active)return;     /* unreadable course data: touch nothing, take nothing from the fallback state */
+  const st=G.streak();if(st){appStreak=st.count;lastStudyDate=st.last}
+  const ls=G.lastSeenLevel();if(ls!==null)rpgLastSeenLevel=ls;
+  syncXP();save();
 }
 /* ===== Load protection (Task 01 / F1) =====
    If saved data exists but cannot be loaded, the exact original string is kept under "medicalHQ_recovery_v1" and, for the rest of this
@@ -2747,6 +3181,7 @@ function mhqBackupStateProblem(j){   /* returns a message, or null only when eve
   try{
     const isRec=x=>!!x&&typeof x==="object"&&!Array.isArray(x),has=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
     if(!isRec(j)||!Array.isArray(j.courses))return "This backup is damaged (its course list is malformed). Nothing was changed.";
+    if(has(j,"global")&&window.mhqGlobal&&window.mhqGlobal.backupProblem){const gp=window.mhqGlobal.backupProblem(j.global);if(gp)return "This backup is damaged ("+gp+"). Nothing was changed."}
     const base=window.mhqStore&&Array.isArray(window.mhqStore.BASE)?window.mhqStore.BASE:["medicalHQ","mhqCourseV59","mhqLastLectureV58","mhqMotivationV52","mhqMotivationV51"];
     for(const c of j.courses){
       if(!isRec(c)||typeof c.id!=="string"||!/^[a-z0-9_-]{1,30}$/i.test(c.id)||!isRec(c.keys))return "This backup is damaged (a course entry is malformed). Nothing was changed.";
@@ -2836,6 +3271,7 @@ function save(){
   reconcileXpLedger();
   if(MHQ_LOAD_PROTECT.active){mhqProtectWarn();return}
   try{localStorage.setItem("medicalHQ",JSON.stringify(buildPersistedState()))}catch(e){try{window.mhqStorageFail(e)}catch(x){}}
+  try{mhqGlobalSync()}catch(e){}
 }
 
 function auditFoundation(){
@@ -2858,7 +3294,7 @@ function exportBackup(){
   if(MHQ_LOAD_PROTECT.active){mhqProtectWarn(true);return}
   save();
   const courseCopy={...COURSE};delete courseCopy.voice;
-  const payload={...buildPersistedState(),backupType:"medical-hq-backup",exportedAt:new Date().toISOString(),course:courseCopy,motivation:mhqMotivationRaw()};
+  const payload={...buildPersistedState(),backupType:"medical-hq-backup",exportedAt:new Date().toISOString(),course:courseCopy,motivation:mhqMotivationRaw(),global:(window.mhqGlobal&&window.mhqGlobal.backupRaw?window.mhqGlobal.backupRaw():null)};
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
   const url=URL.createObjectURL(blob); const a=document.createElement("a");
   a.href=url;a.download=`medical-hq-backup-${localDateKey()}.json`;a.click();
@@ -2877,10 +3313,12 @@ function importBackupFile(input){
       const approved=await window.mhqConfirmDialog({title:"Replace current progress?",message:"This backup will replace the study data currently saved in this browser. Export a backup first if you want to keep it.",confirmText:"Import backup",icon:"📦",danger:true});
       if(!approved)return;
       if(!(await mhqReplaceGate("import")))return;
-      const {course:bkCourse,motivation:bkMot,...state}=payload;
+      {const ge=window.mhqGlobal&&window.mhqGlobal.backupProblem?window.mhqGlobal.backupProblem(payload.global):null;if(ge)throw new Error("This backup is damaged ("+ge+"). Nothing was changed.")}
+      const {course:bkCourse,motivation:bkMot,global:bkGlobal,...state}=payload;
       if(bkCourse&&Array.isArray(bkCourse.lectures)&&bkCourse.lectures.length){const prev=readCourse(),c={...bkCourse};if(prev&&prev.voice&&!c.voice)c.voice=prev.voice;localStorage.setItem(COURSE_KEY,JSON.stringify(c))}
       localStorage.setItem("medicalHQ",JSON.stringify(state));
       mhqRestoreMotivation(bkMot);
+      try{window.mhqGlobal&&window.mhqGlobal.mergeBackup(bkGlobal)}catch(e){}
       mhqMarkRestore("import");
       location.reload();
     }catch(e){toast(`❌ ${e.message||'Invalid Medical HQ backup'}`);}
@@ -2900,13 +3338,13 @@ function render(){
  document.getElementById("total").textContent=data.length;
  const done=data.filter(x=>x.steps.every(Boolean)).length, pct=Math.round(done/data.length*100);
  document.getElementById("done").textContent=done;document.getElementById("progressText").textContent=pct+"%";document.getElementById("progressFill").style.width=pct+"%";
- document.getElementById("xp").textContent=appXP;document.getElementById("streak").textContent=appStreak;
- const lvl=Math.floor(appXP/mhqXpPerLevel())+1;
+ document.getElementById("xp").textContent=mhqGXP();document.getElementById("streak").textContent=appStreak;
+ const lvl=Math.floor(mhqGXP()/mhqXpPerLevel())+1;
  const ranks=["Medical Student","Clinical Learner","Clinician in Training","Ward Warrior","Future Physician","Consultant Mode"];
  const rank=ranks[Math.min(ranks.length-1,Math.floor((lvl-1)/3))];
  document.getElementById("level").textContent=lvl;document.getElementById("rank").textContent=rank;
  {const setHome=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v}; setHome("todayXp",todayXp);setHome("momentum",todaySteps);}
- const next=lvl*mhqXpPerLevel(), remain=Math.max(0,next-appXP);
+ const next=lvl*mhqXpPerLevel(), remain=Math.max(0,next-mhqGXP());
  document.getElementById("milestone").textContent="Level "+(lvl+1);document.getElementById("milestoneSub").textContent=remain+" XP remaining";
  const missionTarget=3, missionPct=Math.min(100,Math.round(todaySteps/missionTarget*100));
  document.getElementById("missionFill").style.width=missionPct+"%";
@@ -2971,11 +3409,11 @@ function renderResumeCard(){
 }
 
 function mhqNumsInit(){if(window.__mhqNI)return;window.__mhqNI=1;try{var m=JSON.parse(localStorage.getItem('mhqMotivationV52')||'null'),v=m&&m.v80;if(v&&v.applied){window.__mhqXPL=v.xpl;window.__mhqCXP=v.cxp;window.__mhqBase=v.baseC;window.__mhqXpAt=v.xpAt}}catch(e){}}
-function mhqXpPerLevel(){mhqNumsInit();var v=window.__mhqXPL;return v>=20?v:100}
+function mhqXpPerLevel(){if(window.mhqGlobal&&window.mhqGlobal.ready)return window.mhqGlobal.xpPerLevel();mhqNumsInit();var v=window.__mhqXPL;return v>=20?v:100}
 function rpgInfo(){
-  const level=Math.floor(appXP/mhqXpPerLevel())+1;
+  const level=Math.floor(mhqGXP()/mhqXpPerLevel())+1;
   const levelStart=(level-1)*mhqXpPerLevel(), levelEnd=level*mhqXpPerLevel();
-  const within=Math.max(0,appXP-levelStart), needed=mhqXpPerLevel(), pct=Math.min(100,Math.round(within/needed*100));
+  const within=Math.max(0,mhqGXP()-levelStart), needed=mhqXpPerLevel(), pct=Math.min(100,Math.round(within/needed*100));
   const ranks=[
     {name:'Medical Student',icon:'🩺',min:1,max:2,desc:'Building your foundation and study discipline.'},
     {name:'Clinical Learner',icon:'📚',min:3,max:5,desc:'Connecting core knowledge and active recall.'},
@@ -2999,9 +3437,9 @@ function rpgStats(){
 function renderRpg(){
   const info=rpgInfo(), st=rpgStats();
   const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
-  set('homeRpgLevel',info.level);set('homeRpgRank',info.rank.name);set('homeRpgXpLabel',`${info.within} / ${mhqXpPerLevel()} XP`);set('homeRpgNext',`${info.levelEnd-appXP} XP to next level`);
+  set('homeRpgLevel',info.level);set('homeRpgRank',info.rank.name);set('homeRpgXpLabel',`${info.within} / ${mhqXpPerLevel()} XP`);set('homeRpgNext',`${info.levelEnd-mhqGXP()} XP to next level`);
   const hf=document.getElementById('homeRpgXpFill');if(hf)hf.style.width=info.pct+'%';
-  set('rpgLevelBig',info.level);set('rpgRankBig',info.rank.name);set('rpgRankSub',info.rank.desc);set('rpgXpLabel',`${info.within} / ${mhqXpPerLevel()} XP`);set('rpgNextLabel',`${info.levelEnd-appXP} XP to next level`);
+  set('rpgLevelBig',info.level);set('rpgRankBig',info.rank.name);set('rpgRankSub',info.rank.desc);set('rpgXpLabel',`${info.within} / ${mhqXpPerLevel()} XP`);set('rpgNextLabel',`${info.levelEnd-mhqGXP()} XP to next level`);
   const rf=document.getElementById('rpgXpFill');if(rf)rf.style.width=info.pct+'%';
   const stats=[['📚','Study Power',st.steps,'completed study steps'],['🎯','Recall',st.accuracy+'%',st.mcqs?`${st.mcqs} tested question sets`:'Log your first MCQ'],['⏱️','Focus',st.focus+' min','completed focus time'],['🔥','Consistency',appStreak+' days','current study streak'],['🐉','Bosses',st.bosses+'/'+bossDefinitions.length,'victories'],['🏆','Achievements',st.achievements,'unlocked']];
   const box=document.getElementById('rpgStats');if(box)box.innerHTML=stats.map(x=>`<div class="rpg-stat"><div class="label">${x[0]} ${x[1]}</div><div class="big">${x[2]}</div><div class="meta">${x[3]}</div></div>`).join('');
@@ -3238,10 +3676,15 @@ function renderWeaknessView(){
     return `<div class="weak-item"><div class="weak-main"><div class="weak-title">Lecture ${l.id}: ${l.title}</div><div class="meta">${l.subject} · Priority ${s.priority} · <span class="${s.className}">${s.label}</span></div><div class="weak-bar"><div class="weak-fill" style="width:${p.mastery}%"></div></div><div class="weak-reason">${s.reason}${stats.attempts?` · ${stats.attempts} attempt${stats.attempts===1?"":"s"}`:""} · Importance ${l.importance||'B'}</div></div><div><div class="weak-score">${p.mastery}%</div><button onclick="openLecture(${l.id})" style="margin-top:7px">REVIEW</button></div></div>`;
   }).join(""):'<div class="empty">No priority topics right now. Keep testing yourself — your next weak point will surface automatically.</div>';
 }
+const MHQ_MODULE_ACH=['halfway','campaign-complete','boss-slayer','boss-hunter','git-final-boss'];
+function mhqAchScope(list){return list.map(a=>Object.assign(a,{scope:MHQ_MODULE_ACH.includes(a.id)?'module':'lifetime'}))}
 function achievementDefinitions(){
   const stepCount=data.reduce((n,x)=>n+x.steps.filter(Boolean).length,0);
   const mcqCount=data.reduce((n,x)=>n+x.mcqs.length,0);
   const correctCount=data.reduce((n,x)=>n+x.mcqs.reduce((m,q)=>m+(parseMCQScore(q.score)?.got||0),0),0);
+  /* lifetime counts use every module (this one live + the others' saved totals) */
+  const oth=(window.mhqGlobal&&window.mhqGlobal.ready)?window.mhqGlobal.othersSum(window.mhqStore.active):{mcqs:0,steps:0,sessions:0};
+  const stepTotal=stepCount+oth.steps,mcqTotal=mcqCount+oth.mcqs,sessTotal=studySessions.length+oth.sessions;
   const lectureCleared=data.filter(x=>x.steps.every(Boolean)).length;
   const campaignPct=data.length?Math.round(lectureCleared/data.length*100):0;
   const perfect=data.some(x=>x.mcqs.some(m=>{const p=parseMCQScore(m.score);return p&&p.max>0&&p.got===p.max;}));
@@ -3250,30 +3693,30 @@ function achievementDefinitions(){
     if(parsed.length<2)return false;
     return parsed.some((p,i)=>i>0 && p.percent>parsed[i-1].percent);
   });
-  return [
+  return mhqAchScope([
     {id:'first-step',icon:'🌱',name:'First Step',desc:'Complete your first study step.',xp:10,done:stepCount>=1},
     {id:'first-lecture',icon:'🏅',name:'Lecture Cleared',desc:'Complete all 4 study steps of one lecture.',xp:20,done:lectureCleared>=1},
     {id:'first-mcq',icon:'🎯',name:'First Test',desc:'Log your first MCQ attempt.',xp:10,done:mcqCount>=1},
-    {id:'question-hunter',icon:'🎯',name:'Question Hunter',desc:'Log 100 MCQ attempts.',xp:40,done:mcqCount>=100},
+    {id:'question-hunter',icon:'🎯',name:'Question Hunter',desc:'Log 100 MCQ attempts.',xp:40,done:mcqTotal>=100},
     {id:'sharp-shooter',icon:'🏹',name:'Sharpshooter',desc:'Reach at least 80% average on a lecture with 2+ MCQ attempts.',xp:30,done:data.some(x=>{const a=lectureMCQStats(x);return a.attempts>=2&&a.average>=80;})},
     {id:'perfect-score',icon:'💯',name:'Perfect Score',desc:'Log an MCQ with a full score.',xp:15,done:perfect},
     {id:'comeback',icon:'🔄',name:'Comeback',desc:'Improve your score on a later MCQ attempt for the same lecture.',xp:20,done:hasImprovement},
-    {id:'century',icon:'⚡',name:'Century',desc:'Complete 100 study steps.',xp:35,done:stepCount>=100},
+    {id:'century',icon:'⚡',name:'Century',desc:'Complete 100 study steps.',xp:35,done:stepTotal>=100},
     {id:'focus-first',icon:'⏱️',name:'First Focus',desc:'Complete your first focused study session.',xp:15,done:studySessions.length>=1},
-    {id:'focus-five',icon:'🔥',name:'Focus Five',desc:'Complete 5 focused study sessions.',xp:25,done:studySessions.length>=5},
-    {id:'focus-veteran',icon:'🧠',name:'Focus Veteran',desc:'Complete 25 focused study sessions.',xp:50,done:studySessions.length>=25},
+    {id:'focus-five',icon:'🔥',name:'Focus Five',desc:'Complete 5 focused study sessions.',xp:25,done:sessTotal>=5},
+    {id:'focus-veteran',icon:'🧠',name:'Focus Veteran',desc:'Complete 25 focused study sessions.',xp:50,done:sessTotal>=25},
     {id:'streak-seven',icon:'🔥',name:'7-Day Streak',desc:'Reach a 7-day study streak.',xp:35,done:appStreak>=7},
     {id:'halfway',icon:'🗺️',name:'Halfway There',desc:'Clear 50% of the '+COURSE.short+' lectures.',xp:50,done:campaignPct>=50},
     {id:'campaign-complete',icon:'👑',name:COURSE.short+' Conquered',desc:'Complete every '+COURSE.short+' lecture.',xp:150,done:data.length>0&&lectureCleared===data.length},
     {id:'boss-slayer',icon:'🐉',name:'Boss Slayer',desc:'Defeat your first '+COURSE.short+' territory boss.',xp:50,done:Object.keys(bossVictories).length>=1},
     {id:'boss-hunter',icon:'⚔️',name:'Boss Hunter',desc:'Defeat 3 '+COURSE.short+' territory bosses.',xp:75,done:Object.keys(bossVictories).filter(k=>k!=='git-final').length>=3},
     {id:'git-final-boss',icon:'👑',name:COURSE.short+' Final Boss',desc:'Defeat the '+COURSE.short+' Final Boss.',xp:100,done:!!bossVictories['git-final']}
-  ];
+  ]);
 }
 function syncAchievements(){
   let changed=false;
   achievementDefinitions().forEach(a=>{
-    if(a.done&&!achievementIds.includes(a.id)){achievementIds.push(a.id);achievementDates[a.id]=todayKey;changed=true;}
+    if(a.done&&!achievementIds.includes(a.id)){const known=!!(window.mhqGlobal&&window.mhqGlobal.hasAch(a.id));achievementIds.push(a.id);achievementDates[a.id]=todayKey;if(!known)changed=true;}
   });
   return changed;
 }
@@ -3284,14 +3727,14 @@ function renderAchievements(){
   const defs=achievementDefinitions();
   const ag=document.getElementById('achievementGrid');
   if(!ag)return;
-  const unlocked=defs.filter(a=>achievementIds.includes(a.id));
+  const unlocked=defs.filter(a=>mhqAchOn(a.id));
   ag.innerHTML=defs.map(a=>{
-    const on=achievementIds.includes(a.id),pinned=on&&window.mhqGetPins&&mhqGetPins().includes(a.id);
+    const on=mhqAchOn(a.id),pinned=on&&window.mhqGetPins&&mhqGetPins().includes(a.id);
     return `<div class="card achievement ${on?'unlocked':'locked'}"><div class="check">${on?'✓':'🔒'}</div><div class="icon">${on?a.icon:'❓'}</div><div class="name">${on?a.name:'???'}</div><div class="desc">${on?a.desc:'Hidden until unlocked.'}</div><div class="reward">${on?'+'+a.xp+' XP':'Reward: '+a.xp+' XP'}</div>${on?`<button type="button" class="pin-btn${pinned?' on':''}" onclick="mhqTogglePin('${a.id}')">${pinned?'📌 Pinned':'📍 Pin to shelf'}</button>`:''}</div>`;
   }).join('');
   const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
   set('achievementCount',unlocked.length);
-  set('achievementXP','+'+achievementXP()+' XP earned');
+  set('achievementXP','+'+unlocked.reduce((n,a)=>n+a.xp,0)+' XP earned');
   const cleared=data.filter(x=>x.steps.every(Boolean)).length,pct=data.length?Math.round(cleared/data.length*100):0;
   set('campaignMilestoneLabel',pct+'%');
   const fill=document.getElementById('campaignMilestoneFill');if(fill)fill.style.width=pct+'%';
@@ -3642,7 +4085,7 @@ function lectureMCQStats(lecture){
 }
 function openLecture(id){
  current=data.find(x=>x.id===Number(id));if(!current)return;
- try{localStorage.setItem("mhqLastLectureV58",String(current.id))}catch(e){}
+ try{if(!(window.mhqLoadProtect&&window.mhqLoadProtect.active))localStorage.setItem("mhqLastLectureV58",String(current.id))}catch(e){}
  playSfx("ui_click",.42);
  const modal=document.getElementById("modal");
  modal.classList.add("open");
@@ -3878,8 +4321,8 @@ function saveExam(){
   if(!name){toast("Give the exam a name");return;}
   if(!/^\d{4}-\d{2}-\d{2}$/.test(examDraft.date||"")){toast("Pick the exam date");return;}
   if(!examDraft.ids.size){toast("Choose at least one lecture");return;}
-  const rec=normalizeExam({id:examDraft.id||undefined,name,date:examDraft.date,lectureIds:[...examDraft.ids]});
-  const i=examDraft.id?exams.findIndex(x=>x.id===examDraft.id):-1;
+  const i=examDraft.id?exams.findIndex(x=>x.id===examDraft.id):-1,prev=i>=0?exams[i]:null;
+  const rec=normalizeExam({id:examDraft.id||undefined,name,date:examDraft.date,lectureIds:[...examDraft.ids],status:prev&&prev.status,result:prev&&prev.result});
   if(i>=0)exams[i]=rec;else exams.push(rec);
   const moved=tightenReviewsForExams();
   closeExamEditor();save();render();
@@ -3898,7 +4341,67 @@ function examPaceHtml(s){
   const behind=s.pace<s.needed;
   return `<span class="exam-chip ${behind?"warn":"ok"}">${behind?"⚠ Behind pace":"✅ On pace"}</span> <span class="meta">${s.remaining} to clear · need ${s.needed}/day · you did ${s.pace}/day this week</span>`;
 }
+function mhqSwitchCourse(id){try{save()}catch(e){}const S=window.mhqStore,r=S.registry();if(r.list.indexOf(id)<0)return;r.active=id;S.saveRegistry(r);S.freeze();location.reload()}
+function renderAcademicTimeline(){
+  const el=document.getElementById("academicTimeline");if(!el)return;
+  const A=window.mhqAssess;if(!A){el.innerHTML="";return}
+  const act=window.mhqStore.active,all=A.list(),probs=A.problems();
+  const up=all.filter(a=>a.status==="upcoming"),rest=all.filter(a=>a.status!=="upcoming").sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:0);
+  const mods=[...new Set(all.map(a=>a.module))];
+  const btn=(label,act2,id,cls)=>`<button type="button"${cls?` class="${cls}"`:""} onclick="mhqExamAction('${escapeHtml(id)}','${act2}')">${label}</button>`;
+  const actions=a=>{
+    if(a.module!==act)return btn("Open "+escapeHtml(a.moduleShort),"switch",a.id);
+    const o=[];
+    if(a.status==="cancelled")o.push(btn("Restore","restore",a.id));
+    else{
+      if(a.status==="completed")o.push(a.type==="written"?btn(a.result?"Edit result":"Record result","result",a.id,"primary"):btn(a.result?"Edit debrief":"Add debrief","debrief",a.id,"primary"));
+      o.push(btn("Cancel exam","cancel",a.id));
+    }
+    return o.join("");
+  };
+  const prepHtml=a=>a.prep.total?`<div class="progress" style="margin-top:8px"><div class="fill" style="width:${a.prep.pct}%"></div></div><div class="meta" style="margin-top:4px">${a.prep.done}/${a.prep.total} ${a.prep.kind==="lectures"?"lectures cleared":"items done"} · ${a.prep.pct}%</div>`:`<div class="meta" style="margin-top:6px">${a.type==="written"?"No lectures linked yet":"No preparation items for this exam yet"}</div>`;
+  const resHtml=a=>a.result?`<div class="meta" style="margin-top:6px">Result: <b>${escapeHtml(a.result.label||"recorded")}</b>${a.result.percent!==null&&a.result.label&&!/%/.test(a.result.label)?` (${a.result.percent}%)`:""}${a.result.rating?` · felt ${a.result.rating}/5`:""}${a.result.note?` · ${escapeHtml(a.result.note)}`:""}</div>`:(a.needsResult?`<div class="meta" style="margin-top:6px">No result recorded yet</div>`:"");
+  const row=a=>`<div class="card" data-assess="${escapeHtml(a.id)}" style="margin-top:8px${a.status==="cancelled"?";opacity:.65":""}"><div class="exam-card-head"><div><div class="exam-name">${a.type==="practical"?"🧪":"✍️"} ${escapeHtml(a.name)}</div><div class="meta"><span class="exam-chip">${escapeHtml(a.moduleShort)}</span> ${a.type==="practical"?"Practical":"Written"}${a.status==="cancelled"?" · Cancelled":""}${a.status==="completed"?" · Completed":""}</div></div><div class="exam-days"><b>${a.status==="upcoming"?escapeHtml(examDaysLabel(a.daysLeft)):escapeHtml(fmtExamDate(a.date))}</b></div></div>${a.status==="cancelled"?"":prepHtml(a)}${resHtml(a)}<div class="exam-card-actions" style="margin-top:10px">${actions(a)}</div></div>`;
+  const groups=[];up.forEach(a=>{let g=groups[groups.length-1];if(!g||g.date!==a.date){g={date:a.date,items:[]};groups.push(g)}g.items.push(a)});
+  const nxt=up[0];
+  const stats=mods.map(m=>{const st=A.moduleStats(m),nm=(all.find(a=>a.module===m)||{}).moduleShort||m;return `<div class="meta">${escapeHtml(nm)}${m===act?" (open)":""}: ${st.upcoming} upcoming · ${st.completed} completed${st.cancelled?` · ${st.cancelled} cancelled`:""}${st.scored?` · average ${st.avgPercent}% over ${st.scored} result${st.scored===1?"":"s"}`:""}</div>`}).join("");
+  el.innerHTML=`<div class="section card" style="margin-top:14px"><div class="label">ACADEMIC TIMELINE · ALL MODULES</div><h2 style="margin:4px 0">${up.length?`${up.length} upcoming exam${up.length===1?"":"s"}`:"No upcoming exams"}</h2>`+
+    (nxt?`<div class="meta">Next: ${escapeHtml(nxt.name)} (${escapeHtml(nxt.moduleShort)}) · ${escapeHtml(examDaysLabel(nxt.daysLeft))} · ${up.filter(a=>a.type==="written").length} written, ${up.filter(a=>a.type==="practical").length} practical across ${[...new Set(up.map(a=>a.module))].length} module${[...new Set(up.map(a=>a.module))].length===1?"":"s"}</div>`:`<div class="meta">Add a written exam below, or a practical exam in the Practical tab. They all appear here.</div>`)+
+    (stats?`<div style="margin-top:8px">${stats}</div>`:"")+
+    (probs.length?`<div class="meta" style="margin-top:8px">⚠ Not shown (saved data unreadable): ${probs.map(p=>escapeHtml(p.module)).join(", ")}. Nothing was changed.</div>`:"")+
+    groups.map(g=>`<div class="label" style="margin:16px 0 4px">${escapeHtml(fmtExamDate(g.date))} · ${escapeHtml(examDaysLabel(examDaysLeft({date:g.date})))}</div>${g.items.map(row).join("")}`).join("")+
+    (rest.length?`<div class="label" style="margin:18px 0 4px">COMPLETED &amp; CANCELLED</div>${rest.map(row).join("")}`:"")+`</div>`;
+}
+function mhqExamAction(uid,action){
+  const parts=String(uid).split(":"),mod=parts[0],type=parts[1],lid=parts.slice(2).join(":");
+  if(action==="switch"){mhqSwitchCourse(mod);return}
+  if(mod!==window.mhqStore.active)return;
+  if(type==="written"){
+    const e=exams.find(x=>x.id===lid);if(!e)return;
+    if(action==="result"){mhqRecordExamResult(lid);return}
+    if(action==="cancel"){e.status="cancelled";tightenReviewsForExams();save();render();toast("Exam cancelled");return}
+    if(action==="restore"){if(e.result)e.status="completed";else delete e.status;save();render();toast("Exam restored");return}
+  }else if(type==="practical"&&window.mhqPracticalStore){
+    const p=window.mhqPracticalStore.get(),e=Array.isArray(p.exams)?p.exams.find(x=>x.id===lid):null;if(!e)return;
+    if(action==="debrief"&&window.mhqPr){window.mhqPr.debriefSheet(lid);return}
+    if(action==="cancel"||action==="restore"){if(action==="cancel")e.cancelled=true;else delete e.cancelled;window.mhqPracticalStore.set(p);try{window.mhqPr&&window.mhqPr.filter(null)}catch(x){}render();toast(action==="cancel"?"Exam cancelled":"Exam restored")}
+  }
+}
+function mhqRecordExamResult(id){
+  const e=exams.find(x=>x.id===id);if(!e)return;
+  document.getElementById("mhqResultSheet")?.remove();
+  const d=document.createElement("div");d.id="mhqResultSheet";d.className="ss-quiet";d.setAttribute("role","dialog");d.setAttribute("aria-label","Exam result");
+  d.innerHTML=`<div class="ss-qc" style="text-align:left"><div class="label">EXAM RESULT</div><h2 style="margin:4px 0">${escapeHtml(e.name)}</h2><label class="meta" for="mhqResScore">Score or grade (e.g. 78/100, 85%, B+)</label><input id="mhqResScore" maxlength="40" value="${escapeHtml(e.result?e.result.score:"")}" style="width:100%"><label class="meta" for="mhqResNote" style="display:block;margin-top:8px">Feedback (optional)</label><textarea id="mhqResNote" maxlength="400" rows="3" style="width:100%">${escapeHtml(e.result?e.result.note:"")}</textarea><div class="v78-yn" style="margin-top:14px"><button type="button" class="no" onclick="document.getElementById('mhqResultSheet').remove()">Cancel</button><button type="button" class="yes" onclick="mhqSaveExamResult('${escapeHtml(id)}')">Save</button></div></div>`;
+  document.body.appendChild(d);
+}
+function mhqSaveExamResult(id,score,note){
+  const e=exams.find(x=>x.id===id);if(!e)return;
+  const sc=String(score!==undefined?score:(document.getElementById("mhqResScore")||{}).value||"").trim().slice(0,40),nt=String(note!==undefined?note:(document.getElementById("mhqResNote")||{}).value||"").trim().slice(0,400);
+  if(!sc&&!nt){delete e.result;if(e.status==="completed")delete e.status}else{e.result={score:sc,note:nt,at:new Date().toISOString()};e.status="completed"}
+  document.getElementById("mhqResultSheet")?.remove();save();render();toast("📝 Result saved");
+}
 function renderExams(){
+  try{renderAcademicTimeline()}catch(e){try{console.error(e)}catch(x){}}
   const list=document.getElementById("examList");if(!list)return;
   const up=upcomingExams(),past=exams.filter(e=>examDaysLeft(e)<0).sort((a,b)=>b.date.localeCompare(a.date));
   const card=e=>{
@@ -4191,6 +4694,7 @@ function testSound(){
 }
 function toast(t){const el=document.getElementById("toast");el.textContent=t;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),1800)}
 load();
+mhqGlobalBoot();
 mhqRestoreVerdict();
 repairReviewSchedulesOnce();
 tightenReviewsForExams();
@@ -4211,16 +4715,17 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
  let rcRaw=null,rcVal=null;
  function readCore(){try{const r=localStorage.getItem('medicalHQ');if(rcVal&&r===rcRaw)return rcVal;const v=JSON.parse(r)||{};rcRaw=r;rcVal=v;return v}catch(e){return {}}}
  let M=JSON.parse(localStorage.getItem(KEY)||'null');
- if(!M){const legacy=JSON.parse(localStorage.getItem(LEGACY)||'null')||{};const earned=Math.floor(Number(readCore().xp||0)/250);M={dailyTarget:legacy.dailyTarget||3,weeklyTarget:legacy.weeklyTarget||15,campaignGoal:legacy.campaignGoal||'Clear '+COURSE.short+' campaign',redeemed:legacy.redeemed||[],rewardCreditsEarned:Math.max(earned,Number(legacy.rewardCreditsEarned||0)),rewardCreditsSpent:Number(legacy.rewardCreditsSpent||0),ownedItems:legacy.ownedItems||[],shopVersion:2};localStorage.setItem(KEY,JSON.stringify(M));}
+ if(!M){const legacy=JSON.parse(localStorage.getItem(LEGACY)||'null')||{};const earned=Math.floor(Number(readCore().xp||0)/250);M={dailyTarget:legacy.dailyTarget||3,weeklyTarget:legacy.weeklyTarget||15,campaignGoal:legacy.campaignGoal||'Clear '+COURSE.short+' campaign',redeemed:legacy.redeemed||[],rewardCreditsEarned:Math.max(earned,Number(legacy.rewardCreditsEarned||0)),rewardCreditsSpent:Number(legacy.rewardCreditsSpent||0),ownedItems:legacy.ownedItems||[],shopVersion:2};if(!(window.mhqLoadProtect&&window.mhqLoadProtect.active))localStorage.setItem(KEY,JSON.stringify(M));}
  M.rewardCreditsEarned=Number(M.rewardCreditsEarned||0);M.rewardCreditsSpent=Number(M.rewardCreditsSpent||0);M.ownedItems=Array.isArray(M.ownedItems)?M.ownedItems:[];
  M.equipped=Object.assign({skin:'clinical',frame:null,emblem:null,banner:null,vmap:{},fx:'full',intensity:'standard'},(M.equipped&&typeof M.equipped==='object')?M.equipped:{});
- function saveM(){try{localStorage.setItem(KEY,JSON.stringify(M))}catch(e){try{window.mhqStorageFail(e)}catch(x){}}}
+ try{if(window.mhqGlobal&&window.mhqGlobal.ready)window.mhqGlobal.applyWallet(M)}catch(e){}
+ function saveM(){if(window.mhqLoadProtect&&window.mhqLoadProtect.active){try{mhqProtectWarn()}catch(e){}return}try{if(window.mhqGlobal&&window.mhqGlobal.ready)window.mhqGlobal.captureWallet(M)}catch(e){}try{localStorage.setItem(KEY,(window.mhqGlobal&&window.mhqGlobal.ready)?window.mhqGlobal.moduleJson(M):JSON.stringify(M))}catch(e){try{window.mhqStorageFail(e)}catch(x){}}}
  function dayKey(d=new Date()){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
  function ledger(){const c=readCore();return Array.isArray(c.activityLedger)?c.activityLedger:[]}
  function studyActions(date=dayKey()){return ledger().filter(x=>x.dateKey===date&&['study-step','mcq','focus-session','boss-victory','clinical-case','external-test'].includes(x.type)).length}
  function weeklyActions(){const now=new Date();let n=0;for(let i=0;i<7;i++){const d=new Date(now);d.setDate(now.getDate()-i);n+=studyActions(dayKey(d));}return n}
- function xp(){return Number(readCore().xp||0)}
- function reconcileWallet(){mhqNumsInit();let shouldHave=Math.floor(xp()/250);if(window.__mhqCXP&&window.__mhqBase!=null){shouldHave=window.__mhqBase+Math.floor(Math.max(0,xp()-window.__mhqXpAt)/window.__mhqCXP)}if(shouldHave>M.rewardCreditsEarned){M.rewardCreditsEarned=shouldHave;saveM();}}
+ function xp(){if(window.mhqGlobal&&window.mhqGlobal.ready){const t=window.mhqGlobal.totalXP();if(t!==null)return t}return Number(readCore().xp||0)}
+ function reconcileWallet(){mhqNumsInit();let shouldHave=Math.floor(xp()/250);if(window.__mhqCXP&&window.__mhqBase!=null){shouldHave=window.__mhqBase+Math.floor(Math.max(0,xp()-window.__mhqXpAt)/window.__mhqCXP)}if(window.mhqGlobal&&window.mhqGlobal.ready)shouldHave=window.mhqGlobal.earnedFor(xp());if(shouldHave>M.rewardCreditsEarned){M.rewardCreditsEarned=shouldHave;saveM();}}
  function credits(){reconcileWallet();return Math.max(0,M.rewardCreditsEarned+Math.max(0,Number(M.bonusCredits)||0)-M.rewardCreditsSpent)}
  function pct(a,b){return b?Math.min(100,Math.round(a/b*100)):0}
  const rewards=[
@@ -4313,7 +4818,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
  window.mhqV82Store={get:function(){return(M.v82&&typeof M.v82==='object')?M.v82:{}},set:function(v){M.v82=v;saveM()}};
  window.mhqPracticalStore={get:function(){return(M.pr&&typeof M.pr==='object')?M.pr:{}},set:function(v){M.pr=v;saveM()}};
  window.mhqV80Store={get:function(){return(M.v80&&typeof M.v80==='object')?M.v80:{}},set:function(v){M.v80=v;saveM()},earned:function(){return M.rewardCreditsEarned},goals:{get:function(){return[M.dailyTarget,M.weeklyTarget]},set:function(d,w){M.dailyTarget=d;M.weeklyTarget=w;saveM()}}};
- try{var _v8=M.v80;if(_v8&&_v8.applied){window.__mhqXPL=_v8.xpl;window.__mhqCXP=_v8.cxp;window.__mhqBase=_v8.baseC;window.__mhqXpAt=_v8.xpAt}}catch(e){}
+ try{var _v8=M.v80;if(window.mhqGlobal&&window.mhqGlobal.ready)_v8=Object.assign({},window.mhqGlobal.rates(),{applied:window.mhqGlobal.rates().scaled});if(_v8&&_v8.applied){window.__mhqXPL=_v8.xpl;window.__mhqCXP=_v8.cxp;window.__mhqBase=_v8.baseC;window.__mhqXpAt=_v8.xpAt}}catch(e){}
  window.mhqV79Store={get:function(){return(M.v79&&typeof M.v79==='object')?M.v79:{}},set:function(v){M.v79=v;saveM()}};
  window.mhqV78Store={get:function(){return(M.v78&&typeof M.v78==='object')?M.v78:{}},set:function(v){M.v78=v;saveM()}};
  window.mhqSetFx=function(m){M.equipped.fx=['full','subtle','off'].includes(m)?m:'full';saveM();applyAppearance();render();playSfx('ui_click',.5)};
@@ -4483,7 +4988,7 @@ window.mhqMotivationRender=()=>{reconcileWallet();render()};
     if(window.mhqLoadProtect&&window.mhqLoadProtect.active){mhqProtectWarn(true);return}
     try{
       save();const c={...COURSE};delete c.voice;
-      const payload={...buildPersistedState(),backupType:"medical-hq-backup",exportedAt:new Date().toISOString(),course:c,motivation:mhqMotivationRaw()};
+      const payload={...buildPersistedState(),backupType:"medical-hq-backup",exportedAt:new Date().toISOString(),course:c,motivation:mhqMotivationRaw(),global:(window.mhqGlobal&&window.mhqGlobal.backupRaw?window.mhqGlobal.backupRaw():null)};
       const file=new File([JSON.stringify(payload,null,2)],`medical-hq-backup-${localDateKey()}.json`,{type:"application/json"});
       if(navigator.canShare&&navigator.canShare({files:[file]})){
         try{await navigator.share({files:[file],title:"Medical HQ backup"});markBackupDone();say("💾 Backup shared");return}
@@ -4582,7 +5087,7 @@ window.mhqMotivationRender=()=>{reconcileWallet();render()};
     S.saveRegistry(reg);S.freeze();location.reload();
   }
   function dump(ids){
-    return {backupType:"medical-hq-all",version:1,exportedAt:new Date().toISOString(),active:S.registry().active,
+    return {backupType:"medical-hq-all",version:1,exportedAt:new Date().toISOString(),active:S.registry().active,global:(window.mhqGlobal&&window.mhqGlobal.backupRaw?window.mhqGlobal.backupRaw():null),
       courses:ids.map(id=>{const keys={};S.BASE.forEach(k=>{const v=S.raw.get(S.key(k,id));if(v!=null)keys[k]=v});return {id,keys}})};
   }
   function download(name,text){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:"application/json"}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
@@ -4617,6 +5122,7 @@ window.mhqMotivationRender=()=>{reconcileWallet();render()};
           S.BASE.forEach(k=>{const kk=S.key(k,c.id);if(typeof c.keys[k]==="string")S.raw.set(kk,c.keys[k]);else S.raw.remove(kk)});
           if(reg.list.indexOf(c.id)<0)reg.list.push(c.id)});
         if(j.active&&reg.list.indexOf(j.active)>=0)reg.active=j.active;
+        try{window.mhqGlobal&&window.mhqGlobal.mergeBackup(j.global)}catch(e){}
         mhqMarkRestore("restore");
         S.saveRegistry(reg);S.freeze();location.reload();
         };
@@ -4659,12 +5165,12 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
  const blockedMsg="Cloud backup is paused: your saved data couldn't be read this session, so nothing is uploaded.";
  const norm=s=>typeof s==="string"?s.replace(/"savedAt":"[^"]*",?/,""):s;
  function hash(snap){let h=2166136261>>>0;const feed=s=>{s=String(s);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0}};
-  feed(snap.active);snap.courses.forEach(c=>{feed(c.id);Object.keys(c.keys).sort().forEach(k=>{feed(k);feed(norm(c.keys[k]))})});return h.toString(36)}
+  feed(snap.active);feed(snap.global==null?"":norm(snap.global));snap.courses.forEach(c=>{feed(c.id);Object.keys(c.keys).sort().forEach(k=>{feed(k);feed(norm(c.keys[k]))})});return h.toString(36)}
  function snapshot(){
   if(blocked())throw Object.assign(new Error("cloud sync protected"),{status:0,protected:true});
   try{origSave&&origSave()}catch(e){}
   const reg=S.registry();
-  return {backupType:"medical-hq-all",version:1,exportedAt:new Date().toISOString(),active:reg.active,
+  return {backupType:"medical-hq-all",version:1,exportedAt:new Date().toISOString(),active:reg.active,global:(window.mhqGlobal&&window.mhqGlobal.backupRaw?window.mhqGlobal.backupRaw():null),
    courses:reg.list.map(id=>{const keys={};S.BASE.forEach(k=>{const v=S.raw.get(S.key(k,id));if(v!=null)keys[k]=v});return{id,keys}})};
  }
  async function gh(path,opts){
@@ -4737,6 +5243,7 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
    S.BASE.forEach(k=>{const kk=S.key(k,c.id);if(typeof c.keys[k]==="string")S.raw.set(kk,c.keys[k]);else S.raw.remove(kk)});
    if(reg.list.indexOf(c.id)<0)reg.list.push(c.id)});
   if(j.active&&reg.list.indexOf(j.active)>=0)reg.active=j.active;
+  try{window.mhqGlobal&&window.mhqGlobal.mergeBackup(j.global)}catch(e){}
   mhqMarkRestore("restore");
   S.saveRegistry(reg);S.freeze();location.reload();
  }
@@ -4931,7 +5438,7 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
  window.renderTrophies=function(){
   var el=document.getElementById('trophyShelf');if(!el)return;
   var pins=window.mhqGetPins?window.mhqGetPins():[],defs=achievementDefinitions();
-  var items=pins.map(function(id){return defs.find(function(a){return a.id===id})}).filter(function(a){return a&&achievementIds.indexOf(a.id)>=0});
+  var items=pins.map(function(id){return defs.find(function(a){return a.id===id})}).filter(function(a){return a&&mhqAchOn(a.id)});
   el.innerHTML=items.length?'<div class="trophy-shelf"><div class="trophy-title">🏆 TROPHY SHELF</div><div class="trophy-row">'+items.map(function(a){return'<div class="trophy"><span class="t-ic" aria-hidden="true">'+a.icon+'</span><b>'+escapeHtml(a.name)+'</b></div>'}).join('')+'</div></div>':''};
  var prevTerr=null,shown={};
  function waitThen(fn){var t=0;(function w(){var busy=document.querySelector('.celebrate');try{busy=busy||fx.active||fx.queue.length}catch(e){}if(busy&&t++<30)return setTimeout(w,400);fn()})()}
@@ -6184,8 +6691,8 @@ function buddy(sp,mo,sk,stg,anim){
  window.mhqV80Ready=true;
  function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
  function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
- function V(){var b=ST.get();return{applied:b.applied===true,xpl:+b.xpl||100,cxp:+b.cxp||250,baseC:+b.baseC||0,xpAt:+b.xpAt||0,lec:+b.lec||0,auto:b.auto!==false,ad:+b.ad||0,aw:+b.aw||0,gd:b.gd||'',trk:(b.trk&&typeof b.trk==='object')?b.trk:{},dis:+b.dis||0,xk:+b.xk||0}}
- function save(v){ST.set(v)}
+ function V(){var b=ST.get();var gr=(window.mhqGlobal&&window.mhqGlobal.ready)?window.mhqGlobal.rates():null;if(gr)b=Object.assign({},b,{applied:gr.scaled,xpl:gr.xpl,cxp:gr.cxp,baseC:gr.baseC,xpAt:gr.xpAt,lec:gr.lec});return{applied:b.applied===true,xpl:+b.xpl||100,cxp:+b.cxp||250,baseC:+b.baseC||0,xpAt:+b.xpAt||0,lec:+b.lec||0,auto:b.auto!==false,ad:+b.ad||0,aw:+b.aw||0,gd:b.gd||'',trk:(b.trk&&typeof b.trk==='object')?b.trk:{},dis:+b.dis||0,xk:+b.xk||0}}
+ function save(v){ST.set(v);try{if(window.mhqGlobal&&window.mhqGlobal.ready)window.mhqGlobal.setRates(v)}catch(e){}}
  function globals(v){window.__mhqNI=1;if(v.applied){window.__mhqXPL=v.xpl;window.__mhqCXP=v.cxp;window.__mhqBase=v.baseC;window.__mhqXpAt=v.xpAt}else{delete window.__mhqXPL;delete window.__mhqCXP;delete window.__mhqBase;delete window.__mhqXpAt}}
  /* ---------- pace ---------- */
  function pace(){
@@ -6213,7 +6720,7 @@ function buddy(sp,mo,sk,stg,anim){
   return P};
  /* ---------- apply ---------- */
  function apply(silent){
-  var v=V(),L=data.length,c=calc(L),p=pace(),xp=appXP,oldCx=v.applied?v.cxp:250,oldAt=v.applied?v.xpAt:0;
+  var v=V(),L=mhqLecTot(),c=calc(L),p=pace(),xp=mhqGXP(),oldCx=v.applied?v.cxp:250,oldAt=v.applied?v.xpAt:0;
   var rem=Math.max(0,xp-oldAt)%oldCx,g=ST.goals.get(),wasAuto=!v.applied?(g[0]===3&&g[1]===15):(v.auto&&g[0]===v.ad&&g[1]===v.aw);
   try{window.mhqRewardState()}catch(e){}
   v.baseC=ST.earned();v.xpAt=xp-Math.floor(rem/oldCx*c.cxp);v.xpl=c.xpl;v.cxp=c.cxp;v.lec=L;v.applied=true;v.trk={};v.dis=0;
@@ -6231,7 +6738,7 @@ function buddy(sp,mo,sk,stg,anim){
  function closeModal(){if(mov){mov.remove();mov=null}}
  window.mhqPaceClose=closeModal;
  window.mhqPacePreview=function(){
-  closeModal();var v=V(),L=data.length,c=calc(L),p=pace(),xp=appXP,curX=mhqXpPerLevel(),gf=goalsFor(p),g=ST.goals.get(),tr=trackFor(p),curCx=v.applied?v.cxp:250;
+  closeModal();var v=V(),L=mhqLecTot(),c=calc(L),p=pace(),xp=mhqGXP(),curX=mhqXpPerLevel(),gf=goalsFor(p),g=ST.goals.get(),tr=trackFor(p),curCx=v.applied?v.cxp:250;
   var row=function(a,b,c2){return'<div class="pc-r"><span>'+a+'</span><b>'+b+'</b><i>'+c2+'</i></div>'};
   mov=document.createElement('div');mov.className='ss-quiet';mov.setAttribute('role','dialog');mov.setAttribute('aria-label','Course numbers preview');
   mov.innerHTML='<div class="ss-qc" style="text-align:left;max-height:86vh;overflow:auto"><div class="label">NUMBERS PREVIEW</div><h2 style="margin:4px 0">Scale to your course</h2><div class="meta">'+L+' lectures · about '+p.perWeek.toFixed(1)+' lectures a week needed ('+(p.src==='exam'?esc(p.exam.exam)+' in '+p.exam.days+' days':'8-week default, add an exam date to sharpen it')+')</div>'+
@@ -6264,11 +6771,11 @@ function buddy(sp,mo,sk,stg,anim){
  function save2(){window.save&&window.save()}
  /* ---------- cards ---------- */
  function paintNote(){
-  var el=document.getElementById('paceNote');if(!el)return;var v=V(),L=data.length,h='';
+  var el=document.getElementById('paceNote');if(!el)return;var v=V(),L=mhqLecTot(),h='';
   var quiet=v.dis&&Date.now()-v.dis<864e5;
   var xb=xpBonus();
   if(xb>0&&v.xk<xb){var o0='<div class="pc-note">🛠 <b>XP check:</b> '+xb.toLocaleString()+' XP of your total isn’t explained by your activity. <button type="button" onclick="mhqXpReview()">Review</button></div>';if(el.dataset.h!==o0){el.innerHTML=o0;el.dataset.h=o0}return}
-  if(!quiet&&!v.applied&&appXP>0)h='📐 <b>Levels and credits can now scale to your course size.</b> <button type="button" onclick="mhqPacePreview()">Preview</button>';
+  if(!quiet&&!v.applied&&mhqGXP()>0)h='📐 <b>Levels and credits can now scale to your course size.</b> <button type="button" onclick="mhqPacePreview()">Preview</button>';
   else if(!quiet&&v.applied&&v.lec&&Math.abs(L-v.lec)/v.lec>=.2)h='📐 <b>Your course size changed ('+v.lec+' → '+L+' lectures).</b> <button type="button" onclick="mhqPacePreview()">Recalibrate</button>';
   var o=h?'<div class="pc-note">'+h+'</div>':'';if(el.dataset.h!==o){el.innerHTML=o;el.dataset.h=o}}
  function paint(force){
@@ -6293,7 +6800,7 @@ function buddy(sp,mo,sk,stg,anim){
  window.renderPace=function(){
   if(!data.length)return;
   var v=V();
-  if(!v.applied&&appXP===0&&!studySessions.length&&!data.some(function(l){return l.steps.some(Boolean)||(l.mcqs&&l.mcqs.length)})){apply(true);v=V()}
+  if(!v.applied&&mhqGXP()===0&&!studySessions.length&&!data.some(function(l){return l.steps.some(Boolean)||(l.mcqs&&l.mcqs.length)})){apply(true);v=V()}
   if(v.applied&&v.auto&&v.gd!==todayKey){var g=ST.goals.get();if(g[0]===v.ad&&g[1]===v.aw){var gf=goalsFor(pace());if(gf[0]!==g[0]){ST.goals.set(gf[0],gf[1]);v.ad=gf[0];v.aw=gf[1]}}else v.auto=false;v.gd=todayKey;save(v)}
   paintNote();paint(false)};
  /* new day while the app stays open: refresh without waiting for a tap */
@@ -7157,7 +7664,7 @@ function buddy(sp,mo,sk,stg,anim){
  function fmtLeft(e){var ms=left(e);if(ms<=0)return e.date===today()?'Exam day':'Passed';var d=Math.floor(ms/864e5),h=Math.floor(ms%864e5/36e5),m=Math.floor(ms%36e5/6e4);return d>0?d+'d '+h+'h':h>0?h+'h '+m+'m':m+'m'}
  function dayLabel(e){try{return new Date(e.date+'T12:00:00').toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'})}catch(x){return e.date}}
  function applies(it,exId){return!it.ex||!it.ex.length||it.ex.indexOf(exId)>=0}
- function nextExam(it){return P().exams.filter(function(e){return !e.taken&&left(e)>0&&(!it||applies(it,e.id))}).sort(function(a,b){return dl(a)-dl(b)})[0]||null}
+ function nextExam(it){return P().exams.filter(function(e){return !e.taken&&!e.cancelled&&left(e)>0&&(!it||applies(it,e.id))}).sort(function(a,b){return dl(a)-dl(b)})[0]||null}
  function paceOf(it){if(it.st)return null;var e=nextExam(it);if(!e)return null;var days=Math.max(1,Math.ceil(left(e)/864e5)),rem=Math.max(0,it.total-it.cur);return{e:e,days:days,n:Math.ceil(rem/days)}}
 
  var view={filter:null,open:{}},sh=null,undoT=0,undoSnap=null;
@@ -7196,7 +7703,7 @@ function buddy(sp,mo,sk,stg,anim){
     '<div class="pr-add"><button type="button" onclick="mhqPr.examSheet()">+ Add exam</button></div>';return}
   var pct=T.t?Math.round(T.d/T.t*100):0,html='<div class="pr-card"><div class="pr-h"><div><div class="pr-lab">PRACTICAL · '+esc((typeof COURSE!=='undefined'&&(COURSE.short||COURSE.name))||'Module')+'</div><h2>'+T.d+' of '+T.t+' items</h2></div><b style="font-size:var(--fs-24)">'+pct+'%</b></div><div class="pr-bar"><i style="width:'+pct+'%"></i></div>'+
    '<div class="pr-m">'+(T.pt?'Pages '+T.pc+' / '+T.pt+' · ':'')+'XP from Practical: '+computeXP(p)+'</div>'+((T.sk||T.ms)?'<div class="pr-m">'+(T.sk?T.sk+' skipped':'')+(T.sk&&T.ms?' and ':'')+(T.ms?T.ms+' not done':'')+'</div>':'');
-  if(p.exams.some(function(e){return!e.taken})){var exs=p.exams.filter(function(e){return!e.taken}).sort(function(a,b){return(a.taken?1:0)-(b.taken?1:0)||dl(a)-dl(b)});
+  if(p.exams.some(function(e){return!e.taken&&!e.cancelled})){var exs=p.exams.filter(function(e){return!e.taken&&!e.cancelled}).sort(function(a,b){return(a.taken?1:0)-(b.taken?1:0)||dl(a)-dl(b)});
    html+='<div class="pr-exs">'+exs.map(function(e){
     if(e.taken){var sn=e.snap;return'<div class="pr-ex taken'+(view.filter===e.id?' on':'')+'"><button type="button" class="pr-exb" onclick="mhqPr.filter(\''+e.id+'\')" aria-pressed="'+(view.filter===e.id)+'"><b>'+esc(e.name)+'</b><span class="t">Taken ✓</span><span class="s">'+dayLabel(e)+(sn?' · '+sn.d+' of '+sn.t+' done':'')+'</span></button><button type="button" class="pr-exe" onclick="mhqPr.examSheet(\''+e.id+'\')" aria-label="Edit exam">⋯</button></div>'}
     var ms=left(e),urg=ms>0&&ms<864e5*2;
