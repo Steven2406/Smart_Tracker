@@ -594,6 +594,13 @@ input[type=checkbox],input[type=range]{accent-color:var(--accent);min-height:0;p
 .study-target-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .session-review-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
 .session-review label{display:flex;gap:8px;align-items:center;background:var(--surface);padding:9px;border-radius:10px;font-size:var(--fs-13)}
+.session-mcq{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.session-mcq-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:8px;margin-top:8px;align-items:center}
+.session-mcq-row input,.session-mcq-row select{width:100%;min-width:0}
+.session-mcq-row button{white-space:nowrap}
+.session-mcq-done:empty{display:none}
+.session-mcq-badge{display:inline-block;margin-top:8px;padding:4px 10px;border-radius:999px;font-size:var(--fs-12);font-weight:700;background:var(--surface);color:var(--good);border:1px solid var(--line)}
+@media(max-width:400px){.session-mcq-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.session-mcq-row button{grid-column:1/-1;min-height:42px}}
 @media(max-width:480px){.session-review-grid{grid-template-columns:1fr}}
 
 /* Lecture sheet */
@@ -1554,6 +1561,16 @@ html[data-theme="dark"]{--v-prog:#6fb0f0;--v-watch:#b794f0}
 #hq81 .hq-nx2 .hq-nt em{font-style:normal;font-size:var(--fs-12);color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #hq81 .hq-nx2 button{min-height:46px;padding:10px 22px;font-size:var(--fs-14)}
 #hq81 .hq-oth{justify-content:flex-start;text-align:left;font-size:var(--fs-13);color:var(--text)}
+#hq81 .hq-scope{display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:3px;background:var(--surface2);border:1px solid var(--line);border-radius:12px}
+#hq81 .hq-scope button{min-height:34px;padding:4px 6px;border:0;border-radius:9px;background:none;color:var(--muted);font-size:var(--fs-12);font-weight:600}
+#hq81 .hq-scope button.active{background:var(--surface);color:var(--accent);font-weight:800;box-shadow:var(--shadow)}
+#hq81 .hq-allwrap{display:grid;gap:8px}
+#hq81 .hq-allx{flex-wrap:wrap}
+#hq81 .hq-allx .hq-ex small{white-space:normal}
+#hq81 .hq-mod{display:inline-block;padding:0 7px;border-radius:8px;background:var(--soft);color:var(--accent);font-weight:800}
+#hq81 .hq-allgo{flex:1 1 100%;min-height:40px;padding:8px 14px;border-radius:12px;border:1.5px solid var(--accent);background:transparent;color:var(--text);font-size:var(--fs-13);font-weight:700}
+#hq81 .hq-allgo:active{background:var(--soft)}
+#hq81 .hq-quota{color:var(--accent);font-weight:600}
 #hq81 .hq-oth b{font-weight:700}
 #hq81 .hq-season{padding:6px 10px;gap:8px;border-radius:12px}
 #hq81 .hq-season .hq-tier{width:34px;height:36px;border-radius:9px}
@@ -2041,7 +2058,7 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.12.1</span></small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.12.2</span></small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -2787,7 +2804,17 @@ function examStats(e){
   const needed=days<0?0:Math.round(remaining/Math.max(1,days)*10)/10;
   const since=dateKeyOffset(-6);
   const pace=Math.round(data.filter(l=>l.completionDate&&l.completionDate>=since&&l.steps.every(Boolean)).length/7*10)/10;
-  return {ls,total:ls.length,cleared,tested,mastery,days,remaining,needed,pace,weakest:ls.slice().sort((a,b)=>inferredMastery(a)-inferredMastery(b)).slice(0,3)};
+  /* v8.12.2 daily quota (read-only): lectures to clear today so the rest still fits before exam day, plus reviews already due */
+  const lecturesToday=remaining>0?Math.max(1,Math.ceil(remaining/Math.max(1,days+1))):0;
+  let reviewsToday=0;try{reviewsToday=ls.filter(l=>reviewStatus(l).state==="due").length}catch(x){reviewsToday=0}
+  return {ls,total:ls.length,cleared,tested,mastery,days,remaining,needed,pace,lecturesToday,reviewsToday,weakest:ls.slice().sort((a,b)=>inferredMastery(a)-inferredMastery(b)).slice(0,3)};
+}
+function examDailyQuota(e,stats){const s=stats||examStats(e);return {lecturesToday:s.lecturesToday,reviewsToday:s.reviewsToday,remaining:s.remaining};}
+function examQuotaText(s){
+  if(!s||!s.total||s.days<0)return "";
+  const L=s.lecturesToday||0,R=s.reviewsToday||0,l=`${L} lecture${L===1?"":"s"}`,r=`${R} due review${R===1?"":"s"}`;
+  if(s.remaining===0)return R?`Today's quota: ${r}`:"Today's quota: All lectures cleared — keep reviews current";
+  return `Today's quota: ${l}${R?` + ${r}`:""}`;
 }
 /* Reviews for exam lectures move earlier so every topic gets rehearsed before exam day. Never moves a review later. */
 function tightenReviewsForExams(){
@@ -3715,7 +3742,33 @@ function setStudyPreset(minutes,button){if(studyRunning)return;studySelectedMinu
 function resetStudyTimer(){if(studyTimer){clearInterval(studyTimer);studyTimer=null;}studyRunning=false;studyTotal=studySelectedMinutes*60;studyRemaining=studyTotal;hideSessionReview();updateStudyUI();}
 function showSessionReview(lectureId,minutes){
   const box=document.getElementById("sessionReview"),l=data.find(x=>x.id===lectureId); if(!box||!l)return; const labels=["Watched / listened","Read","Solved questions","Revision"];
-  box.style.display="block";box.innerHTML=`<div class="review-title">🎯 Session complete — ${minutes} min focused</div><div class="meta" style="margin-top:4px">What did you actually accomplish during this session?</div><div class="session-review-grid">${labels.map((label,i)=>`<label><input type="checkbox" ${l.steps[i]?"checked":""} onchange="applySessionTask(${lectureId},${i},this.checked)"> ${label}</label>`).join("")}</div><div class="meta" style="margin-top:9px">Checking a task logs it through the normal study system, so XP, mastery, streaks and Today activity stay consistent.</div>`;
+  box.style.display="block";box.innerHTML=`<div class="review-title">🎯 Session complete — ${minutes} min focused</div><div class="meta" style="margin-top:4px">What did you actually accomplish during this session?</div><div class="session-review-grid">${labels.map((label,i)=>`<label><input type="checkbox" ${l.steps[i]?"checked":""} onchange="applySessionTask(${lectureId},${i},this.checked)"> ${label}</label>`).join("")}</div><div class="session-mcq" id="sessionMcq"><div class="label">Log MCQs solved during this session</div><div class="session-mcq-row"><input id="sessionMcqScore" type="text" autocomplete="off" placeholder="e.g. 14/15" aria-label="MCQ score from this session" onkeydown="if(event.key==='Enter'){event.preventDefault();logSessionMcq(${lectureId})}"><select id="sessionMcqConf" aria-label="Confidence (optional)"><option value="">Confidence</option><option value="1">1 · Guessing</option><option value="2">2 · Low</option><option value="3">3 · Moderate</option><option value="4">4 · High</option><option value="5">5 · Certain</option></select><button type="button" class="primary" onclick="logSessionMcq(${lectureId})">LOG MCQ</button></div><div class="session-mcq-done" id="sessionMcqDone" role="status" aria-live="polite"></div></div><div class="meta" style="margin-top:9px">Checking a task logs it through the normal study system, so XP, mastery, streaks and Today activity stay consistent.</div>`;
+}
+/* v8.12.2: log MCQs from the focus completion card. Same canonical pipeline as addMcq() (no modal, no re-open of the lecture). */
+function logSessionMcq(lectureId){
+  const l=data.find(x=>x.id===Number(lectureId));if(!l)return;
+  const inp=document.getElementById("sessionMcqScore"),cf=document.getElementById("sessionMcqConf");if(!inp)return;
+  const score=inp.value.trim(),confidence=Number(cf&&cf.value)||null,parsed=parseMCQScore(score);
+  if(!parsed){toast("Enter a valid score, e.g. 14/15");return;}
+  const wasDue=(()=>{try{return reviewStatus(l).state==="due"}catch(e){return false}})();
+  l.mcqs.push({score,source:"Focus Session",date:new Date().toLocaleDateString(),dateKey:todayKey,percent:parsed.percent,confidence,errorType:"",note:"",reviewDue:wasDue});
+  if(parsed.percent<55){playSfx("mcq_low_voice",.86);setTimeout(()=>playSfx(parsed.percent<30?"mcq_laugh":"mcq_deep_womp",parsed.percent<30?.6:.5),4950);}
+  else if(parsed.percent<70)playSfx("mcq_recovery",.6);
+  else if(parsed.percent<80)playSfx("study_step",.58);
+  else if(parsed.percent<95)playSfx("mcq_correct",.68);
+  else playSfx("mcq_perfect",.82);
+  recordActivity("mcq","focus",l.id,{score,percent:parsed.percent,got:parsed.got,max:parsed.max,source:"Focus Session",confidence,errorType:""});
+  markStudyActivity();
+  const gain=lectureMcqXp(l).slice(-1)[0]||{xp:5,parts:[]};
+  l.mastery=inferredMastery(l);
+  scheduleReview(l);
+  syncXP();
+  const nr=reviewCards[l.id]&&reviewCards[l.id].nextDate;
+  toast(`+${gain.xp} XP${gain.parts.length?" ("+gain.parts.join(", ")+")":""} — MCQ logged!${nr?" Next review: "+formatReviewDate(nr)+".":""}`);
+  inp.value="";if(cf)cf.value="";
+  save();render();
+  const done=document.getElementById("sessionMcqDone");
+  if(done)done.innerHTML=`<span class="session-mcq-badge">✓ Logged ${escapeHtml(score)} (+${gain.xp} XP)</span>`;
 }
 function hideSessionReview(){const box=document.getElementById("sessionReview");if(box){box.style.display="none";box.innerHTML="";}}
 function applySessionTask(lectureId,stepIndex,checked){const l=data.find(x=>x.id===Number(lectureId));if(!l)return;if(l.steps[stepIndex]===checked)return;const old=current;current=l;toggleStep(stepIndex,checked);current=old||null;}
@@ -4519,9 +4572,10 @@ async function deleteExam(id){
 }
 function examPaceHtml(s){
   if(!s.total)return "";
-  if(s.remaining===0)return `<span class="exam-chip ok">✅ All lectures cleared</span>`;
+  const q=examQuotaText(s),qh=q?`<div class="meta exam-quota" data-exam-quota style="margin-top:6px">🎯 ${escapeHtml(q)}</div>`:"";
+  if(s.remaining===0)return `<span class="exam-chip ok">✅ All lectures cleared</span>${qh}`;
   const behind=s.pace<s.needed;
-  return `<span class="exam-chip ${behind?"warn":"ok"}">${behind?"⚠ Behind pace":"✅ On pace"}</span> <span class="meta">${s.remaining} to clear · need ${s.needed}/day · you did ${s.pace}/day this week</span>`;
+  return `<span class="exam-chip ${behind?"warn":"ok"}">${behind?"⚠ Behind pace":"✅ On pace"}</span> <span class="meta">${s.remaining} to clear · need ${s.needed}/day · you did ${s.pace}/day this week</span>${qh}`;
 }
 function mhqSwitchCourse(id){try{save()}catch(e){}const S=window.mhqStore,r=S.registry();if(r.list.indexOf(id)<0)return;r.active=id;S.saveRegistry(r);S.freeze();location.reload()}
 function renderAcademicTimeline(){
@@ -7325,15 +7379,61 @@ function buddy(sp,mo,sk,stg,anim){
   var I=window.mhqSeasonInfo(),T=I.T,t=I.tier,prev=t?T[t-1]:0,next=T[t],max=t>=8,f=max?1:Math.max(0,Math.min(1,(I.pts-prev)/(next-prev))),it=I.items[Math.min(t,7)];
   var html='<button type="button" class="hq-season" style="background:linear-gradient(135deg,'+I.th.c1+','+I.th.c2+')" onclick="mhqSeasonSheet()" aria-label="Season: '+esc(I.S.name)+', tier '+t+' of 8, '+I.pts+' points. Tap for rewards"><span class="hq-tier"><small>TIER</small><b>'+t+'</b></span><span class="hq-sb"><span class="hq-sn"><b>'+esc(I.S.name)+'</b><em>⏳ '+esc(I.cd)+'</em></span><span class="hq-bar"><i style="width:'+Math.round(f*100)+'%"></i><u>'+(max?'MAX · '+I.pts:I.pts+' / '+next)+'</u></span></span><span class="hq-nx" title="Next reward">'+(max?'🏆':it.icon)+'</span></button>';
   if(h.dataset.h!==html){h.innerHTML=html;h.dataset.h=html}}
+
+ /* ---------- v8.12.2: Active Module | All Modules (memory only, never stored; hidden with a single module) ---------- */
+ window.__hqScope=window.__hqScope==='all'?'all':'active';
+ function hqMods(){try{var S=window.mhqStore;return S&&S.registry?S.registry().list.slice():[]}catch(e){return[]}}
+ function hqAllOn(){return window.__hqScope==='all'&&hqMods().length>=2}
+ function hqModName(id){
+  try{if(id===window.mhqStore.active&&typeof COURSE!=='undefined'&&COURSE&&COURSE.short)return String(COURSE.short)}catch(e){}
+  try{var S=window.mhqStore,c=JSON.parse(S.raw.get(S.key('mhqCourseV59',id))||'null');if(c&&typeof c==='object'&&(c.short||c.name))return String(c.short||c.name)}catch(e){}
+  return id==='default'?'Module':String(id)}
+ /* due reviews per module: the active module is read live; the others are read-only from their saved state (raw reads, no recovery or write path) and skipped when unreadable */
+ function hqDueByModule(){
+  var S=window.mhqStore,out=[],tk=todayKey;
+  hqMods().forEach(function(id){
+   var n=0;
+   try{
+    if(id===S.active){n=data.filter(function(l){return reviewStatus(l).state==='due'}).length}
+    else{
+     var rs=S.raw.get(S.key('medicalHQ',id));if(rs===null||rs===undefined)return;
+     var st=JSON.parse(rs);if(!st||typeof st!=='object'||!Array.isArray(st.data)||!st.reviewCards||typeof st.reviewCards!=='object')return;
+     var ok={};st.data.forEach(function(l){if(l&&l.id!==undefined&&l.id!==null)ok[l.id]=1});
+     Object.keys(st.reviewCards).forEach(function(k){var c=st.reviewCards[k];if(ok[k]&&c&&typeof c.nextDate==='string'&&c.nextDate<=tk)n++})
+    }
+   }catch(e){return}
+   out.push({id:id,short:hqModName(id),n:n})});
+  return out}
+ window.mhqHqScope=function(m){window.__hqScope=m==='all'?'all':'active';try{window.renderHQ()}catch(e){}};
+ function hqAllHtml(){
+  var S=window.mhqStore,act=S.active,nx=null,due=hqDueByModule(),tot=0,best=null,html='';
+  try{nx=window.mhqAssess.list().filter(function(a){return a.status==='upcoming'})[0]||null}catch(e){nx=null}
+  due.forEach(function(d){tot+=d.n;if(d.n>0&&(!best||d.n>best.n||(d.n===best.n&&d.id===act)))best=d});
+  if(nx){var pp=Math.max(0,Math.min(100,Math.round((nx.prep&&nx.prep.pct)||0))),same=nx.module===act,sh=String(nx.moduleShort||nx.module);
+   html+='<div class="hq-card hq-allx" data-all="exam"><span class="hq-ex"><b>'+esc(nx.name)+'</b><small><span class="hq-mod">'+esc(sh)+'</span> · '+(nx.type==='practical'?'Practical':'Written')+' · '+pp+'% prep</small></span><span class="hq-dd"><b>'+esc(examDaysLabel(nx.daysLeft))+'</b></span>'+
+    (same?'<button type="button" class="hq-allgo" onclick="showView(\'examsView\')">OPEN EXAMS</button>':'<button type="button" class="hq-allgo" onclick="mhqSwitchCourse('+JSON.stringify(nx.module).replace(/"/g,'&quot;')+')">OPEN '+esc(sh.toUpperCase())+'</button>')+'</div>'}
+  else html+='<div class="hq-card hq-empty" data-all="exam">📅 No upcoming exams in any module</div>';
+  html+='<div class="hq-card hq-allx" data-all="due"><span class="hq-ex"><b>'+tot+' due review'+(tot===1?'':'s')+' · all modules</b><small>'+(due.length?due.map(function(d){return esc(d.short)+' '+d.n}).join(' · '):'No readable modules')+'</small></span>'+
+   (best?(best.id===act?'<button type="button" class="hq-allgo" onclick="showView(\'reviewView\')">REVIEW NOW</button>':'<button type="button" class="hq-allgo" onclick="mhqSwitchCourse('+JSON.stringify(best.id).replace(/"/g,'&quot;')+')">OPEN '+esc(String(best.short).toUpperCase())+'</button>'):'')+'</div>';
+  return '<div class="hq-allwrap">'+html+'</div>'}
+ function paintScope(){
+  var h=$('hq81');if(!h)return;var el=$('hqScope');
+  if(hqMods().length<2){if(el)el.remove();window.__hqScope='active';return}
+  var on=window.__hqScope==='all'?'all':'active',html='<button type="button" class="'+(on==='active'?'active':'')+'" aria-pressed="'+(on==='active')+'" onclick="mhqHqScope(\'active\')">Active Module</button><button type="button" class="'+(on==='all'?'active':'')+'" aria-pressed="'+(on==='all')+'" onclick="mhqHqScope(\'all\')">All Modules</button>';
+  if(!el){el=document.createElement('div');el.id='hqScope';el.className='hq-scope';el.setAttribute('role','group');el.setAttribute('aria-label','HQ scope');h.insertBefore(el,$('hqExam'))}
+  if(el.dataset.h!==html){el.innerHTML=html;el.dataset.h=html}}
  function paintExam(){
-  var h=$('hqExam');if(!h)return;var X=window.mhqExamInfo&&window.mhqExamInfo(),html,PR=null;
+  var h=$('hqExam');if(!h)return;
+  if(hqAllOn()){var ah=hqAllHtml();if(h.dataset.h!==ah){h.innerHTML=ah;h.dataset.h=ah}return}
+  var X=window.mhqExamInfo&&window.mhqExamInfo(),html,PR=null,HQQ='';
+  try{HQQ=X&&X.days>=0&&typeof examQuotaText==='function'?examQuotaText(X.s):''}catch(e){HQQ=''}
   try{PR=typeof homeUpcomingPractical==='function'?homeUpcomingPractical():null}catch(e){PR=null}
   if(!X&&PR){var pp=Math.max(0,Math.min(100,Math.round(PR.prep.pct||0))),pc=pp<50?'var(--danger)':pp<75?'var(--gold)':'var(--good)',pd=Math.max(0,PR.daysLeft);
    html='<button type="button" class="hq-card hq-exam hq-prx" onclick="showView(\'examsView\')" aria-label="Practical exam '+esc(PR.name)+' in '+pd+' days, '+pp+' percent of items done"><svg viewBox="0 0 100 100" class="hq-gauge" aria-hidden="true"><circle cx="50" cy="50" r="40" fill="none" stroke="var(--line)" stroke-width="12"/><circle cx="50" cy="50" r="40" fill="none" stroke="'+pc+'" stroke-width="12" stroke-linecap="round" pathLength="100" stroke-dasharray="'+pp+' '+(100-pp)+'" transform="rotate(-90 50 50)"/><text x="50" y="58" text-anchor="middle" style="font-size:var(--fs-24);font-weight:800;fill:var(--text)">'+pp+'%</text></svg><span class="hq-ex"><b>'+esc(PR.name)+'</b><small>🧪 Practical · '+PR.prep.done+'/'+PR.prep.total+' items done</small></span><span class="hq-dd"><b>'+pd+'</b><small>days</small></span></button>'}
   else if(!X){var oth=null;try{var nowT=Date.now();if(window.mhqAssess&&(!window.__hqAsT||nowT-window.__hqAsT>4000)){window.__hqAsT=nowT;window.__hqAs=window.mhqAssess.list().filter(function(a){return a.status==='upcoming'&&a.module!==window.mhqStore.active})[0]||null}oth=window.__hqAs||null}catch(e){}
    html=oth?'<button type="button" class="hq-card hq-empty hq-oth" onclick="showView(\'examsView\')">📅 <span>Next exam: <b>'+esc(oth.name)+'</b> · '+esc(oth.moduleShort)+' · '+oth.daysLeft+' day'+(oth.daysLeft===1?'':'s')+'</span></button>':'<button type="button" class="hq-card hq-empty" onclick="showView(\'examsView\')">📅 Add your exam date to see your readiness forecast</button>'}
   else{var d=Math.round(X.now),col=X.colr;
-   html='<button type="button" class="hq-card hq-exam" onclick="showView(\'examsView\')" aria-label="Exam '+esc(X.e.name)+' in '+X.days+' days, ready '+X.now+' percent"><svg viewBox="0 0 100 100" class="hq-gauge" aria-hidden="true"><circle cx="50" cy="50" r="40" fill="none" stroke="var(--line)" stroke-width="12"/>'+(X.proj>X.now?'<circle cx="50" cy="50" r="40" fill="none" stroke="'+col+'" stroke-opacity=".35" stroke-width="12" pathLength="100" stroke-dasharray="0 '+X.now+' '+(X.proj-X.now)+' '+(100-X.proj)+'" transform="rotate(-90 50 50)"/>':'')+'<circle cx="50" cy="50" r="40" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" pathLength="100" stroke-dasharray="'+d+' '+(100-d)+'" transform="rotate(-90 50 50)"/><text x="50" y="58" text-anchor="middle" style="font-size:var(--fs-24);font-weight:800;fill:var(--text)">'+X.now+'%</text></svg><span class="hq-ex"><b>'+esc(X.e.name)+'</b><small>'+X.s.cleared+'/'+X.s.total+' cleared'+(X.days>0&&X.proj>X.now?' · ≈'+X.proj+'% by exam':'')+(PR?' · 🧪 '+esc(PR.name)+' · '+esc(examDaysLabel(PR.daysLeft)):'')+'</small></span><span class="hq-dd"><b>'+X.days+'</b><small>days</small></span>'+(X.left.length?'<span class="hq-pill '+(X.behind?'bad':'ok')+'">'+(X.behind?'Behind':'On track')+'</span>':'')+'</button>'}
+   html='<button type="button" class="hq-card hq-exam" onclick="showView(\'examsView\')" aria-label="Exam '+esc(X.e.name)+' in '+X.days+' days, ready '+X.now+' percent'+(HQQ?'. '+esc(HQQ):'')+'"><svg viewBox="0 0 100 100" class="hq-gauge" aria-hidden="true"><circle cx="50" cy="50" r="40" fill="none" stroke="var(--line)" stroke-width="12"/>'+(X.proj>X.now?'<circle cx="50" cy="50" r="40" fill="none" stroke="'+col+'" stroke-opacity=".35" stroke-width="12" pathLength="100" stroke-dasharray="0 '+X.now+' '+(X.proj-X.now)+' '+(100-X.proj)+'" transform="rotate(-90 50 50)"/>':'')+'<circle cx="50" cy="50" r="40" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" pathLength="100" stroke-dasharray="'+d+' '+(100-d)+'" transform="rotate(-90 50 50)"/><text x="50" y="58" text-anchor="middle" style="font-size:var(--fs-24);font-weight:800;fill:var(--text)">'+X.now+'%</text></svg><span class="hq-ex"><b>'+esc(X.e.name)+'</b><small>'+X.s.cleared+'/'+X.s.total+' cleared'+(X.days>0&&X.proj>X.now?' · ≈'+X.proj+'% by exam':'')+(PR?' · 🧪 '+esc(PR.name)+' · '+esc(examDaysLabel(PR.daysLeft)):'')+'</small>'+(HQQ?'<small class=\"hq-quota\">🎯 '+esc(HQQ)+'</small>':'')+'</span><span class="hq-dd"><b>'+X.days+'</b><small>days</small></span>'+(X.left.length?'<span class="hq-pill '+(X.behind?'bad':'ok')+'">'+(X.behind?'Behind':'On track')+'</span>':'')+'</button>'}
   if(h.dataset.h!==html){h.innerHTML=html;h.dataset.h=html}}
  function paintToday(){
   var h=$('hqToday');if(!h)return;
@@ -7359,7 +7459,7 @@ function buddy(sp,mo,sk,stg,anim){
  window.renderHQ=function(){
   if(!data.length)return;
   try{buildOnce()}catch(e){}
-  try{ensureHQ();paintTop();paintSeason();paintExam();paintToday();paintQuests();paintNext()}catch(e){}};
+  try{ensureHQ();paintTop();paintSeason();paintScope();paintExam();paintToday();paintQuests();paintNext()}catch(e){}};
  /* ---------- season sheet ---------- */
  var sov=null;
  function closeSheet(){if(sov){sov.remove();sov=null}}
