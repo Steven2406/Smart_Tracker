@@ -1543,6 +1543,39 @@ html[data-theme="dark"]{--v-prog:#6fb0f0;--v-watch:#b794f0}
 .hq-fade-r{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 28px),transparent)}
 .hq-fade-l{-webkit-mask-image:linear-gradient(to right,transparent,#000 28px);mask-image:linear-gradient(to right,transparent,#000 28px)}
 .hq-fade-l.hq-fade-r{-webkit-mask-image:linear-gradient(to right,transparent,#000 28px,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(to right,transparent,#000 28px,#000 calc(100% - 28px),transparent)}
+/* ---- v8.11.0 dashboard refinement: importance order, a clearer NEXT card, a slim season strip, quieter verse + trophies ---- */
+#hq81 .hq-nx2{padding:12px 14px;gap:12px;border-color:var(--accent);box-shadow:0 2px 12px color-mix(in srgb,var(--accent) 20%,transparent)}
+#hq81 .hq-nx2 .hq-n{width:28px;height:28px}
+#hq81 .hq-nx2 .hq-nt{gap:2px}
+#hq81 .hq-nx2 .hq-nt small{font-weight:800;color:var(--accent)}
+#hq81 .hq-nx2 .hq-nt b{font-size:var(--fs-16);line-height:1.25;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#hq81 .hq-nx2 .hq-nt em{font-style:normal;font-size:var(--fs-12);color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#hq81 .hq-nx2 button{min-height:46px;padding:10px 22px;font-size:var(--fs-14)}
+#hq81 .hq-oth{justify-content:flex-start;text-align:left;font-size:var(--fs-13);color:var(--text)}
+#hq81 .hq-oth b{font-weight:700}
+#hq81 .hq-season{padding:6px 10px;gap:8px;border-radius:12px}
+#hq81 .hq-season .hq-tier{width:34px;height:36px;border-radius:9px}
+#hq81 .hq-season .hq-tier small{font-size:8px;letter-spacing:.08em}
+#hq81 .hq-season .hq-tier b{font-size:var(--fs-16)}
+#hq81 .hq-season .hq-sb{gap:3px}
+#hq81 .hq-season .hq-bar{height:14px}
+#hq81 .hq-season .hq-bar u{font-size:10px}
+#hq81 .hq-season .hq-nx{width:30px;height:30px;font-size:var(--fs-14)}
+#hq81 .hq-qs{padding:8px 12px;gap:3px}
+#hq81 .pr-home,#prHome .pr-home{padding:9px 12px;border-radius:14px}
+#prHome .pr-bar{margin:6px 0 4px}
+/* verse of the day + trophy shelf: still on the dashboard, quieter and shorter */
+#hqBottom{gap:8px;margin:0 0 10px}
+#hqBottom .ss-verse{gap:3px;padding:9px 12px;border:1px solid var(--line);box-shadow:none;border-radius:14px}
+#hqBottom .ss-verse .label{font-size:var(--fs-11);letter-spacing:.09em}
+#hqBottom .ss-ar{line-height:1.6}
+#hqBottom .ss-en{font-size:var(--fs-12);line-height:1.35;-webkit-line-clamp:2}
+#hqBottom .ss-verse .meta{font-size:10px}
+#hqBottom .trophy-shelf{padding:8px 10px 0;border-radius:14px}
+#hqBottom .trophy-row{margin-top:4px;padding-bottom:6px;border-bottom-width:4px}
+#hqBottom .trophy .t-ic{font-size:var(--fs-22)}
+#hqBottom .trophy b{font-size:10px}
+@media(max-width:560px){#hqBottom{grid-template-columns:1fr}}
 .rs-row .auto{color:var(--muted);font-size:var(--fs-11)}
 
 /* ---- v8.2.0 motion ---- */
@@ -1950,7 +1983,7 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.10.0</span></small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.11.1</span></small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -7058,7 +7091,7 @@ function buddy(sp,mo,sk,stg,anim){
  /* ---------- home ---------- */
  function ensureHQ(){
   var hv=$('homeView');if(!hv)return null;var h=$('hq81');
-  if(!h){h=document.createElement('div');h.id='hq81';h.innerHTML='<div id="hqTop"></div><div id="hqSeason"></div><div id="hqExam"></div><div id="hqToday"></div><div id="hqQuests"></div><div id="hqNext"></div>';
+  if(!h){h=document.createElement('div');h.id='hq81';h.innerHTML='<div id="hqTop"></div><div id="hqNext"></div><div id="hqExam"></div><div id="hqToday"></div><div id="hqQuests"></div><div id="hqSeason"></div>';
    var anchor=hv.querySelector('#paceNote');hv.insertBefore(h,anchor?anchor.nextSibling:hv.firstChild)}
   return h}
  function rg(p,n,col,txt){var f=n?Math.min(1,p/n):0,d=Math.round(f*100);return'<svg viewBox="0 0 44 44" class="hq-rg" aria-hidden="true"><circle cx="22" cy="22" r="17" fill="none" stroke="var(--line)" stroke-width="6"/>'+(d>0?'<circle cx="22" cy="22" r="17" fill="none" stroke="'+col+'" stroke-width="6" stroke-linecap="round" pathLength="100" stroke-dasharray="'+d+' '+(100-d)+'" transform="rotate(-90 22 22)"/>':'')+'<text x="22" y="26" text-anchor="middle" style="font-size:var(--fs-11);font-weight:700;fill:var(--text)">'+(txt||(f>=1?'✓':p+'/'+n))+'</text></svg>'}
@@ -7085,7 +7118,8 @@ function buddy(sp,mo,sk,stg,anim){
   if(h.dataset.h!==html){h.innerHTML=html;h.dataset.h=html}}
  function paintExam(){
   var h=$('hqExam');if(!h)return;var X=window.mhqExamInfo&&window.mhqExamInfo(),html;
-  if(!X)html='<button type="button" class="hq-card hq-empty" onclick="showView(\'examsView\')">📅 Add your exam date to see your readiness forecast</button>';
+  if(!X){var oth=null;try{var nowT=Date.now();if(window.mhqAssess&&(!window.__hqAsT||nowT-window.__hqAsT>4000)){window.__hqAsT=nowT;window.__hqAs=window.mhqAssess.list().filter(function(a){return a.status==='upcoming'&&a.module!==window.mhqStore.active})[0]||null}oth=window.__hqAs||null}catch(e){}
+   html=oth?'<button type="button" class="hq-card hq-empty hq-oth" onclick="showView(\'examsView\')">📅 <span>Next exam: <b>'+esc(oth.name)+'</b> · '+esc(oth.moduleShort)+' · '+oth.daysLeft+' day'+(oth.daysLeft===1?'':'s')+'</span></button>':'<button type="button" class="hq-card hq-empty" onclick="showView(\'examsView\')">📅 Add your exam date to see your readiness forecast</button>'}
   else{var d=Math.round(X.now),col=X.colr;
    html='<button type="button" class="hq-card hq-exam" onclick="showView(\'examsView\')" aria-label="Exam '+esc(X.e.name)+' in '+X.days+' days, ready '+X.now+' percent"><svg viewBox="0 0 100 100" class="hq-gauge" aria-hidden="true"><circle cx="50" cy="50" r="40" fill="none" stroke="var(--line)" stroke-width="12"/>'+(X.proj>X.now?'<circle cx="50" cy="50" r="40" fill="none" stroke="'+col+'" stroke-opacity=".35" stroke-width="12" pathLength="100" stroke-dasharray="0 '+X.now+' '+(X.proj-X.now)+' '+(100-X.proj)+'" transform="rotate(-90 50 50)"/>':'')+'<circle cx="50" cy="50" r="40" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" pathLength="100" stroke-dasharray="'+d+' '+(100-d)+'" transform="rotate(-90 50 50)"/><text x="50" y="58" text-anchor="middle" style="font-size:var(--fs-24);font-weight:800;fill:var(--text)">'+X.now+'%</text></svg><span class="hq-ex"><b>'+esc(X.e.name)+'</b><small>'+X.s.cleared+'/'+X.s.total+' cleared'+(X.days>0&&X.proj>X.now?' · ≈'+X.proj+'% by exam':'')+'</small></span><span class="hq-dd"><b>'+X.days+'</b><small>days</small></span>'+(X.left.length?'<span class="hq-pill '+(X.behind?'bad':'ok')+'">'+(X.behind?'Behind':'On track')+'</span>':'')+'</button>'}
   if(h.dataset.h!==html){h.innerHTML=html;h.dataset.h=html}}
@@ -7104,7 +7138,8 @@ function buddy(sp,mo,sk,stg,anim){
   if(h.dataset.h!==html){h.innerHTML=html;h.dataset.h=html}}
  function paintNext(){
   var h=$('hqNext');if(!h)return;var p=V.prio(),r=p[0];
-  var html=r?'<div class="hq-card hq-nx2"><span class="hq-n" title="Priority group '+r.g+'">'+r.g+'</span><span class="hq-nt"><small>NEXT</small><b>L'+r.l.id+' · '+esc(r.l.title)+'</b></span><button type="button" onclick="startMission()">Start</button></div>':'';
+  var goal=(typeof XP2!=='undefined'&&XP2.goalSteps)||3,sub=[r&&r.l&&r.l.subject?String(r.l.subject):'',Math.min(todaySteps,goal)+'/'+goal+' steps today'].filter(Boolean).join(' · ');
+  var html=r?'<div class="hq-card hq-nx2"><span class="hq-n" title="Priority group '+r.g+'">'+r.g+'</span><span class="hq-nt"><small>DO THIS NEXT</small><b>L'+r.l.id+' · '+esc(r.l.title)+'</b><em>'+esc(sub)+'</em></span><button type="button" onclick="startMission()">Start</button></div>':'';
   if(h.dataset.h!==html){h.innerHTML=html;h.dataset.h=html}}
  window.renderHQ=function(){
   if(!data.length)return;
@@ -7724,10 +7759,10 @@ function buddy(sp,mo,sk,stg,anim){
  }
  function paintHome(){
   try{var p=P(),host=$('prHome');
-   if(!host){var n=$('hqNext');if(!n||!n.parentNode)return;host=document.createElement('div');host.id='prHome';n.parentNode.insertBefore(host,n)}
+   if(!host){var n=$('hqSeason')||$('hqNext');if(!n||!n.parentNode)return;host=document.createElement('div');host.id='prHome';n.parentNode.insertBefore(host,n)}
    if(!p.sections.length){host.innerHTML='';host.dataset.h='';return}
    var T=totals(),ne=nextExam(null),pct=T.t?Math.round(T.d/T.t*100):0;
-   var html='<button type="button" class="pr-home" onclick="showView(\'practicalView\')"><div class="r"><b>'+ic('flask')+' Practical</b><span class="u">'+(ne?esc(ne.name)+' · '+fmtLeft(ne):(T.d+'/'+T.t+' items'))+'</span></div><div class="pr-bar"><i style="width:'+pct+'%"></i></div><div class="pr-m">'+T.d+' of '+T.t+' items'+(T.pt?' · pages '+T.pc+'/'+T.pt:'')+'</div></button>';
+   var html='<button type="button" class="pr-home" onclick="showView(\'practicalView\')"><div class="r"><b>'+ic('flask')+' Practical</b><span class="u">'+(ne?esc(ne.name)+' · '+fmtLeft(ne):'')+'</span></div><div class="pr-bar"><i style="width:'+pct+'%"></i></div><div class="pr-m">'+T.d+' of '+T.t+' items'+(T.pt?' · pages '+T.pc+'/'+T.pt:'')+'</div></button>';
    if(host.dataset.h!==html){host.innerHTML=html;host.dataset.h=html}}catch(e){}
  }
 
