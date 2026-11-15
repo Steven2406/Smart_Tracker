@@ -1980,13 +1980,38 @@ html[data-emblem=atlas-emblem]{--emblem-glyph:"❦"}
 html[data-skin=atlas] .fs-art{background:linear-gradient(#2a2015,#130e08)}
 html[data-skin=atlas] .fs-art::before{content:"";position:absolute;left:0;right:0;top:30%;height:92px;background:repeating-linear-gradient(90deg,#5a3b24 0 11px,#7a2f26 11px 19px,#2d4a3e 19px 33px,#8a6a2b 33px 39px,#35405c 39px 49px,#6b4a2a 49px 58px);-webkit-mask:linear-gradient(90deg,#000 0 26%,transparent 34% 66%,#000 74%);mask:linear-gradient(90deg,#000 0 26%,transparent 34% 66%,#000 74%);opacity:.55;border-top:3px solid #3a2815;border-bottom:3px solid #3a2815}
 html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;top:-30px;width:170px;height:30px;margin-left:-85px;background:linear-gradient(90deg,#efe3c8 0 48.5%,#6b5a3e 48.5% 51.5%,#efe3c8 51.5%),repeating-linear-gradient(#0000 0 5px,rgba(58,44,24,.35) 5px 6px);background-blend-mode:multiply;border:1px solid #3a2c18;border-radius:3px 3px 0 0;transform:perspective(240px) rotateX(38deg);transform-origin:50% 100%}
+/* ---- v8.12.0: section switchers (sticky pill bar), 1-tap "+1 Step" on the Next card, curriculum subject strip + Next Unfinished ---- */
+.section-switcher{overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scroll-snap-type:none}
+.section-switcher button{white-space:nowrap;min-height:40px}
+.section-switcher button.active{font-weight:800}
+.hq-acts{flex:none;display:flex;flex-direction:column;gap:6px;align-items:stretch}
+#hq81 .hq-nx2 .hq-q1{min-height:36px;padding:6px 12px;font-size:var(--fs-13);font-weight:700;white-space:nowrap;background:transparent;color:var(--text);border:1.5px solid var(--accent);box-shadow:none;border-radius:12px}
+#hq81 .hq-nx2 .hq-q1:active{background:var(--soft)}
+.next-acts{display:flex;gap:8px;align-items:stretch}
+.next-acts .next-go{flex:1;width:auto;min-width:0}
+.next-q1{flex:none;min-height:48px;padding:0 14px;font-weight:700;white-space:nowrap;background:transparent;color:var(--text);border:1.5px solid var(--accent);border-radius:12px}
+.next-q1[hidden]{display:none}
+.subj-strip{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -14px 8px;padding:2px 14px}
+.subj-strip::-webkit-scrollbar{display:none}
+.subj-strip[hidden]{display:none}
+.csp-pill{flex:none;display:grid;gap:4px;min-height:40px;padding:6px 10px 7px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);color:var(--text);text-align:left}
+.csp-t{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:var(--fs-13);line-height:1.15}
+.csp-t b{font-size:var(--fs-12);font-weight:800}
+.csp-bar{display:block;height:4px;border-radius:3px;background:var(--line);overflow:hidden}
+.csp-bar u{display:block;height:100%;background:var(--accent);border-radius:3px;text-decoration:none}
+.csp-pill.active{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.csp-pill.active .csp-bar{background:color-mix(in srgb,var(--accent-ink) 30%,transparent)}
+.csp-pill.active .csp-bar u{background:var(--accent-ink)}
+.lt-next{min-height:40px;display:flex;align-items:center;justify-content:center;gap:6px;padding:6px 14px;border-radius:13px;border:1.5px solid var(--accent);background:var(--surface);color:var(--text);font-weight:700}
+.lt-next[hidden]{display:none}
+@media(min-width:600px){.lecture-tools{grid-template-columns:1fr auto;align-items:stretch}.lecture-tools .search{grid-column:1/-1}}
 </style>
 <script>try{window.mhqSyncThemeColor&&window.mhqSyncThemeColor()}catch(e){}document.addEventListener('DOMContentLoaded',function(){try{window.mhqSyncThemeColor&&window.mhqSyncThemeColor()}catch(e){}})</script>
 </head>
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.11.2</span></small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.12.0</span></small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -2022,7 +2047,7 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
       <div class="progress"><div class="fill" id="missionFill" style="width:0%"></div></div>
       <div class="meta next-goal"><span id="momentum">0</span>/3 study steps today</div>
     </div>
-    <button type="button" class="primary next-go" onclick="startMission()">START MISSION</button>
+    <div class="next-acts"><button type="button" class="primary next-go" onclick="startMission()">START MISSION</button><button type="button" class="next-q1" id="missionQuick" hidden onclick="mhqQuickStep(this)">✓ +1 Step</button></div>
     <div class="next-links">
       <button type="button" onclick="showView('studyView')">🎯 Focus timer</button>
       <button type="button" onclick="showView('externalTestsView')">🧪 Log a test</button>
@@ -2060,7 +2085,9 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
     <div class="lecture-tools">
       <label class="search"><span aria-hidden="true">🔍</span><input id="lectureSearch" type="search" placeholder="Search title, subject or number" autocomplete="off" enterkeyhint="search" oninput="setLectureSearch(this.value)"><button type="button" class="search-clear" id="lectureSearchClear" hidden aria-label="Clear search" onclick="setLectureSearch('',true)">✕</button></label>
       <div class="seg" id="statusSeg" role="group" aria-label="Completion filter"><button type="button" class="active" data-s="all" onclick="setLectureStatus('all')">All</button><button type="button" data-s="todo" onclick="setLectureStatus('todo')">Not completed</button><button type="button" data-s="done" onclick="setLectureStatus('done')">Completed</button></div>
+      <button type="button" class="lt-next" id="nextUnfinishedBtn" hidden onclick="mhqJumpNextUnfinished()">⚡ Next Unfinished</button>
     </div>
+    <div class="subj-strip" id="subjStrip" role="group" aria-label="Subject progress" hidden></div>
     <div class="filters" id="filters"></div>
     <div class="card" id="list"></div>
   </div>
@@ -3363,6 +3390,22 @@ function importBackupFile(input){
   reader.readAsText(file);
 }
 
+/* "Do this next" fallback card (#homeView .next-card, hidden behind the v8.11 dashboard): same statements as before, now a function so the HQ card can re-sync it
+   once the dashboard priority logic is loaded (the first render() runs before that). */
+function renderFallbackNext(){
+ const nextLecture=getPriorityLecture();
+ {const qb=document.getElementById("missionQuick"),qi=nextLecture?nextLecture.steps.findIndex(v=>!v):-1;
+  if(qb){if(qi>-1){const lb=MHQ_STEP_LABELS[qi]||("Step "+(qi+1));qb.hidden=false;qb.dataset.lid=nextLecture.id;qb.dataset.step=qi;qb.title="Mark next step done: "+lb;qb.setAttribute("aria-label","+1 Step: mark next step done: "+lb+" (lecture "+nextLecture.id+")")}else{qb.hidden=true;delete qb.dataset.lid;delete qb.dataset.step}}}
+ if(nextLecture){
+   const stepLabels=["Watched / listened","Read","Solved questions","Revision"];
+   const nextStep=stepLabels.find((_,i)=>!nextLecture.steps[i])||"Finish the lecture";
+   document.getElementById("missionText").textContent=`Lecture ${nextLecture.id}: ${nextLecture.title}`;
+   document.getElementById("missionSub").textContent=`${nextLecture.subject} · Next step: ${nextStep}.`;
+ } else {
+   document.getElementById("missionText").textContent="🏆 "+COURSE.short+" campaign complete";
+   document.getElementById("missionSub").textContent="You cleared the current curriculum.";
+ }
+}
 function render(){
   if(!data.length)return;
   try{renderProtectCard()}catch(e){}
@@ -3384,17 +3427,9 @@ function render(){
  document.getElementById("milestone").textContent="Level "+(lvl+1);document.getElementById("milestoneSub").textContent=remain+" XP remaining";
  const missionTarget=3, missionPct=Math.min(100,Math.round(todaySteps/missionTarget*100));
  document.getElementById("missionFill").style.width=missionPct+"%";
- const nextLecture=getPriorityLecture();
- if(nextLecture){
-   const stepLabels=["Watched / listened","Read","Solved questions","Revision"];
-   const nextStep=stepLabels.find((_,i)=>!nextLecture.steps[i])||"Finish the lecture";
-   document.getElementById("missionText").textContent=`Lecture ${nextLecture.id}: ${nextLecture.title}`;
-   document.getElementById("missionSub").textContent=`${nextLecture.subject} · Next step: ${nextStep}.`;
- } else {
-   document.getElementById("missionText").textContent="🏆 "+COURSE.short+" campaign complete";
-   document.getElementById("missionSub").textContent="You cleared the current curriculum.";
- }
+ renderFallbackNext();
  document.getElementById("filters").innerHTML=subjects.map(s=>`<button class="${s===activeFilter?'active':''}" data-s="${escapeHtml(s)}" onclick="filter(this.dataset.s)">${escapeHtml(s)}</button>`).join("");
+ try{renderSubjectStrip();updateNextUnfinishedBtn()}catch(e){}
  renderLectureList();
  save();
  renderExtraViews();
@@ -3402,6 +3437,34 @@ function render(){
 }
 
 function filter(s){activeFilter=s;render()}
+/* v8.12.0: subject progress strip (completed lectures / lectures per subject; tap = filter, tap again = All) and the Next Unfinished jump */
+function renderSubjectStrip(){
+  const el=document.getElementById("subjStrip");if(!el)return;
+  const subs=[...new Set(data.map(x=>x.subject))];
+  if(subs.length<2){el.hidden=true;el.innerHTML="";return}
+  el.hidden=false;
+  el.innerHTML=subs.map(s=>{
+    const all=data.filter(l=>l.subject===s),done=all.filter(l=>l.steps.every(Boolean)).length,p=all.length?Math.round(done/all.length*100):0,on=activeFilter===s;
+    return `<button type="button" class="csp-pill${on?' active':''}" data-s="${escapeHtml(s)}" aria-pressed="${on}" aria-label="${escapeHtml(s)}: ${done} of ${all.length} lectures completed, ${p}%. ${on?'Tap to show all subjects':'Tap to filter by this subject'}" title="${done}/${all.length} completed" onclick="mhqSubjectPill(this.dataset.s)"><span class="csp-t"><span>${escapeHtml(s)}</span><b>${p}%</b></span><i class="csp-bar"><u style="width:${p}%"></u></i></button>`;
+  }).join("");
+}
+function mhqSubjectPill(s){
+  filter(activeFilter===s?"All":s);
+  const b=[...document.querySelectorAll("#subjStrip .csp-pill")].find(x=>x.dataset.s===s);
+  if(b){try{b.focus({preventScroll:true})}catch(e){b.focus()}}
+}
+function nextUnfinishedLecture(){
+  const top=getPriorityLecture();
+  if(top&&!top.steps.every(Boolean))return top;
+  try{const p=window.mhqPrio&&window.mhqPrio();const r=p&&p.find(x=>!x.l.steps.every(Boolean));if(r)return r.l}catch(e){}
+  return data.find(x=>!x.steps.every(Boolean))||null;
+}
+function updateNextUnfinishedBtn(){
+  const b=document.getElementById("nextUnfinishedBtn");if(!b)return;
+  const l=nextUnfinishedLecture();b.hidden=!l;
+  if(l){b.dataset.lid=l.id;b.title="Open lecture "+l.id+": "+l.title;b.setAttribute("aria-label","Next Unfinished: open lecture "+l.id+", "+l.title)}else{delete b.dataset.lid}
+}
+function mhqJumpNextUnfinished(){const l=nextUnfinishedLecture();if(l)openLecture(l.id)}
 let searchQuery="",statusFilter="all";
 function lectureDone(x){return x.steps.every(Boolean)}
 function lectureMatches(x){
@@ -4180,11 +4243,11 @@ function closeModal(){
  current=null;
 }
 
-function toggleStep(i,v){
- if(!current)return;
+function applyStepChange(i,v){
+ if(!current)return false;
  const wasComplete=current.steps.every(Boolean);
  const oldValue=current.steps[i];
- if(oldValue===v)return;
+ if(oldValue===v)return false;
 
  current.steps[i]=v;
  if(v){
@@ -4212,7 +4275,28 @@ function toggleStep(i,v){
    current.completionDate=null;
  }
  syncXP();
+ return true;
+}
+function toggleStep(i,v){
+ if(!applyStepChange(i,v))return;
  save();render();openLecture(current.id);
+}
+/* v8.12.0: 1-tap "+1 Step" (HQ Next card). Same canonical pathway as ticking the box in the lecture sheet
+   (applyStepChange: steps, stepDates, completionDate, mastery, todaySteps, ledger, study activity, XP, sound + toast, then save + render),
+   but the lecture sheet is NOT opened. */
+const MHQ_STEP_LABELS=["Watched / listened","Read","Solved questions","Revision"];
+function quickCompleteStep(lectureId,stepIdx){
+ const l=data.find(x=>x.id===Number(lectureId));
+ if(!l||!(stepIdx>=0&&stepIdx<l.steps.length)||l.steps[stepIdx])return false;
+ const prev=current;current=l;let ok=false;
+ try{ok=applyStepChange(stepIdx,true);if(ok){save();render();}}
+ finally{current=prev||null;}
+ return ok;
+}
+function mhqQuickStep(btn){
+ const d=(btn&&btn.dataset)||{},l=d.lid?data.find(x=>x.id===Number(d.lid)):null,idx=Number(d.step);
+ if(!l||!(idx>=0)||l.steps[idx]){try{render()}catch(e){}return false}   // stale button (state changed since it was drawn): repaint, never guess another step
+ return quickCompleteStep(l.id,idx);
 }
 function setLectureImportance(value){
  if(!current)return; current.importance=["A","B","C"].includes(value)?value:"B"; save(); render(); openLecture(current.id);
@@ -4962,7 +5046,15 @@ window.mhqMotivationRender=()=>{reconcileWallet();render()};
   document.querySelectorAll('.hub-nav').forEach(el=>el.remove());
   const original=window.showView;
   if(!window.__mhq56Wrapped&&typeof original==='function'){
-   window.showView=function(id,button){original(id,button);document.querySelectorAll('.section-switcher button').forEach(b=>b.classList.toggle('active',b.dataset.targetView===id));document.querySelectorAll('.section-switcher').forEach(s=>{const a=s.querySelector('button.active');if(a)s.scrollLeft=Math.max(0,a.offsetLeft-(s.clientWidth-a.offsetWidth)/2);});};
+   window.mhqRevealActivePill=function(prev){
+    const v=document.querySelector('.view.active'),s=v&&v.querySelector(':scope > .section-switcher');if(!s)return;
+    const a=s.querySelector('button.active');if(!a||!s.clientWidth)return;
+    const max=Math.max(0,s.scrollWidth-s.clientWidth),to=Math.min(max,Math.max(0,a.offsetLeft-(s.clientWidth-a.offsetWidth)/2));
+    if(prev&&prev.group&&prev.group===s.dataset.group)s.scrollLeft=Math.min(max,prev.left);   /* same bar as the previous view: start where it was, then glide */
+    if(matchMedia('(prefers-reduced-motion: reduce)').matches||typeof s.scrollTo!=='function')s.scrollLeft=to;else s.scrollTo({left:to,behavior:'smooth'});
+   };
+   window.showView=function(id,button){const ps=document.querySelector('.view.active > .section-switcher'),prev=ps?{group:ps.dataset.group||'',left:ps.scrollLeft}:null;original(id,button);const eff=(document.querySelector('.view.active')||{}).id||id;   /* the view that actually opened (Achievements/Calendar are remapped to Rewards/Stats) */
+    document.querySelectorAll('.section-switcher button').forEach(b=>{const on=b.dataset.targetView===eff;b.classList.toggle('active',on);if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});window.mhqRevealActivePill(prev);};
    window.__mhq56Wrapped=true;
   }
   document.querySelectorAll('.section-switcher button').forEach(b=>b.classList.toggle('active',b.dataset.targetView===document.querySelector('.view.active')?.id));
@@ -7053,26 +7145,26 @@ function buddy(sp,mo,sk,stg,anim){
  /* ---------- new views and navigation ---------- */
  function mkView(id){if($(id))return $(id);var ref=$('rpgView'),v=document.createElement('div');v.id=id;v.className='view';ref.parentNode.insertBefore(v,ref.nextSibling);var br=ref.querySelector(':scope > .mhq-back-row');if(br)v.appendChild(br.cloneNode(true));return v}
  var G={
-  study:[['todayView','⚡ Today'],['curriculumView','📚 Lectures'],['reviewView','🧠 Review'],['weaknessView','🎯 Weak spots'],['examsView','📅 Exams'],['practicalView','🧪 Practical']],
-  testing:[['externalTestsView','🧪 Tests'],['clinicalView','🩺 Clinical cases'],['mistakesView','📓 Mistakes']],
-  campaign:[['campaignView','🗺️ Map'],['bossView','🐉 Bosses'],['bodyMapView','🫀 Body map'],['courseMapView','🧭 Course map']],
+  study:[['curriculumView','📚 Curriculum'],['reviewView','🧠 Reviews'],['weaknessView','🎯 Weaknesses'],['mistakesView','📓 Mistakes'],['examsView','📅 Exams'],['practicalView','🧪 Practical'],['todayView','⚡ Today']],
+  testing:[['clinicalView','🩺 Clinical Cases'],['externalTestsView','🧪 External Tests']],
+  campaign:[['campaignView','🗺️ Map'],['bossView','🐉 Bosses'],['bodyMapView','🫀 Body Map'],['courseMapView','🧭 Course Map']],
   focus:[['studyView','⏱ Timer'],['insightsView','📈 Insights']],
-  me:[['rpgView','🏆 Overview'],['rewardsView','🎁 Rewards'],['statsView','📊 Reports'],['dataView','⚙️ Settings']]};
+  me:[['rpgView','🏆 RPG Profile'],['rewardsView','🏅 Rewards & Achievements'],['statsView','📊 Stats & Calendar'],['dataView','⚙️ Data & System']]};
  var REMAP={achievementsView:'rewardsView',calendarView:'statsView'};
  function buildNav(){
   ['courseMapView','insightsView','rewardsView'].forEach(mkView);
-  try{VIEW_SECTIONS.courseMapView='campaign';VIEW_SECTIONS.insightsView='focus';VIEW_SECTIONS.rewardsView='progress';VIEW_SECTIONS.mistakesView='testing'}catch(e){}
+  try{VIEW_SECTIONS.courseMapView='campaign';VIEW_SECTIONS.insightsView='focus';VIEW_SECTIONS.rewardsView='progress';VIEW_SECTIONS.mistakesView='study'}catch(e){}
   document.querySelectorAll('.section-switcher').forEach(function(s){s.remove()});
   Object.keys(G).forEach(function(k){G[k].forEach(function(it){
    var host=$(it[0]);if(!host)return;
-   var strip=document.createElement('div');strip.className='section-switcher';strip.setAttribute('aria-label','Section navigation');
+   var strip=document.createElement('div');strip.className='section-switcher';strip.setAttribute('aria-label','Section navigation');strip.dataset.group=k;
    G[k].forEach(function(x){var b=document.createElement('button');b.type='button';b.textContent=x[1];b.dataset.targetView=x[0];b.onclick=function(){showView(x[0],b)};strip.appendChild(b)});
    var bk=host.querySelector(':scope > .mhq-back-row');host.insertBefore(strip,bk?bk.nextSibling:host.firstChild)})});
   var nb={study:'todayView',testing:'externalTestsView'};
   document.querySelectorAll('.nav button').forEach(function(b){
    var s=b.dataset.section;if(nb[s])b.setAttribute('onclick',"showView('"+nb[s]+"',this)");
    if(s==='progress'){b.querySelectorAll('span').forEach(function(n){if(n.textContent.trim()==='Progress')n.textContent='Me'});b.setAttribute('aria-label','Me')}});
-  var a=document.querySelector('.view.active');if(a)document.querySelectorAll('.section-switcher button').forEach(function(b){b.classList.toggle('active',b.dataset.targetView===a.id)})}
+  var a=document.querySelector('.view.active');if(a){document.querySelectorAll('.section-switcher button').forEach(function(b){var on=b.dataset.targetView===a.id;b.classList.toggle('active',on);if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});try{window.mhqRevealActivePill&&window.mhqRevealActivePill(null)}catch(e){}}}
  var sv=window.showView;
  if(typeof sv==='function')window.showView=function(id,btn){if(REMAP[id])id=REMAP[id];var r=sv.call(this,id,btn);try{syncTopNav(id)}catch(e){}try{window.renderV81&&window.renderV81()}catch(e){}return r};
  /* ---------- card homes ---------- */
@@ -7156,9 +7248,12 @@ function buddy(sp,mo,sk,stg,anim){
   if(h.dataset.h!==html){h.innerHTML=html;h.dataset.h=html}}
  function paintNext(){
   var h=$('hqNext');if(!h)return;var p=V.prio(),r=p[0];
+  var qs=(r&&r.l&&r.l.steps)?r.l.steps.findIndex(function(v){return!v}):-1,ql=qs>-1?(MHQ_STEP_LABELS[qs]||('Step '+(qs+1))):'';
+  var quick=qs>-1?'<button type="button" class="hq-q1" data-lid="'+r.l.id+'" data-step="'+qs+'" title="Mark next step done: '+ql+'" aria-label="+1 Step: mark next step done: '+ql+' (lecture '+r.l.id+')" onclick="mhqQuickStep(this)">✓ +1 Step</button>':'';
   var goal=(typeof XP2!=='undefined'&&XP2.goalSteps)||3,sub=[r&&r.l&&r.l.subject?String(r.l.subject):'',Math.min(todaySteps,goal)+'/'+goal+' steps today'].filter(Boolean).join(' · ');
-  var html=r?'<div class="hq-card hq-nx2"><span class="hq-n" title="Priority group '+r.g+'">'+r.g+'</span><span class="hq-nt"><small>DO THIS NEXT</small><b>L'+r.l.id+' · '+esc(r.l.title)+'</b><em>'+esc(sub)+'</em></span><button type="button" onclick="startMission()">Start</button></div>':'';
-  if(h.dataset.h!==html){h.innerHTML=html;h.dataset.h=html}}
+  var html=r?'<div class="hq-card hq-nx2"><span class="hq-n" title="Priority group '+r.g+'">'+r.g+'</span><span class="hq-nt"><small>DO THIS NEXT</small><b>L'+r.l.id+' · '+esc(r.l.title)+'</b><em>'+esc(sub)+'</em></span><span class="hq-acts"><button type="button" onclick="startMission()">Start</button>'+quick+'</span></div>':'';
+  if(h.dataset.h!==html){h.innerHTML=html;h.dataset.h=html}
+  try{renderFallbackNext()}catch(e){}}
  window.renderHQ=function(){
   if(!data.length)return;
   try{buildOnce()}catch(e){}
@@ -7284,7 +7379,7 @@ function buddy(sp,mo,sk,stg,anim){
 </script>
 <script id="mhq-fade">
 (function(){
- var SEL='.section-switcher,.filters';
+ var SEL='.section-switcher,.filters,.subj-strip';
  function upd(el){if(!el.clientWidth){return}var m=el.scrollWidth-el.clientWidth;
   if(m<6){el.classList.remove('hq-fade-l','hq-fade-r');return}
   el.classList.toggle('hq-fade-l',el.scrollLeft>6);el.classList.toggle('hq-fade-r',el.scrollLeft<m-6)}
