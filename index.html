@@ -2005,13 +2005,43 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
 .lt-next{min-height:40px;display:flex;align-items:center;justify-content:center;gap:6px;padding:6px 14px;border-radius:13px;border:1.5px solid var(--accent);background:var(--surface);color:var(--text);font-weight:700}
 .lt-next[hidden]{display:none}
 @media(min-width:600px){.lecture-tools{grid-template-columns:1fr auto;align-items:stretch}.lecture-tools .search{grid-column:1/-1}}
+/* ---- v8.12.1: collapsible mastery profile + MCQs/Flashcards tabs in the lecture sheet, "Review My Lessons" flip-card drill ---- */
+#modal .mastery-head{display:block}
+#mMasteryToggle{display:flex;width:100%;align-items:center;justify-content:space-between;gap:8px;min-height:40px;padding:4px 0;background:none;border:0;border-radius:8px;box-shadow:none;color:inherit;font:inherit;text-align:left}
+#mMasteryToggle>span{display:inline-flex;align-items:center;gap:6px}
+#mMasteryToggle b{color:var(--text)}
+.mt-caret{font-style:normal;display:inline-block;transition:transform .25s ease}
+#mMasteryToggle[aria-expanded=true] .mt-caret{transform:rotate(180deg)}
+.md-wrap{display:grid;grid-template-rows:0fr;visibility:hidden;transition:grid-template-rows .25s ease,visibility 0s .25s}
+.md-wrap.open{grid-template-rows:1fr;visibility:visible;transition:grid-template-rows .25s ease,visibility 0s}
+.md-wrap>.md-in{overflow:hidden;min-height:0}
+.mtabs{grid-template-columns:repeat(2,1fr);margin-top:14px}
+.mtabs button{display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px}
+.mt-n{display:inline-block;min-width:20px;padding:1px 7px;border-radius:99px;background:var(--surface2);border:1px solid var(--line);color:var(--text);font-size:var(--fs-11);font-weight:800;line-height:1.5}
+.mt-n[hidden]{display:none}
+#mPanelMcq[hidden],#mPanelCards[hidden]{display:none!important}
+.mtabs+.card{margin-top:10px!important}
+.dr-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:var(--fs-12);color:var(--muted);margin-bottom:8px}
+.dr-card{border:1px solid var(--line);border-radius:16px;background:var(--surface2);padding:14px;min-height:190px;display:flex;flex-direction:column;gap:10px;cursor:pointer;color:var(--text)}
+.dr-card.flipping{animation:drFlip .32s ease}
+@keyframes drFlip{from{transform:rotateY(90deg)}to{transform:rotateY(0)}}
+.dr-card .dr-t{font-size:var(--fs-16);font-weight:800;line-height:1.3;overflow-wrap:anywhere}
+.dr-card .dr-s{font-size:var(--fs-13);color:var(--muted)}
+.dr-card .dr-q{font-size:var(--fs-14);line-height:1.45}
+.dr-lesson{font-size:var(--fs-16);line-height:1.5;font-weight:650;overflow-wrap:anywhere;padding:10px 12px;border-radius:12px;background:var(--surface);border-left:4px solid var(--gold)}
+.dr-card[hidden],.dr-face[hidden]{display:none}
+.dr-acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto}
+.dr-acts button{flex:1 1 auto;min-height:44px;padding:8px 12px;white-space:nowrap}
+.dr-acts .dr-go{flex-basis:100%}
+.dr-acts button:disabled{opacity:.45}
+.dr-hint{font-size:var(--fs-13);line-height:1.5;color:var(--muted);padding:10px 12px;background:var(--surface2);border-radius:12px;border:1px solid var(--line)}
 </style>
 <script>try{window.mhqSyncThemeColor&&window.mhqSyncThemeColor()}catch(e){}document.addEventListener('DOMContentLoaded',function(){try{window.mhqSyncThemeColor&&window.mhqSyncThemeColor()}catch(e){}})</script>
 </head>
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.12.0</span></small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.12.1</span></small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -2262,6 +2292,7 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
       <div class="bm-modes" id="mnWin"></div>
       <div id="mnBody"></div>
     </div>
+    <div id="mnDrill"></div>
     <div id="mnSets"></div>
   </div>
 
@@ -2408,14 +2439,21 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
   <div class="steps" id="mSteps"></div>
 
   <div class="mastery-wrap">
-    <div class="mastery-head"><span>Learning Mastery</span><b id="mMastery">0%</b></div>
+    <div class="mastery-head"><button type="button" id="mMasteryToggle" aria-expanded="false" aria-controls="mMasteryDetail" onclick="mhqToggleMastery()"><span>Learning Mastery <i class="mt-caret" aria-hidden="true">▾</i></span><b id="mMastery">0%</b></button></div>
     <div class="mastery-bar"><div class="mastery-fill" id="mMasteryBar" style="width:0%"></div></div>
     <div id="mExamNote" class="meta" style="margin-top:10px"></div>
-    <div id="mMasteryProfile" class="mini-grid" style="margin-top:12px"></div>
-    <div class="meta" style="margin-top:6px">Evidence is separated into knowledge, retention, coverage, application, confidence and recency.</div>
+    <div id="mMasteryDetail" class="md-wrap" inert><div class="md-in">
+      <div id="mMasteryProfile" class="mini-grid" style="margin-top:12px"></div>
+      <div class="meta" style="margin-top:6px">Evidence is separated into knowledge, retention, coverage, application, confidence and recency.</div>
+    </div></div>
   </div>
 
-  <div class="card" style="padding:13px;margin-top:14px">
+  <div class="seg mtabs" id="mEvTabs" role="tablist" aria-label="Practice evidence" onkeydown="mhqTabKey(event)">
+    <button type="button" role="tab" id="mTabMcq" class="active" aria-selected="true" aria-controls="mPanelMcq" onclick="mhqModalTab('mcq')">MCQs<span class="mt-n" id="mTabMcqN" hidden>0</span></button>
+    <button type="button" role="tab" id="mTabCards" aria-selected="false" aria-controls="mPanelCards" tabindex="-1" onclick="mhqModalTab('cards')">Flashcards<span class="mt-n" id="mTabCardsN" hidden>0</span></button>
+  </div>
+
+  <div class="card" id="mPanelMcq" role="tabpanel" aria-labelledby="mTabMcq" style="padding:13px;margin-top:14px">
     <div class="label">MCQ Attempt</div>
     <div class="mcq" style="margin-top:8px">
       <input id="mcqScore" placeholder="Score e.g. 8/10">
@@ -2437,7 +2475,7 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
     <div class="mcq-list" id="mcqHistory"></div>
   </div>
 
-  <div class="card" style="padding:13px;margin-top:14px">
+  <div class="card" id="mPanelCards" role="tabpanel" aria-labelledby="mTabCards" hidden style="padding:13px;margin-top:14px">
     <div class="label">🃏 Flashcard Review</div>
     <div class="meta" style="margin-top:4px">Log a deck session from Anki or any other app. Recall counts as lighter evidence than MCQs.</div>
     <div class="mcq" style="margin-top:8px">
@@ -4182,8 +4220,31 @@ function lectureMCQStats(lecture){
   const questions=parsed.reduce((a,p)=>a+p.max,0);
   return {attempts:parsed.length,average,correct,questions};
 }
+/* v8.12.1: transient lecture-sheet UI state (memory only, no storage): selected evidence tab and mastery-breakdown disclosure.
+   Re-rendering the SAME open lecture (add/delete MCQ or flashcards, ticking a step) keeps both; opening a lecture afresh resets them. */
+const MHQ_MODAL_UI={lec:null,tab:"mcq",mastery:false};
+function mhqApplyModalUI(){
+ const ui=MHQ_MODAL_UI,$=id=>document.getElementById(id);
+ if(!$("mPanelMcq"))return;
+ const n1=current?(current.mcqs||[]).length:0,n2=current?(current.cards||[]).length:0;
+ [["mTabMcqN",n1],["mTabCardsN",n2]].forEach(([id,n])=>{const e=$(id);if(e){e.textContent=n;e.hidden=!(n>0)}});
+ const t=ui.tab==="cards"?"cards":"mcq";
+ $("mPanelMcq").hidden=t!=="mcq";$("mPanelCards").hidden=t!=="cards";
+ [["mTabMcq","mcq"],["mTabCards","cards"]].forEach(([id,k])=>{const b=$(id);b.classList.toggle("active",t===k);b.setAttribute("aria-selected",String(t===k));b.tabIndex=t===k?0:-1});
+ const open=!!ui.mastery,d=$("mMasteryDetail");
+ d.classList.toggle("open",open);d.inert=!open;$("mMasteryToggle").setAttribute("aria-expanded",String(open));
+}
+function mhqModalTab(k){MHQ_MODAL_UI.tab=k==="cards"?"cards":"mcq";mhqApplyModalUI()}
+function mhqToggleMastery(){MHQ_MODAL_UI.mastery=!MHQ_MODAL_UI.mastery;mhqApplyModalUI()}
+function mhqTabKey(e){
+ if(e.key!=="ArrowLeft"&&e.key!=="ArrowRight"&&e.key!=="Home"&&e.key!=="End")return;
+ e.preventDefault();const k=(e.key==="ArrowRight"||e.key==="End")?"cards":"mcq";mhqModalTab(k);
+ const b=document.getElementById(k==="cards"?"mTabCards":"mTabMcq");if(b)b.focus();
+}
 function openLecture(id){
  current=data.find(x=>x.id===Number(id));if(!current)return;
+ {const m0=document.getElementById("modal"),keep=m0&&m0.classList.contains("open")&&MHQ_MODAL_UI.lec===current.id;
+  if(!keep){MHQ_MODAL_UI.lec=current.id;MHQ_MODAL_UI.tab="mcq";MHQ_MODAL_UI.mastery=false}}
  try{if(!(window.mhqLoadProtect&&window.mhqLoadProtect.active))localStorage.setItem("mhqLastLectureV58",String(current.id))}catch(e){}
  playSfx("ui_click",.42);
  const modal=document.getElementById("modal");
@@ -4234,6 +4295,7 @@ function openLecture(id){
      ? `<div class="label" style="margin-top:14px">Flashcard history</div>`+rows.map(o=>`<div class="mcq-item"><div><div class="score">${o.c.recalled}/${o.c.reviewed} recalled · ${Math.round(o.c.recalled/o.c.reviewed*100)}%</div><div class="meta">${escapeHtml(o.c.date)}${o.c.source?" · "+escapeHtml(o.c.source):""}</div></div><div style="text-align:right"><b>+${o.xp} XP</b><br><button type="button" class="row-del" aria-label="Delete this flashcard session" onclick="deleteCards(${current.cards.indexOf(o.c)})">🗑 Delete</button></div></div>`).join("")
      : '<div class="empty">No flashcard sessions yet. Log one after you review a deck.</div>';
  }
+ mhqApplyModalUI();
 }
 function closeModal(){
  const modal=document.getElementById("modal");
@@ -6290,7 +6352,47 @@ function buddy(sp,mo,sk,stg,anim){
   if(lessons.length)h2+='<div class="section card"><div class="section-head"><h2>📝 My lessons</h2><small>'+lessons.length+' saved</small></div>'+lessons.map(function(x){return'<div class="mn-set"><b>L'+x.l.id+' · '+esc(x.l.title)+'</b><div class="mn-note">“'+esc(x.m.note)+'”'+(ET[x.m.errorType]?' · '+ET[x.m.errorType].n:'')+'</div></div>'}).join('')+'</div>';
   if(rec.length)h2+='<div class="section card"><div class="section-head"><h2>🧾 Recent sets</h2><small>tag and annotate</small></div>'+rec.map(function(x){var id=x.l.id+'-'+x.i;
    return'<div class="mn-set"><b>L'+x.l.id+' · '+esc(x.l.title)+'</b><div class="mn-note">'+esc(x.m.score)+' · '+esc(x.m.date||x.dk)+'</div><div class="mn-ed"><select aria-label="Error type" onchange="mhqMNType('+x.l.id+','+x.i+',this.value)">'+opt(x.m.errorType)+'</select><input id="mn-'+id+'" maxlength="160" value="'+esc(x.m.note||'')+'" placeholder="One-line lesson" aria-label="One-line lesson"><button type="button" onclick="mhqMNNote('+x.l.id+','+x.i+')">Save</button></div></div>'}).join('')+'</div>';
-  document.getElementById('mnSets').innerHTML=h2}
+  document.getElementById('mnSets').innerHTML=h2;
+  try{renderDrill(all)}catch(e){}}
+ /* ---------- Review My Lessons: flip-card drill (deck order / position / flip live in memory only) ---------- */
+ var drill={order:[],pos:0,flip:false,done:false};
+ function dk2(x){return x.l.id+'-'+x.i}
+ function ink(hex){var m=/^#([0-9a-f]{6})$/i.exec(hex);if(!m)return'#fff';var v=[0,2,4].map(function(i){var c=parseInt(m[1].substr(i,2),16)/255;return c<=.03928?c/12.92:Math.pow((c+.055)/1.055,2.4)}),L=.2126*v[0]+.7152*v[1]+.0722*v[2];return 1.05/(L+.05)>=(L+.05)/.06?'#fff':'#111'}
+ function drillPool(all){return all.filter(function(x){return(x.m.note&&String(x.m.note).trim())||x.m.errorType}).sort(function(a,b){return a.dk===b.dk?b.i-a.i:(a.dk<b.dk?1:-1)})}
+ function renderDrill(all){
+  var host=document.getElementById('mnDrill');if(!host)return;
+  var pool=drillPool(all),map={};pool.forEach(function(x){map[dk2(x)]=x});
+  drill.order=drill.order.filter(function(k){return map[k]});
+  pool.forEach(function(x){if(drill.order.indexOf(dk2(x))<0)drill.order.push(dk2(x))});
+  if(drill.pos>=drill.order.length){drill.pos=Math.max(0,drill.order.length-1)}
+  var n=drill.order.length,h='<div class="section card" id="mnDrillCard"><div class="section-head"><h2>🃏 Review My Lessons</h2><small>'+(n?n+(n===1?' card':' cards'):'no cards yet')+'</small></div>';
+  if(!n){
+   var anyNote=sets().some(function(x){return(x.m.note&&String(x.m.note).trim())||x.m.errorType});
+   h+='<div class="dr-hint">'+(anyNote&&S().win!=='all'?'No lessons in the last 30 days. Switch to <b>All time</b> above to drill older ones, or ':'')+'Add a one-line lesson or an error type when you log an MCQ set, and each one becomes a flip card here: see the lecture, recall the trap, then reveal what you wrote.</div></div>';
+   host.innerHTML=h;return}
+  if(drill.done){
+   h+='<div class="dr-card" id="mnDrillCardBox" style="cursor:default"><div class="dr-t">🎉 Deck complete</div><div class="dr-q">You went through all '+n+(n===1?' card':' cards')+'. Come back tomorrow; the lessons you will forget are the ones worth a second look.</div><div class="dr-acts"><button type="button" class="primary dr-go" onclick="mhqDrill(\'restart\')">Start again</button></div></div></div>';
+   host.innerHTML=h;return}
+  var x=map[drill.order[drill.pos]],et=x.m.errorType,E=ET[et],lab=E?E.n:(et?String(et):''),
+   chip=et?'<span class="mn-chip" style="background:'+(E?E.c:'#6b7280')+';color:'+ink(E?E.c:'#6b7280')+'">'+esc(lab)+'</span>':'',
+   note=x.m.note&&String(x.m.note).trim(),
+   lesson=note?'“'+esc(note)+'”':'No written note — review why you missed '+esc(lab||'this set'),
+   ctr=(drill.pos+1)+' / '+n,
+   head='<div class="dr-meta"><b>'+ctr+'</b><span>'+(drill.flip?'Your lesson':'Tap the card to flip')+'</span></div>',
+   id=x.l.id;
+  var front='<div class="dr-face" id="drFront"'+(drill.flip?' hidden':'')+'><div class="dr-t">L'+id+' · '+esc(x.l.title)+'</div><div class="dr-s">'+esc(x.l.subject)+' '+chip+'</div><div class="dr-q">What was the trap or takeaway from this question set?</div><div class="dr-acts"><button type="button" class="primary dr-go" onclick="mhqDrill(\'flip\')">REVEAL LESSON</button></div></div>';
+  var back='<div class="dr-face" id="drBack"'+(drill.flip?'':' hidden')+'><div class="dr-s">L'+id+' · '+esc(x.l.title)+' '+chip+'</div><div class="dr-lesson" id="drLesson">'+lesson+'</div><div class="dr-s">Score: <b id="drScore">'+esc(x.m.score)+'</b></div><div class="dr-acts"><button type="button" onclick="mhqDrill(\'prev\')"'+(drill.pos===0?' disabled':'')+'>← Prev</button><button type="button" onclick="mhqDrill(\'more\')">Need More Practice</button><button type="button" class="primary" onclick="mhqDrill(\'got\')">Got It →</button><button type="button" class="dr-go" onclick="openLecture('+id+')">OPEN LECTURE</button></div></div>';
+  h+=head+'<div class="dr-card'+(drill.fresh?' flipping':'')+'" id="mnDrillCardBox" aria-live="polite">'+front+back+'</div></div>';
+  drill.fresh=false;host.innerHTML=h}
+ window.mhqDrill=function(a){
+  var n=drill.order.length;if(!n&&a!=='restart')return;
+  if(a==='flip'){drill.flip=!drill.flip;drill.fresh=true}
+  else if(a==='prev'){if(drill.pos>0){drill.pos--;drill.flip=false}}
+  else if(a==='got'){if(drill.pos<n-1){drill.pos++;drill.flip=false}else{drill.done=true;drill.flip=false}}
+  else if(a==='more'){var k=drill.order.splice(drill.pos,1)[0];drill.order.push(k);drill.flip=false;if(drill.pos>=drill.order.length)drill.pos=0;try{toast('Re-queued at the end of the deck')}catch(e){}}
+  else if(a==='restart'){drill.done=false;drill.pos=0;drill.flip=false}
+  window.renderMistakes(true)};
+ document.addEventListener('click',function(e){var f=e.target.closest&&e.target.closest('#mnDrillCardBox');if(!f||f.style.cursor==='default')return;if(e.target.closest('button'))return;window.mhqDrill('flip')});
  window.renderMistakes=function(force){if(!force&&!active('mistakesView'))return;if(!data.length)return;renderMN()};
  window.mhqMNWin=function(v){window.mhqV77Store.set({win:v});window.renderMistakes(true)};
  function mc(l,i){var L=data.find(function(x){return x.id===l});return L&&L.mcqs[i]}
