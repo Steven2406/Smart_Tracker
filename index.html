@@ -1263,7 +1263,7 @@ html[data-fx=subtle] .bd *:not(.b-blink):not(.b-bob){animation:none!important}
 .bd-cheer{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);width:150px;margin-left:-75px;z-index:3;pointer-events:none}
 
 /* ---- v8.13.0: study buddy over-petting warning + jumpscare (overlay is built on demand, never stored) ---- */
-#mhqBuddyScare{position:fixed;inset:0;z-index:10090;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:max(16px,env(safe-area-inset-top,0px)) 16px max(16px,env(safe-area-inset-bottom,0px));overflow:hidden;box-sizing:border-box;background:#05070b;color:#fff;text-align:center;cursor:pointer;touch-action:manipulation;overscroll-behavior:contain;-webkit-tap-highlight-color:transparent}
+#mhqBuddyScare{position:fixed;inset:0;z-index:10090;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:max(16px,env(safe-area-inset-top,0px)) 16px max(16px,env(safe-area-inset-bottom,0px));overflow:hidden;box-sizing:border-box;background:#05070b;color:#fff;text-align:center;cursor:default;touch-action:manipulation;overscroll-behavior:contain;-webkit-tap-highlight-color:transparent}
 #mhqBuddyScare.sc2{background:#150203}
 #mhqBuddyScare::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 36%,rgba(160,0,0,.58) 76%,rgba(60,0,0,.95) 100%)}
 #mhqBuddyScare.sc2::after{opacity:1}
@@ -2087,7 +2087,7 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.13.1</span></small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.14.0</span></small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -6014,7 +6014,7 @@ function buddy(sp,mo,sk,stg,anim){
  function key(c,k){return[c.sp,k,root.dataset.skin||'clinical',stage(),getComputedStyle(root).getPropertyValue('--accent'),c.name].join('|')}
  function paint(host,id,cls,c,M,force,big){
   var el=document.getElementById(host);if(!el)return;
-  var k=key(c,M.k),sy=say(M,c),line=(Date.now()<petUntil)?{t:petLine}:sy;
+  var k=key(c,M.k),sy=say(M,c),vt=bvLine(),line=(Date.now()<petUntil)?{t:petLine}:(vt?{t:vt}:sy);
   var stg=['Student','Learner','Resident','Consultant'][stage()-1];
   if(lastKey[host]!==k||force||!document.getElementById(id)){
    lastKey[host]=k;
@@ -6038,7 +6038,7 @@ function buddy(sp,mo,sk,stg,anim){
  function scPreload(){try{var c=cfg();if(!c.on)return;var f=SCF[c.sp]||'axolotl';if(SC.pre===f)return;SC.pre=f;
   SC.imgs=[1,2].map(function(n){var i=new Image();i.decoding='async';i.src='buddy/'+f+'_'+n+'.png';return i})}catch(e){}}
  function scSound(kind){
-  scStop();
+  scStop();bvStop();
   try{if(typeof audioSettings==='undefined'||!audioSettings.enabled)return;
    var v=Math.max(0,Math.min(1,Number(audioSettings.volume)||0));if(v<=0)return;
    var a=new Audio('sfx/buddy_'+kind+'_'+(1+Math.floor(Math.random()*4))+'.mp3');a.volume=v;a.onerror=function(){};SC.audio=a;
@@ -6069,8 +6069,8 @@ function buddy(sp,mo,sk,stg,anim){
   im.addEventListener('error',useFb);
   im.setAttribute('alt',c.name+' looks furious');im.src=el.dataset.img;
   if(im.complete&&im.naturalWidth===0&&im.getAttribute('src'))useFb();
-  /* Stage 1: a tap anywhere but the Close button keeps touching the buddy and escalates; Close / Escape only dismiss. Stage 2: any tap dismisses. */
-  el.addEventListener('click',function(e){var b=e.target&&e.target.closest&&e.target.closest('.sc-x');if(SC.stage===1&&!b){scShow(2);return}window.mhqBuddyScareClose()});
+  /* v8.14.0: only the Close button (or Escape, or the timer) dismisses. Stage 1: a tap anywhere else escalates to Stage 2. Stage 2: taps anywhere else are ignored (spam-tap proof). */
+  el.addEventListener('click',function(e){var b=e.target&&e.target.closest&&e.target.closest('.sc-x');if(b){window.mhqBuddyScareClose();return}if(SC.stage===1)scShow(2)});
   document.body.appendChild(el);document.addEventListener('keydown',scKey,true);
   try{el.focus({preventScroll:true})}catch(e){}
   scSound(n===1?'warn':'enough');
@@ -6089,6 +6089,71 @@ function buddy(sp,mo,sk,stg,anim){
   SC.t=SC.t.filter(function(x){return t-x<=4000});SC.t.push(t);
   if(SC.t.length>=5){SC.t=[];scShow(1);return true}
   return false}
+ /* v8.14.0: one shared buddy voice channel (creepy idle lines, encouraging lines). Memory only: no storage, no new keys. Jumpscare clips always win. */
+ var BV={audio:null,at:0,t:'',until:0,skew:0,idleMs:0,last:0,lastIdle:-1e12,lastEnc:-1e12,comeback:false,steps:0,stage:'',lastN:{enc:0,idle:0}},
+  BVC={idle:["I'm watching you...","Will you keep watching all day without actually doing anything?","Yeah, the website needs development, but your time management skills needs way more development.","Finally he's studying. Thank God, I thought he'd died."],
+   enc:["You are really good. I don't know why this creepy is always complaining about you.","Yeah, yeah, prove him wrong!","Let's go!","And whatsoever ye do, do it heartily, as to the Lord, and not unto men."]};
+ function bvNow(){return scNow()+BV.skew}
+ function bvLine(){return(BV.t&&scNow()<BV.until)?BV.t:''}
+ function bvStop(){try{if(BV.audio){BV.audio.onended=null;BV.audio.pause();BV.audio=null}}catch(e){BV.audio=null}}
+ function bvBusy(){try{return SC.stage>0||!!(BV.audio&&scNow()-BV.at<30000&&!BV.audio.paused&&!BV.audio.ended)}catch(e){return false}}
+ function bvPick(g,n,not){var i=1+Math.floor(Math.random()*n);if(not&&n>1&&i===not)i=i%n+1;return i}
+ /* shows the caption in the buddy bubble (HQ + Focus), plays the clip unless muted; returns false when skipped */
+ function bvPlay(file,text,ms){
+  var c=cfg();if(!c.on||bvBusy())return false;
+  BV.t=text;BV.until=scNow()+ms;
+  try{if(window.renderBuddy)window.renderBuddy(true)}catch(e){}
+  try{if(typeof audioSettings!=='undefined'&&audioSettings.enabled){var v=Math.max(0,Math.min(1,Number(audioSettings.volume)||0));
+   if(v>0){bvStop();var a=new Audio('sfx/'+file+'.mp3');a.volume=v;a.onerror=function(){if(BV.audio===a)BV.audio=null};BV.audio=a;BV.at=scNow();var pr=a.play();if(pr&&pr.catch)pr.catch(function(){if(BV.audio===a)BV.audio=null})}}}catch(e){}
+  setTimeout(function(){try{if(BV.t===text&&scNow()>=BV.until-50&&window.renderBuddy)window.renderBuddy(true)}catch(e){}},ms+80);
+  return true}
+ function bvIdle(force,nn){
+  if(!force&&bvNow()-BV.lastIdle<480000)return false;
+  var n=nn||bvPick('idle',3,BV.lastN.idle);if(!bvPlay('buddy_idle_'+n,BVC.idle[n-1],9000))return false;
+  BV.lastN.idle=n;BV.lastIdle=bvNow();BV.comeback=true;BV.idleMs=0;return true}
+ function bvComeback(){
+  if(!BV.comeback)return false;
+  if(!bvPlay('buddy_idle_4',BVC.idle[3],7000))return false;
+  BV.comeback=false;return true}
+ function bvEncourage(force,nn){
+  if(!force&&bvNow()-BV.lastEnc<90000)return false;
+  var n=nn||bvPick('enc',4,BV.lastN.enc);if(!bvPlay('buddy_encourage_'+n,BVC.enc[n-1],7000))return false;
+  BV.lastN.enc=n;BV.lastEnc=bvNow();return true}
+ /* real study action: resets the idle clock, fires the one-time comeback line */
+ function bvAct(){BV.idleMs=0;return bvComeback()}
+ window.mhqPlayBuddyVoice=function(kind,opts){opts=opts||{};
+  if(kind==='idle')return bvIdle(!!opts.force,opts.n);
+  if(kind==='comeback')return bvComeback();
+  if(kind==='encourage')return bvEncourage(!!opts.force,opts.n);
+  return false};
+ /* advance the idle clock by ms (the 5 s timer calls this with real time; tests call it with big numbers) */
+ window.mhqBuddyVoiceTick=function(ms){ms=Math.max(0,Number(ms)||0);BV.skew+=(ms>15000?ms:0);
+  var ok=false;try{ok=document.visibilityState==='visible'&&!studyRunning&&!document.getElementById('mhqBuddyScare')}catch(e){}
+  if(ok){BV.idleMs+=ms;if(BV.idleMs>=180000)return bvIdle(false)}
+  return false};
+ window.mhqBuddyVoiceState=function(){return{idleMs:BV.idleMs,comeback:BV.comeback,idleCool:Math.max(0,480000-(bvNow()-BV.lastIdle)),encCool:Math.max(0,90000-(bvNow()-BV.lastEnc)),playing:bvBusy(),text:bvLine()}};
+ /* study momentum: observe the app's own activity ledger writes (nothing in the protected code is edited) */
+ function bvMomentum(type,lid,d){
+  var enc=false;
+  try{
+   if(type==='study-step'){BV.steps++;var l=(typeof data!=='undefined')&&data.find(function(x){return x.id===Number(lid)});
+    if(BV.steps>=2||(l&&l.steps&&l.steps.every(Boolean))){enc=true}}
+   else if(type==='mcq'||type==='external-test'){if(d&&Number(d.percent)>=80)enc=true}
+   else if(type==='clinical-case'){if(d&&d.correct)enc=true}
+   else if(type==='focus-session')enc=true;
+  }catch(e){}
+  if(enc&&bvEncourage(false))BV.steps=0}
+ var bvRA=window.recordActivity;
+ if(typeof bvRA==='function')window.recordActivity=function(type,source,lectureId,details){
+  var r=bvRA.apply(this,arguments);
+  try{if(type!=='study-step-undone'){var cb=bvAct();setTimeout(function(){try{bvMomentum(type,lectureId,details)}catch(e){}},cb?400:0)}}catch(e){}
+  return r};
+ /* Focus checkpoints: halfway and final sprint */
+ /* once a second: detects a Focus session starting (comeback), its halfway/final-sprint checkpoints, and feeds the idle clock */
+ setInterval(function(){try{
+  var n=scNow(),dt=BV.last?Math.min(n-BV.last,15000):1000;BV.last=n;
+  if(studyRunning){var st=studyStage();if(!BV.stage){BV.stage=st;bvAct()}else if(st!==BV.stage){BV.stage=st;if(st==='half'||st==='final')bvEncourage(false)}}else BV.stage='';
+  window.mhqBuddyVoiceTick(dt)}catch(e){}},1000);
  window.mhqPetBuddy=function(host){
   var c=cfg(),btn=document.getElementById(host==='buddyFocus'?'bdPetF':'bdPetH');if(!btn)return;
   scPreload();if(scTap())return;
