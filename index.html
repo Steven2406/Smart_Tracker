@@ -1268,9 +1268,11 @@ html[data-fx=subtle] .bd *:not(.b-blink):not(.b-bob){animation:none!important}
 #mhqBuddyScare::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 36%,rgba(160,0,0,.58) 76%,rgba(60,0,0,.95) 100%)}
 #mhqBuddyScare.sc2::after{opacity:1}
 #mhqBuddyScare .sc-stage{position:relative;width:min(84vw,56vh,420px);aspect-ratio:1/1;max-width:100%;display:grid;place-items:center;border-radius:20px;overflow:hidden;background:#0c0f16;border:3px solid #ffb300;box-shadow:0 0 0 2px #000,0 0 34px rgba(255,179,0,.45)}
-#mhqBuddyScare.sc2 .sc-stage{border-color:#ff2d2d;box-shadow:0 0 0 2px #000,0 0 48px rgba(255,30,30,.75)}
-#mhqBuddyScare .sc-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
-#mhqBuddyScare .sc-img.on{display:block}
+#mhqBuddyScare.sc2{padding-left:2.5vw;padding-right:2.5vw}
+#mhqBuddyScare.sc2 .sc-stage{width:min(95vw,74vh,620px);border-radius:16px;border-color:#ff2d2d;box-shadow:0 0 0 2px #000,0 0 48px rgba(255,30,30,.75)}
+#mhqBuddyScare .sc-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+#mhqBuddyScare .sc-img.off{display:none}
+#mhqBuddyScare .sc-fb[hidden]{display:none}
 #mhqBuddyScare .sc-fb{position:absolute;inset:0;display:grid;place-items:center;background:repeating-linear-gradient(-45deg,#1b1300 0 14px,#0b0900 14px 28px)}
 #mhqBuddyScare.sc2 .sc-fb{background:repeating-linear-gradient(-45deg,#2a0505 0 14px,#0d0101 14px 28px)}
 #mhqBuddyScare .sc-fb svg{width:76%;height:auto;max-height:84%;filter:drop-shadow(0 0 14px rgba(255,60,40,.7))}
@@ -1278,7 +1280,7 @@ html[data-fx=subtle] .bd *:not(.b-blink):not(.b-bob){animation:none!important}
 #mhqBuddyScare.sc2 .sc-cap{font-size:clamp(44px,17vw,88px);letter-spacing:.06em;color:#ff3030;line-height:1}
 #mhqBuddyScare .sc-x{position:relative;z-index:1;min-height:44px;min-width:44px;padding:0 18px;border-radius:999px;border:2px solid rgba(255,255,255,.75);background:rgba(0,0,0,.55);color:#fff;font:700 14px/1 system-ui,sans-serif;cursor:pointer}
 @keyframes scZoom1{0%{transform:scale(.35) rotate(-4deg);opacity:0}30%{transform:scale(1.22) rotate(3deg);opacity:1}55%{transform:scale(.96) rotate(-2deg)}100%{transform:scale(1) rotate(0)}}
-@keyframes scZoom2{0%{transform:scale(.2);opacity:0}25%{transform:scale(1.4) rotate(-3deg);opacity:1}55%{transform:scale(1.08) rotate(2deg)}100%{transform:scale(1.12) rotate(0)}}
+@keyframes scZoom2{0%{transform:scale(.2);opacity:0}25%{transform:scale(1.3) rotate(-3deg);opacity:1}55%{transform:scale(.97) rotate(2deg)}100%{transform:scale(1) rotate(0)}}
 @keyframes scShake{0%,100%{translate:0 0}20%{translate:-7px 4px}40%{translate:6px -5px}60%{translate:-5px -3px}80%{translate:7px 3px}}
 @keyframes scFlash{0%{filter:brightness(3) saturate(1.8)}18%{filter:brightness(.35)}34%{filter:brightness(2.4) saturate(1.5)}52%,100%{filter:none}}
 @keyframes scCap{0%{transform:scale(.6);opacity:0}40%{transform:scale(1.15);opacity:1}100%{transform:scale(1)}}
@@ -2085,7 +2087,7 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.13.0</span></small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.13.1</span></small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -6025,13 +6027,16 @@ function buddy(sp,mo,sk,stg,anim){
   if(!c.on){if(home){home.innerHTML='';lastKey.buddyCard=''}if(foc){foc.innerHTML='';lastKey.buddyFocus=''}return}
   var M=mood();
   paint('buddyCard','bdPetH','bd-card',c,M,force,false);
-  paint('buddyFocus','bdPetF','bd-focus',c,M,force,true)};
+  paint('buddyFocus','bdPetF','bd-focus',c,M,force,true);scPreload()};
  window.mhqBuddyDraw=function(mo){var c=cfg();return{svg:buddy(c.sp,mo,root.dataset.skin||'clinical',stage()),name:c.name,on:c.on,stage:stage()}};
  function snd(n,fb,g){try{(typeof loadSfx==='function'?loadSfx(n):Promise.resolve(null)).then(function(b){playSfx(b?n:fb,g)}).catch(function(){playSfx(fb,g)})}catch(e){}}
  /* v8.13.0: two-stage rapid-petting escalation. Everything lives in memory (tap times, warning window, cooldown, audio element); nothing is stored. */
- var SC={t:[],warnUntil:0,coolUntil:0,stage:0,timer:0,audio:null,from:null},SCF={axo:'axolotl',fox:'fox',owl:'owl',bun:'rabbit',robot:'robot'};
+ var SC={t:[],warnUntil:0,coolUntil:0,stage:0,timer:0,audio:null,from:null,pre:'',imgs:[]},SCF={axo:'axolotl',fox:'fox',owl:'owl',bun:'rabbit',robot:'robot'};
  function scNow(){return(window.performance&&performance.now)?performance.now():Date.now()}
- function scStop(){try{if(SC.audio){SC.audio.pause();SC.audio=null}}catch(e){SC.audio=null}}
+ function scStop(){try{if(SC.audio){SC.audio.onended=null;SC.audio.pause();SC.audio=null}}catch(e){SC.audio=null}}
+ /* v8.13.1: both scare pictures of the active buddy are fetched into the browser cache (memory only) as soon as the buddy renders, long before tap 5 */
+ function scPreload(){try{var c=cfg();if(!c.on)return;var f=SCF[c.sp]||'axolotl';if(SC.pre===f)return;SC.pre=f;
+  SC.imgs=[1,2].map(function(n){var i=new Image();i.decoding='async';i.src='buddy/'+f+'_'+n+'.png';return i})}catch(e){}}
  function scSound(kind){
   scStop();
   try{if(typeof audioSettings==='undefined'||!audioSettings.enabled)return;
@@ -6056,17 +6061,24 @@ function buddy(sp,mo,sk,stg,anim){
   var svg='';try{svg=buddy(c.sp,'worried',root.dataset.skin||'clinical',stage()).replace(/\bid="([^"]+)"/g,'id="sc-$1"').replace(/url\(#([^)]+)\)/g,'url(#sc-$1)').replace(/href="#([^"]+)"/g,'href="#sc-$1"')}catch(e){}
   el.id='mhqBuddyScare';el.className='sc sc'+n;el.tabIndex=-1;el.setAttribute('role','alertdialog');el.setAttribute('aria-modal','true');el.setAttribute('aria-label',cap);
   el.dataset.stage=String(n);el.dataset.buddy=f;el.dataset.img='buddy/'+f+'_'+n+'.png';
-  el.innerHTML='<div class="sc-stage"><div class="sc-fb" aria-hidden="true">'+svg+'</div><img class="sc-img" alt="" decoding="async"></div><div class="sc-cap">'+esc(cap)+'</div><button type="button" class="sc-x" aria-label="Dismiss">Tap to dismiss</button>';
-  var im=el.querySelector('.sc-img');
-  im.addEventListener('load',function(){if(im.naturalWidth>0){im.classList.add('on');el.classList.add('sc-photo');el.querySelector('.sc-fb').style.display='none'}});
-  im.addEventListener('error',function(){im.classList.remove('on');el.classList.add('sc-fallback')});
+  el.innerHTML='<div class="sc-stage"><div class="sc-fb" aria-hidden="true" hidden>'+svg+'</div><img class="sc-img" alt="" decoding="async"></div><div class="sc-cap">'+esc(cap)+'</div><button type="button" class="sc-x" aria-label="Dismiss">\u2715 Close</button>';
+  var im=el.querySelector('.sc-img'),fb=el.querySelector('.sc-fb');
+  /* the cartoon fallback stays hidden and the picture is shown at once; the fallback only appears if the picture really fails to load */
+  function useFb(){im.classList.add('off');fb.hidden=false;el.classList.add('sc-fallback')}
+  im.addEventListener('load',function(){if(im.naturalWidth>0){im.classList.add('on');el.classList.add('sc-photo')}else useFb()});
+  im.addEventListener('error',useFb);
   im.setAttribute('alt',c.name+' looks furious');im.src=el.dataset.img;
-  el.addEventListener('click',function(){window.mhqBuddyScareClose()});
+  if(im.complete&&im.naturalWidth===0&&im.getAttribute('src'))useFb();
+  /* Stage 1: a tap anywhere but the Close button keeps touching the buddy and escalates; Close / Escape only dismiss. Stage 2: any tap dismisses. */
+  el.addEventListener('click',function(e){var b=e.target&&e.target.closest&&e.target.closest('.sc-x');if(SC.stage===1&&!b){scShow(2);return}window.mhqBuddyScareClose()});
   document.body.appendChild(el);document.addEventListener('keydown',scKey,true);
   try{el.focus({preventScroll:true})}catch(e){}
   scSound(n===1?'warn':'enough');
   if(n===2){try{navigator.vibrate&&navigator.vibrate([90,40,140])}catch(e){}}
-  SC.timer=setTimeout(function(){window.mhqBuddyScareClose()},n===1?2400:2800)};
+  /* Stage 1 lasts 4.8 s (the clip opens with a ~2 s impact cue); if its clip is still playing then, it may finish, but never past 5.5 s. Stage 2 lasts 2.8 s. */
+  SC.timer=setTimeout(function(){var a=SC.audio;
+   if(n===1&&a&&!a.paused&&!a.ended){a.onended=function(){window.mhqBuddyScareClose()};SC.timer=setTimeout(function(){window.mhqBuddyScareClose()},700)}
+   else window.mhqBuddyScareClose()},n===1?4800:2800)};
  /* returns true when this tap was consumed by the escalation (so the normal pet reaction is skipped) */
  function scTap(){
   var t=scNow();
@@ -6079,7 +6091,7 @@ function buddy(sp,mo,sk,stg,anim){
   return false}
  window.mhqPetBuddy=function(host){
   var c=cfg(),btn=document.getElementById(host==='buddyFocus'?'bdPetF':'bdPetH');if(!btn)return;
-  if(scTap())return;
+  scPreload();if(scTap())return;
   var svg=btn.querySelector('svg');if(svg){svg.classList.remove('b-squish');void svg.getBoundingClientRect();svg.classList.add('b-squish')}
   for(var i=0;i<4;i++){var h=document.createElement('div');h.className='bd-heart';h.textContent=['💛','💖','✨','💚'][i];h.style.left=(25+Math.random()*50)+'%';h.style.top=(10+Math.random()*25)+'%';h.style.animationDelay=(i*.1)+'s';btn.appendChild(h);setTimeout(function(x){x.remove()},1500,h)}
   var PL=['Hehe, that tickles! 💛','You’re the best study partner!','More pats? Okay, just one more!','Let’s keep that streak alive!','I believe in you, future doctor! 🩺','That feels nice! Thank you 💖','Pat pat! Now, one more step?','You make studying fun!','Aww, you’re sweet. Let’s learn something!','Best. Study. Partner. Ever.','Careful, I might fall asleep… 😴','Boop! 🐾'];pi=(pi+1+Math.floor(Math.random()*5))%PL.length;petLine=PL[pi];bump++;petUntil=Date.now()+2600;
