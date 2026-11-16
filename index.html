@@ -1262,6 +1262,33 @@ html[data-fx=subtle] .bd *:not(.b-blink):not(.b-bob){animation:none!important}
 .bd-heart{position:absolute;font-size:var(--fs-20);pointer-events:none;animation:bdFly 1.1s ease-out forwards}
 .bd-cheer{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);width:150px;margin-left:-75px;z-index:3;pointer-events:none}
 
+/* ---- v8.13.0: study buddy over-petting warning + jumpscare (overlay is built on demand, never stored) ---- */
+#mhqBuddyScare{position:fixed;inset:0;z-index:10090;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:max(16px,env(safe-area-inset-top,0px)) 16px max(16px,env(safe-area-inset-bottom,0px));overflow:hidden;box-sizing:border-box;background:#05070b;color:#fff;text-align:center;cursor:pointer;touch-action:manipulation;overscroll-behavior:contain;-webkit-tap-highlight-color:transparent}
+#mhqBuddyScare.sc2{background:#150203}
+#mhqBuddyScare::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 36%,rgba(160,0,0,.58) 76%,rgba(60,0,0,.95) 100%)}
+#mhqBuddyScare.sc2::after{opacity:1}
+#mhqBuddyScare .sc-stage{position:relative;width:min(84vw,56vh,420px);aspect-ratio:1/1;max-width:100%;display:grid;place-items:center;border-radius:20px;overflow:hidden;background:#0c0f16;border:3px solid #ffb300;box-shadow:0 0 0 2px #000,0 0 34px rgba(255,179,0,.45)}
+#mhqBuddyScare.sc2 .sc-stage{border-color:#ff2d2d;box-shadow:0 0 0 2px #000,0 0 48px rgba(255,30,30,.75)}
+#mhqBuddyScare .sc-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
+#mhqBuddyScare .sc-img.on{display:block}
+#mhqBuddyScare .sc-fb{position:absolute;inset:0;display:grid;place-items:center;background:repeating-linear-gradient(-45deg,#1b1300 0 14px,#0b0900 14px 28px)}
+#mhqBuddyScare.sc2 .sc-fb{background:repeating-linear-gradient(-45deg,#2a0505 0 14px,#0d0101 14px 28px)}
+#mhqBuddyScare .sc-fb svg{width:76%;height:auto;max-height:84%;filter:drop-shadow(0 0 14px rgba(255,60,40,.7))}
+#mhqBuddyScare .sc-cap{position:relative;z-index:1;max-width:94vw;font-weight:900;font-size:clamp(22px,7.2vw,38px);line-height:1.12;letter-spacing:.02em;overflow-wrap:anywhere;text-shadow:0 2px 0 #000,0 0 18px rgba(255,60,40,.85)}
+#mhqBuddyScare.sc2 .sc-cap{font-size:clamp(44px,17vw,88px);letter-spacing:.06em;color:#ff3030;line-height:1}
+#mhqBuddyScare .sc-x{position:relative;z-index:1;min-height:44px;min-width:44px;padding:0 18px;border-radius:999px;border:2px solid rgba(255,255,255,.75);background:rgba(0,0,0,.55);color:#fff;font:700 14px/1 system-ui,sans-serif;cursor:pointer}
+@keyframes scZoom1{0%{transform:scale(.35) rotate(-4deg);opacity:0}30%{transform:scale(1.22) rotate(3deg);opacity:1}55%{transform:scale(.96) rotate(-2deg)}100%{transform:scale(1) rotate(0)}}
+@keyframes scZoom2{0%{transform:scale(.2);opacity:0}25%{transform:scale(1.4) rotate(-3deg);opacity:1}55%{transform:scale(1.08) rotate(2deg)}100%{transform:scale(1.12) rotate(0)}}
+@keyframes scShake{0%,100%{translate:0 0}20%{translate:-7px 4px}40%{translate:6px -5px}60%{translate:-5px -3px}80%{translate:7px 3px}}
+@keyframes scFlash{0%{filter:brightness(3) saturate(1.8)}18%{filter:brightness(.35)}34%{filter:brightness(2.4) saturate(1.5)}52%,100%{filter:none}}
+@keyframes scCap{0%{transform:scale(.6);opacity:0}40%{transform:scale(1.15);opacity:1}100%{transform:scale(1)}}
+#mhqBuddyScare.sc1 .sc-stage{animation:scZoom1 .5s cubic-bezier(.2,.9,.2,1) both,scShake .16s linear .5s 5}
+#mhqBuddyScare.sc2 .sc-stage{animation:scZoom2 .38s cubic-bezier(.2,.9,.2,1) both,scShake .1s linear .38s infinite}
+#mhqBuddyScare.sc2{animation:scFlash .55s ease-out 1}
+#mhqBuddyScare .sc-cap{animation:scCap .4s ease-out .12s both}
+@media (prefers-reduced-motion:reduce){#mhqBuddyScare,#mhqBuddyScare *{animation:none!important;transition:none!important}}
+html[data-fx=off] #mhqBuddyScare,html[data-fx=off] #mhqBuddyScare *,html[data-intensity=calm] #mhqBuddyScare,html[data-intensity=calm] #mhqBuddyScare *{animation:none!important;transition:none!important}
+
 /* ---- v7.5.0 gauntlet ---- */
 .gauntlet{margin-top:14px;padding:12px;border-radius:14px;border:1px solid var(--line);border-left:4px solid var(--gold);background:var(--surface)}
 .gt-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;font-size:var(--fs-14)}.gt-head span{font-size:var(--fs-12);font-weight:700;color:var(--muted)}
@@ -2058,7 +2085,7 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.12.2</span></small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.13.0</span></small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -6001,8 +6028,58 @@ function buddy(sp,mo,sk,stg,anim){
   paint('buddyFocus','bdPetF','bd-focus',c,M,force,true)};
  window.mhqBuddyDraw=function(mo){var c=cfg();return{svg:buddy(c.sp,mo,root.dataset.skin||'clinical',stage()),name:c.name,on:c.on,stage:stage()}};
  function snd(n,fb,g){try{(typeof loadSfx==='function'?loadSfx(n):Promise.resolve(null)).then(function(b){playSfx(b?n:fb,g)}).catch(function(){playSfx(fb,g)})}catch(e){}}
+ /* v8.13.0: two-stage rapid-petting escalation. Everything lives in memory (tap times, warning window, cooldown, audio element); nothing is stored. */
+ var SC={t:[],warnUntil:0,coolUntil:0,stage:0,timer:0,audio:null,from:null},SCF={axo:'axolotl',fox:'fox',owl:'owl',bun:'rabbit',robot:'robot'};
+ function scNow(){return(window.performance&&performance.now)?performance.now():Date.now()}
+ function scStop(){try{if(SC.audio){SC.audio.pause();SC.audio=null}}catch(e){SC.audio=null}}
+ function scSound(kind){
+  scStop();
+  try{if(typeof audioSettings==='undefined'||!audioSettings.enabled)return;
+   var v=Math.max(0,Math.min(1,Number(audioSettings.volume)||0));if(v<=0)return;
+   var a=new Audio('sfx/buddy_'+kind+'_'+(1+Math.floor(Math.random()*4))+'.mp3');a.volume=v;a.onerror=function(){};SC.audio=a;
+   var pr=a.play();if(pr&&pr.catch)pr.catch(function(){})}catch(e){}}
+ function scKey(e){var el=document.getElementById('mhqBuddyScare');if(!el)return;
+  if(e.key==='Escape'||e.key==='Esc'){e.preventDefault();window.mhqBuddyScareClose()}
+  else if(e.key==='Tab'){e.preventDefault();try{el.focus({preventScroll:true})}catch(x){}}}
+ window.mhqBuddyScareClose=function(){
+  var el=document.getElementById('mhqBuddyScare'),t=scNow(),was=SC.stage;
+  clearTimeout(SC.timer);SC.timer=0;scStop();document.removeEventListener('keydown',scKey,true);
+  if(el)el.remove();
+  if(was===1)SC.warnUntil=t+4000;
+  else if(was===2){SC.warnUntil=0;SC.t=[];SC.coolUntil=t+6000}
+  SC.stage=0;var f=SC.from;SC.from=null;try{if(f&&f.isConnected&&f.focus)f.focus({preventScroll:true})}catch(e){}};
+ function scShow(n){
+  var c=cfg(),old=document.getElementById('mhqBuddyScare'),f=SCF[c.sp]||'axolotl',cap=n===1?'If you dare to touch again!':'ENOUGH!',el=document.createElement('div');
+  if(old)old.remove();clearTimeout(SC.timer);
+  if(!SC.stage)SC.from=document.activeElement;else document.removeEventListener('keydown',scKey,true);
+  SC.stage=n;SC.warnUntil=0;
+  var svg='';try{svg=buddy(c.sp,'worried',root.dataset.skin||'clinical',stage()).replace(/\bid="([^"]+)"/g,'id="sc-$1"').replace(/url\(#([^)]+)\)/g,'url(#sc-$1)').replace(/href="#([^"]+)"/g,'href="#sc-$1"')}catch(e){}
+  el.id='mhqBuddyScare';el.className='sc sc'+n;el.tabIndex=-1;el.setAttribute('role','alertdialog');el.setAttribute('aria-modal','true');el.setAttribute('aria-label',cap);
+  el.dataset.stage=String(n);el.dataset.buddy=f;el.dataset.img='buddy/'+f+'_'+n+'.png';
+  el.innerHTML='<div class="sc-stage"><div class="sc-fb" aria-hidden="true">'+svg+'</div><img class="sc-img" alt="" decoding="async"></div><div class="sc-cap">'+esc(cap)+'</div><button type="button" class="sc-x" aria-label="Dismiss">Tap to dismiss</button>';
+  var im=el.querySelector('.sc-img');
+  im.addEventListener('load',function(){if(im.naturalWidth>0){im.classList.add('on');el.classList.add('sc-photo');el.querySelector('.sc-fb').style.display='none'}});
+  im.addEventListener('error',function(){im.classList.remove('on');el.classList.add('sc-fallback')});
+  im.setAttribute('alt',c.name+' looks furious');im.src=el.dataset.img;
+  el.addEventListener('click',function(){window.mhqBuddyScareClose()});
+  document.body.appendChild(el);document.addEventListener('keydown',scKey,true);
+  try{el.focus({preventScroll:true})}catch(e){}
+  scSound(n===1?'warn':'enough');
+  if(n===2){try{navigator.vibrate&&navigator.vibrate([90,40,140])}catch(e){}}
+  SC.timer=setTimeout(function(){window.mhqBuddyScareClose()},n===1?2400:2800)};
+ /* returns true when this tap was consumed by the escalation (so the normal pet reaction is skipped) */
+ function scTap(){
+  var t=scNow();
+  if(SC.stage===1){scShow(2);return true}
+  if(SC.stage===2)return true;
+  if(t<SC.coolUntil){SC.t=[];return false}
+  if(t<SC.warnUntil){scShow(2);return true}
+  SC.t=SC.t.filter(function(x){return t-x<=4000});SC.t.push(t);
+  if(SC.t.length>=5){SC.t=[];scShow(1);return true}
+  return false}
  window.mhqPetBuddy=function(host){
   var c=cfg(),btn=document.getElementById(host==='buddyFocus'?'bdPetF':'bdPetH');if(!btn)return;
+  if(scTap())return;
   var svg=btn.querySelector('svg');if(svg){svg.classList.remove('b-squish');void svg.getBoundingClientRect();svg.classList.add('b-squish')}
   for(var i=0;i<4;i++){var h=document.createElement('div');h.className='bd-heart';h.textContent=['💛','💖','✨','💚'][i];h.style.left=(25+Math.random()*50)+'%';h.style.top=(10+Math.random()*25)+'%';h.style.animationDelay=(i*.1)+'s';btn.appendChild(h);setTimeout(function(x){x.remove()},1500,h)}
   var PL=['Hehe, that tickles! 💛','You’re the best study partner!','More pats? Okay, just one more!','Let’s keep that streak alive!','I believe in you, future doctor! 🩺','That feels nice! Thank you 💖','Pat pat! Now, one more step?','You make studying fun!','Aww, you’re sweet. Let’s learn something!','Best. Study. Partner. Ever.','Careful, I might fall asleep… 😴','Boop! 🐾'];pi=(pi+1+Math.floor(Math.random()*5))%PL.length;petLine=PL[pi];bump++;petUntil=Date.now()+2600;
