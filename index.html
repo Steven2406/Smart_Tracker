@@ -5635,12 +5635,12 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
  const S=window.mhqStore;if(!S||S.blocked||!S.raw)return;
  /* ===== Firebase project configuration. Fill this in, or paste the config JSON in Settings > Medical HQ Account > Firebase setup ===== */
  const MHQ_FIREBASE_CONFIG={
-  apiKey:"",
-  authDomain:"",
-  projectId:"",
-  storageBucket:"",
-  messagingSenderId:"",
-  appId:""
+  apiKey:"AIzaSyBPDYuLAPqGvoUZASTQbP9SzcvYwW__0SE",
+  authDomain:"medical-hq.firebaseapp.com",
+  projectId:"medical-hq",
+  storageBucket:"medical-hq.firebasestorage.app",
+  messagingSenderId:"837859528635",
+  appId:"1:837859528635:web:7de94d742c675f19fb3e9e"
  };
  const SDK="https://www.gstatic.com/firebasejs/10.12.2/",SCHEMA=1,META="mhqBackupMetaV60",DEBOUNCE=2500,MAXB=900000;
  const $=id=>document.getElementById(id);
@@ -5736,8 +5736,8 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
    onAuth(f){cb=f;init().catch(e=>{ST.sdk=errMsg(e);draw()})},
    async signInGoogle(){await init();const p=new firebase.auth.GoogleAuthProvider();
     const wv=/; wv\)|FBAN|FBAV|Instagram|Line\//i.test(navigator.userAgent||"");
-    if(wv){await auth.signInWithRedirect(p);return}
-    try{await auth.signInWithPopup(p)}catch(e){if(/popup-blocked|operation-not-supported|web-storage-unsupported/i.test(e&&e.code||"")){await auth.signInWithRedirect(p);return}throw e}},
+    if(wv){fbset({pending:true});await auth.signInWithRedirect(p);return}
+    try{await auth.signInWithPopup(p)}catch(e){if(/popup-blocked|operation-not-supported|web-storage-unsupported/i.test(e&&e.code||"")){fbset({pending:true});await auth.signInWithRedirect(p);return}throw e}},
    async signInEmail(em,pw){await init();await auth.signInWithEmailAndPassword(em,pw)},
    async createAccount(em,pw){await init();await auth.createUserWithEmailAndPassword(em,pw)},
    async resetPassword(em){await init();await auth.sendPasswordResetEmail(em)},
@@ -5884,6 +5884,7 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
   /* sign-in actions */
   const em=(($("mhqAcctEmail")||{}).value||"").trim(),pw=($("mhqAcctPw")||{}).value||"";
   ST.formErr="";ST.formMsg="";
+  if(!AD&&configured()){setAdapter(realAdapter())}   /* first sign-in tap: only now is the Firebase SDK requested */
   if(!AD||(AD.real&&!configured())){ST.formErr=errMsg({code:"unconfigured"});draw();return}
   if(navigator.onLine===false){ST.formErr=errMsg({code:"offline"});draw();return}
   try{
@@ -5897,6 +5898,7 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
  function onUser(u){
   ST.user=u||null;ST.err="";
   if(!u){draw();return}
+  if(fbm().pending)fbset({pending:undefined});
   draw();setTimeout(()=>check("signin"),0)}
  function setAdapter(a){AD=a;try{a.onAuth(onUser)}catch(e){}}
  function mount(){
@@ -5927,7 +5929,7 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
  },3200);
  try{
   if(window.__mhqCloudAdapter)setAdapter(window.__mhqCloudAdapter);
-  else if(configured()){setTimeout(()=>{if(!AD)setAdapter(realAdapter())},0)}
+  else if(configured()&&(fbm().uid||fbm().pending)){setTimeout(()=>{if(!AD)setAdapter(realAdapter())},0)}   /* returning or redirected users only: everyone else loads the SDK on their first sign-in tap */
  }catch(e){}
 })();
 </script>
