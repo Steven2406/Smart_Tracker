@@ -2087,7 +2087,7 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v8.14.0</span></small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v9.0.0</span></small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -5255,13 +5255,13 @@ window.mhqMotivationRender=()=>{reconcileWallet();render()};
   const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
   let deferred=null;
   const say=t=>{try{toast(t)}catch(e){}};
-  window.markBackupDone=function(){if(window.mhqLoadProtect&&window.mhqLoadProtect.active)return;set(LAST,String(Date.now()));renderProtectCard();renderStorage()};
+  window.markBackupDone=function(){if(window.mhqLoadProtect&&window.mhqLoadProtect.active)return;{const r0=get(LAST)||"",i0=r0.indexOf("|");set(LAST,String(Date.now())+(i0<0?"":r0.slice(i0)))}renderProtectCard();renderStorage()};
   window.mhqSnooze=function(){set(SNOOZE,String(Date.now()+DAY));renderProtectCard()};
   window.mhqDismissInstall=function(){set(IDISMISS,String(Date.now()+7*DAY));renderProtectCard()};
   function hasProgress(){try{return data.some(x=>x.steps.some(Boolean)||x.mcqs.length)||externalTests.length>0}catch(e){return false}}
   window.renderProtectCard=function(){
     const el=document.getElementById("protectCard");if(!el)return;
-    const now=Date.now(),last=Number(get(LAST))||0;let h="";
+    const now=Date.now(),last=parseInt(get(LAST),10)||0;let h="";
     if(hasProgress()&&now>(Number(get(SNOOZE))||0)&&(!last||now-last>7*DAY)){
       const m=last?`Last backup was ${Math.floor((now-last)/DAY)} days ago.`:"You haven't backed up yet.";
       h+=`<div class="protect-card"><div class="protect-text"><b>Back up your progress</b><span>${m} Your data lives only in this browser.</span></div><div class="protect-actions"><button type="button" class="primary" onclick="mhqBackupSmart()">Back up</button><button type="button" onclick="mhqSnooze()">Later</button></div></div>`}
@@ -5295,7 +5295,7 @@ window.mhqMotivationRender=()=>{reconcileWallet();render()};
     let p=null,used="";
     try{if(navigator.storage&&navigator.storage.persisted)p=await navigator.storage.persisted()}catch(e){}
     try{if(navigator.storage&&navigator.storage.estimate){const q=await navigator.storage.estimate();used=" · "+((q.usage||0)/1048576).toFixed(1)+" MB used"}}catch(e){}
-    const last=Number(get(LAST))||0,lb=last?`Last backup: ${new Date(last).toLocaleDateString()}`:"No backup yet";
+    const last=parseInt(get(LAST),10)||0,lb=last?`Last backup: ${new Date(last).toLocaleDateString()}`:"No backup yet";
     el.innerHTML=(p?"✓ Storage protected from automatic clearing":p===false?"⚠ Storage not guaranteed. Back up regularly"+(standalone()?"":", and install the app to improve this"):"Storage status unavailable")+used+"<br>"+lb+(ios&&!standalone()?"<br>iPhone: tap Share, then Add to Home Screen to install.":"");
   };
   function mountUI(){
@@ -5439,7 +5439,7 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
  const say=t=>{try{toast(t)}catch(e){}};
  const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
  const fmt=t=>t?new Date(t).toLocaleString(undefined,{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}):"never";
- function panel(){return $("cloudPanel")}
+ function panel(){return $("mhqGistHost")||$("cloudPanel")}
  if(!S||S.blocked||!S.raw){if(panel())panel().innerHTML='<div class="label">☁️ CLOUD BACKUP</div><div class="meta" style="margin-top:6px">Unavailable: this browser blocks storage.</div>';return}
  const origSave=window.save;
  const load=()=>{try{return JSON.parse(S.raw.get(KEY))||{}}catch(e){return{}}};
@@ -5581,7 +5581,7 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
   return '<div class="cloud-conflict"><b>'+(first?"A cloud backup already exists":"The cloud has a newer backup")+'</b><div class="meta">'+(first?"Saved ":"Changed ")+esc(fmt(conflict.updated))+'. Pick which copy to keep; the other is replaced.</div><div class="cloud-row"><button type="button" class="primary" data-cloud="usecloud">USE CLOUD COPY</button><button type="button" data-cloud="usedevice">KEEP THIS DEVICE</button></div></div>';
  }
  function drawNotice(){
-  const el=$("cloudNotice");if(!el)return;const st=load();let h="";
+  const el=$("mhqGistNotice")||$("cloudNotice");if(!el)return;const st=load();let h="";
   if(conflict){
    h='<div class="protect-card"><div class="protect-text"><b>'+(conflict.first?"Cloud backup found":"Newer cloud backup")+'</b><span>'+(conflict.first?"Restore it on this device, or replace it with this device’s data.":"Another device saved changes at "+esc(fmt(conflict.updated))+". Automatic backup is paused until you choose.")+'</span></div><div class="protect-actions"><button type="button" class="primary" data-cloud="usecloud">Use cloud copy</button><button type="button" data-cloud="usedevice">Keep this device</button></div></div>';
   }else if(st.token&&(st.error==="auth"||st.error==="missing")){
@@ -5605,6 +5605,330 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
  const start=()=>{draw();drawNotice();setTimeout(check,2500)};
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start);else start();
  window.mhqCloud={push:()=>push(true),check,status:()=>({...load(),token:load().token?"set":null})};
+})();
+</script>
+<style id="mhq-cloud-account-css">
+.acct-card{margin:0 0 12px;padding:2px 0 0}
+.acct-h{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.acct-badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:var(--fs-12,12px);font-weight:700;border:1px solid var(--line);background:var(--surface);color:var(--text)}
+.acct-badge[data-s=synced]{border-color:var(--good,#2e9d6b)}.acct-badge[data-s=syncing]{border-color:var(--accent)}.acct-badge[data-s=queued],.acct-badge[data-s=paused],.acct-badge[data-s=error]{border-color:var(--danger,#d64545)}
+.acct-card .cloud-row{margin-top:8px}.acct-card .cloud-row button{min-height:44px}
+.acct-card input,.acct-card textarea{width:100%;box-sizing:border-box;min-height:44px;padding:8px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);font:inherit;font-size:var(--fs-13)}
+.acct-card textarea{min-height:88px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px}
+.acct-card details{margin-top:10px}.acct-card summary{cursor:pointer;min-height:44px;display:flex;align-items:center}
+.acct-msg{margin-top:8px;overflow-wrap:anywhere}.acct-err{color:var(--danger)}
+.acct-who{overflow-wrap:anywhere;font-weight:700}
+.acct-sep{height:1px;background:var(--line);margin:12px 0}
+.acct-chip{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 10px;padding:8px 12px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);font-size:var(--fs-13)}
+.acct-chip span{flex:1 1 150px;overflow-wrap:anywhere}.acct-chip button{min-height:44px;min-width:44px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);font:inherit;cursor:pointer}
+#mhqSyncConflict{position:fixed;inset:0;z-index:10080;display:flex;align-items:center;justify-content:center;padding:max(12px,env(safe-area-inset-top,0px)) 12px max(12px,env(safe-area-inset-bottom,0px));box-sizing:border-box;background:rgba(0,0,0,.62)}
+#mhqSyncConflict .sc-card{width:100%;max-width:460px;max-height:100%;overflow:auto;box-sizing:border-box;padding:16px;border-radius:16px;background:var(--surface);color:var(--text);border:1px solid var(--accent);box-shadow:0 12px 40px rgba(0,0,0,.45)}
+#mhqSyncConflict h2{margin:0 0 6px;font-size:var(--fs-18,18px)}#mhqSyncConflict .sc-two{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+#mhqSyncConflict .sc-side{padding:8px 10px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);font-size:var(--fs-13);overflow-wrap:anywhere}
+#mhqSyncConflict .sc-btns{display:flex;flex-direction:column;gap:8px}#mhqSyncConflict .sc-btns button{min-height:48px;border-radius:12px;font:inherit;font-weight:700;cursor:pointer;border:1px solid var(--line);background:var(--surface2);color:var(--text)}
+#mhqSyncConflict .sc-btns button.primary{background:var(--accent);color:var(--on-accent,#fff);border-color:var(--accent)}
+</style>
+<script id="mhq-cloud-account">
+/* Medical HQ Account (v9.0.0): Firebase sign-in plus a users/{uid} cloud snapshot. localStorage stays the instant, offline-first source of truth:
+   nothing here ever blocks start-up, no Firebase file is requested unless a project is configured, and the only persisted state lives inside the existing global key mhqBackupMetaV60. */
+(function(){
+ const S=window.mhqStore;if(!S||S.blocked||!S.raw)return;
+ /* ===== Firebase project configuration. Fill this in, or paste the config JSON in Settings > Medical HQ Account > Firebase setup ===== */
+ const MHQ_FIREBASE_CONFIG={
+  apiKey:"",
+  authDomain:"",
+  projectId:"",
+  storageBucket:"",
+  messagingSenderId:"",
+  appId:""
+ };
+ const SDK="https://www.gstatic.com/firebasejs/10.12.2/",SCHEMA=1,META="mhqBackupMetaV60",DEBOUNCE=2500,MAXB=900000;
+ const $=id=>document.getElementById(id);
+ const say=t=>{try{toast(t)}catch(e){}};
+ const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+ const now=()=>(window.performance&&performance.now)?performance.now():Date.now();
+ const T0=now();
+ const blocked=()=>!!(window.mhqLoadProtect&&window.mhqLoadProtect.active);
+ const fmt=t=>t?new Date(t).toLocaleString(undefined,{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}):"never";
+ /* ----- metadata lives inside mhqBackupMetaV60 as "<last backup ms>|{json}" (the plain number alone is still valid) ----- */
+ function mread(){let raw="";try{raw=localStorage.getItem(META)||""}catch(e){}const i=raw.indexOf("|");let o={};if(i>=0){try{o=JSON.parse(raw.slice(i+1))||{}}catch(e){o={}}}return{ts:i<0?raw:raw.slice(0,i),o}}
+ const fbm=()=>mread().o.fb||{};
+ function fbset(p){const m=mread(),fb=Object.assign({},m.o.fb||{},p);Object.keys(fb).forEach(k=>{if(fb[k]===undefined)delete fb[k]});m.o.fb=fb;try{localStorage.setItem(META,(m.ts||"0")+"|"+JSON.stringify(m.o))}catch(e){}}
+ function cfg(){const c=fbm().cfg;return(c&&typeof c==="object")?c:MHQ_FIREBASE_CONFIG}
+ const configured=()=>{const c=cfg();return!!(c&&c.apiKey&&c.projectId)};
+ function label(){const u=navigator.userAgent||"";return/android/i.test(u)?"Android":/iphone|ipad|ipod/i.test(u)?"iPhone/iPad":/windows/i.test(u)?"Windows":/mac/i.test(u)?"Mac":/linux/i.test(u)?"Linux":"Browser"}
+ /* ----- snapshot: the same all-courses bundle the manual backup and the GitHub backup use ----- */
+ const origSave=window.save;
+ const norm=s=>typeof s==="string"?s.replace(/"savedAt":"[^"]*",?/g,""):s;
+ function snapshot(){
+  if(blocked())throw Object.assign(new Error("protected"),{protected:true});
+  try{origSave&&origSave()}catch(e){}
+  const reg=S.registry();
+  return{backupType:"medical-hq-all",version:1,exportedAt:new Date().toISOString(),active:reg.active,global:(window.mhqGlobal&&window.mhqGlobal.backupRaw?window.mhqGlobal.backupRaw():null),
+   courses:reg.list.map(id=>{const keys={};S.BASE.forEach(k=>{const v=S.raw.get(S.key(k,id));if(v!=null)keys[k]=v});return{id,keys}})};
+ }
+ function hash(snap){let h=2166136261>>>0;const feed=s=>{s=String(s);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0}};
+  feed(snap.active);feed(snap.global==null?"":norm(snap.global));(snap.courses||[]).forEach(c=>{feed(c.id);Object.keys(c.keys).sort().forEach(k=>{feed(k);feed(norm(c.keys[k]))})});return h.toString(36)}
+ const pj=s=>{try{return JSON.parse(s)}catch(e){return null}};
+ function stats(snap){let xp=0,lec=0,done=0,tests=0,mcq=0;(snap.courses||[]).forEach(c=>{const st=pj(c.keys&&c.keys.medicalHQ);if(!st)return;xp+=Number(st.xp)||0;tests+=(st.externalTests||[]).length;(st.data||[]).forEach(l=>{lec++;if((l.steps||[]).length&&l.steps.every(Boolean))done++;mcq+=(l.mcqs||[]).length})});
+  return{courses:(snap.courses||[]).length,xp,lec,done,mcq,tests}}
+ const hasProgress=snap=>{const s=stats(snap);if(s.xp>0||s.mcq>0||s.tests>0)return true;return(snap.courses||[]).some(c=>{const st=pj(c.keys&&c.keys.medicalHQ);return st&&(st.data||[]).some(l=>(l.steps||[]).some(Boolean))||(st&&((st.studySessions||[]).length||(st.exams||[]).length))})};
+ /* ----- merge two snapshots without losing progress (local = this device, cloud = users/{uid}) ----- */
+ const jk=x=>{try{return JSON.stringify(x)}catch(e){return String(Math.random())}};
+ const union=(a,b)=>{const seen={},out=[];(a||[]).concat(b||[]).forEach(x=>{const k=jk(x);if(!seen[k]){seen[k]=1;out.push(x)}});return out};
+ const clone=o=>JSON.parse(JSON.stringify(o));
+ function mergeLecture(a,b){
+  const ca=(a.steps||[]).filter(Boolean).length,cb=(b.steps||[]).filter(Boolean).length,o=clone(cb>ca?b:a);
+  const n=Math.max((a.steps||[]).length,(b.steps||[]).length);o.steps=[];o.stepDates=[];
+  for(let i=0;i<n;i++){const v=!!((a.steps||[])[i]||(b.steps||[])[i]);o.steps.push(v);o.stepDates.push(v?(((a.stepDates||[])[i])||((b.stepDates||[])[i])||null):null)}
+  o.mcqs=union(a.mcqs,b.mcqs);o.mastery=Math.max(Number(a.mastery)||0,Number(b.mastery)||0);
+  o.completionDate=o.steps.length&&o.steps.every(Boolean)?(a.completionDate||b.completionDate||null):null;
+  Object.keys(a).concat(Object.keys(b)).forEach(k=>{if(Array.isArray(a[k])&&Array.isArray(b[k])&&["steps","stepDates","mcqs"].indexOf(k)<0)o[k]=union(a[k],b[k])});
+  return o}
+ function mergeState(a,b){
+  const na=Date.parse(a.savedAt)||0,nb=Date.parse(b.savedAt)||0,newer=nb>na?b:a,o=clone(newer);
+  const byId={};const lec=[];(a.data||[]).forEach(l=>{byId[l.id]=l;lec.push(l.id)});const bm={};(b.data||[]).forEach(l=>{bm[l.id]=l;if(!byId[l.id])lec.push(l.id)});
+  o.data=lec.map(id=>byId[id]&&bm[id]?mergeLecture(byId[id],bm[id]):clone(byId[id]||bm[id]));
+  ["xp","streak","legacyBonusXP","rpgLastSeenLevel"].forEach(k=>{if(a[k]!=null||b[k]!=null)o[k]=Math.max(Number(a[k])||0,Number(b[k])||0)});
+  ["exams","studySessions","externalTests","achievementIds","activityLedger","xpLedger"].forEach(k=>{if(Array.isArray(a[k])||Array.isArray(b[k]))o[k]=union(a[k],b[k])});
+  ["achievementDates","bossVictories","reviewCards","externalReviewCards","clinicalState"].forEach(k=>{if(a[k]||b[k])o[k]=Object.assign({},clone(b[k]||{}),clone(a[k]||{}))});
+  if(a.achievementDates&&b.achievementDates){Object.keys(b.achievementDates).forEach(id=>{if(a.achievementDates[id]&&b.achievementDates[id]&&b.achievementDates[id]<a.achievementDates[id])o.achievementDates[id]=b.achievementDates[id]})}
+  if(a.audioSettings)o.audioSettings=clone(a.audioSettings);
+  return o}
+ function mergeSnapshots(L,C){
+  const out={backupType:"medical-hq-all",version:1,exportedAt:new Date().toISOString(),active:L.active||C.active,global:L.global,courses:[]};
+  const cm={};(C.courses||[]).forEach(c=>{cm[c.id]=c});const seen={};
+  (L.courses||[]).forEach(lc=>{seen[lc.id]=1;const cc=cm[lc.id];if(!cc){out.courses.push(clone(lc));return}
+   const keys={};S.BASE.forEach(k=>{const a=lc.keys[k],b=cc.keys[k];
+    if(k==="medicalHQ"){const sa=pj(a),sb=pj(b);keys[k]=(sa&&sb)?JSON.stringify(mergeState(sa,sb)):(a!=null?a:b)}
+    else if(k==="mhqCourseV59"){const sa=pj(a),sb=pj(b);keys[k]=(sa&&sb&&(sb.lectures||[]).length>(sa.lectures||[]).length)?b:(a!=null?a:b)}
+    else keys[k]=a!=null?a:b;if(keys[k]==null)delete keys[k]});
+   out.courses.push({id:lc.id,keys})});
+  (C.courses||[]).forEach(cc=>{if(!seen[cc.id])out.courses.push(clone(cc))});
+  return out}
+ /* ----- state ----- */
+ const ST={user:null,busy:false,syncing:false,dirty:false,queued:false,err:"",msg:"",sdk:"",conflict:null,pendingPull:false,formErr:"",formMsg:"",dismissed:false};
+ let AD=null,tm=null,modalEl=null;
+ function errMsg(e){
+  const c=(e&&(e.code||e.message))||"";
+  if(/offline|network|unavailable/i.test(c)||navigator.onLine===false)return"You are offline. Your progress is safe on this device and will sync when you are back online.";
+  if(/wrong-password|invalid-credential|invalid-login/i.test(c))return"That email or password is not right. Check it and try again, or use Forgot password.";
+  if(/user-not-found/i.test(c))return"There is no account with that email. Use Create Account first.";
+  if(/email-already-in-use/i.test(c))return"That email already has an account. Use Sign In instead.";
+  if(/weak-password/i.test(c))return"Choose a password with at least 6 characters.";
+  if(/invalid-email/i.test(c))return"That email address does not look right.";
+  if(/too-many-requests/i.test(c))return"Too many attempts. Wait a minute and try again.";
+  if(/popup-closed|cancelled-popup/i.test(c))return"Sign-in was cancelled.";
+  if(/unconfigured|api-key|invalid-api|project/i.test(c))return"Cloud accounts are not set up yet: add your Firebase project below first.";
+  if(/sdk/i.test(c))return"Could not load the sign-in service. Check your connection and try again.";
+  if(/permission/i.test(c))return"The cloud database refused the request. Check the Firestore rules for users/{uid}.";
+  return"Something went wrong: "+(e&&e.message?e.message:"try again")}
+ /* ----- real Firebase adapter (the compat SDK is requested only when a project is configured, and never blocks anything) ----- */
+ function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.async=true;s.onload=res;s.onerror=()=>rej(new Error("sdk"));document.head.appendChild(s)})}
+ function realAdapter(){
+  let auth=null,db=null,ready=null,cb=null;
+  function init(){return ready||(ready=(async()=>{
+   if(!(window.firebase&&firebase.auth&&firebase.firestore)){await loadScript(SDK+"firebase-app-compat.js");await Promise.all([loadScript(SDK+"firebase-auth-compat.js"),loadScript(SDK+"firebase-firestore-compat.js")])}
+   const app=firebase.apps&&firebase.apps.length?firebase.app():firebase.initializeApp(cfg());auth=firebase.auth();db=firebase.firestore();
+   auth.onAuthStateChanged(u=>{if(cb)cb(u?{uid:u.uid,email:u.email,displayName:u.displayName}:null)});
+  })().catch(e=>{ready=null;throw e}))}
+  return{real:true,configured,
+   onAuth(f){cb=f;init().catch(e=>{ST.sdk=errMsg(e);draw()})},
+   async signInGoogle(){await init();const p=new firebase.auth.GoogleAuthProvider();
+    const wv=/; wv\)|FBAN|FBAV|Instagram|Line\//i.test(navigator.userAgent||"");
+    if(wv){await auth.signInWithRedirect(p);return}
+    try{await auth.signInWithPopup(p)}catch(e){if(/popup-blocked|operation-not-supported|web-storage-unsupported/i.test(e&&e.code||"")){await auth.signInWithRedirect(p);return}throw e}},
+   async signInEmail(em,pw){await init();await auth.signInWithEmailAndPassword(em,pw)},
+   async createAccount(em,pw){await init();await auth.createUserWithEmailAndPassword(em,pw)},
+   async resetPassword(em){await init();await auth.sendPasswordResetEmail(em)},
+   async signOut(){await init();await auth.signOut()},
+   async getDoc(uid){await init();const s=await db.doc("users/"+uid).get();return{exists:s.exists,data:s.exists?s.data():null}},
+   async setDoc(uid,d){await init();await db.doc("users/"+uid).set(d)}}}
+ /* ----- engine ----- */
+ function pending(){return ST.dirty||ST.queued}
+ function status(){
+  if(!ST.user)return"signedout";if(blocked())return"paused";if(ST.err)return"error";if(ST.syncing||ST.busy||ST.dirty)return"syncing";if(ST.queued||navigator.onLine===false)return"queued";return"synced"}
+ const BADGE={synced:"Synced",syncing:"Syncing…",queued:"Offline — queued",paused:"Sync paused (recovery mode)",error:"Sync problem"};
+ async function applyBundle(b,cloudAt,extra){
+  if(typeof studyRunning!=="undefined"&&studyRunning){ST.pendingPull=true;ST.msg="A newer copy is waiting. It will be applied when your Focus session ends.";draw();return false}
+  if(blocked()){draw();return false}
+  try{const bad=typeof mhqBackupStateProblem==="function"?mhqBackupStateProblem(b):null;if(bad){ST.err=bad;draw();return false}}catch(e){}
+  const reg=S.registry();
+  b.courses.forEach(c=>{if(!c||!/^[a-z0-9_-]{1,30}$/i.test(c.id)||!c.keys)return;
+   S.BASE.forEach(k=>{const kk=S.key(k,c.id);if(typeof c.keys[k]==="string")S.raw.set(kk,c.keys[k]);else S.raw.remove(kk)});
+   if(reg.list.indexOf(c.id)<0)reg.list.push(c.id)});
+  if(b.active&&reg.list.indexOf(b.active)>=0)reg.active=b.active;
+  try{window.mhqGlobal&&window.mhqGlobal.mergeBackup(b.global)}catch(e){}
+  fbset(Object.assign({uid:ST.user.uid,lastCloudAt:cloudAt,lastHash:null,rebase:true,lastSyncedAt:Date.now()},extra||{}));
+  try{mhqMarkRestore("restore")}catch(e){}
+  S.saveRegistry(reg);S.freeze();location.reload();return true}
+ function parseCloud(doc){const b=doc&&typeof doc.bundle==="string"?pj(doc.bundle):(doc&&doc.bundle&&typeof doc.bundle==="object"?doc.bundle:null);return(b&&b.backupType==="medical-hq-all"&&Array.isArray(b.courses))?b:null}
+ async function check(why){
+  if(!AD||!ST.user||ST.busy||ST.conflict)return;
+  if(blocked()){draw();return}
+  if(navigator.onLine===false){draw();return}
+  ST.busy=true;ST.err="";draw();
+  try{
+   const uid=ST.user.uid,m=fbm(),snap=snapshot(),h=hash(snap);
+   if(m.rebase){fbset({lastHash:h,rebase:undefined});m.lastHash=h}
+   if(m.forcePush&&m.uid===uid){ST.busy=false;await push(true);return}
+   const doc=await AD.getDoc(uid),cloud=doc&&doc.exists?doc.data:null;
+   if(!cloud){
+    if(hasProgress(snap)){ST.busy=false;await push(true);return}
+    fbset({uid,lastCloudAt:"none",lastHash:h,lastSyncedAt:Date.now()});
+   }else{
+    const cb=parseCloud(cloud);if(!cb){ST.err="The cloud copy is not in the expected format.";return}
+    const linked=m.uid===uid&&m.lastCloudAt;
+    if(!linked){
+     if(!hasProgress(snap)){ST.busy=false;await applyBundle(cb,cloud.updatedAt);return}
+     if(hash(cb)===h){fbset({uid,lastCloudAt:cloud.updatedAt,lastHash:h,lastSyncedAt:Date.now()})}
+     else openConflict(snap,cb,cloud)
+    }else if(cloud.updatedAt!==m.lastCloudAt){
+     if(m.lastHash&&h===m.lastHash){ST.busy=false;await applyBundle(cb,cloud.updatedAt);return}
+     openConflict(snap,cb,cloud)
+    }else if(h!==m.lastHash){ST.dirty=true;ST.busy=false;await push(false);return}
+    else fbset({lastSyncedAt:Date.now()});
+   }
+  }catch(e){if(!e||!e.protected){ST.err=errMsg(e);if(navigator.onLine===false)ST.queued=true}}
+  finally{ST.busy=false;draw()}}
+ async function push(force){
+  if(!AD||!ST.user)return;
+  if(blocked()){draw();return}
+  if(ST.conflict)return;
+  if(navigator.onLine===false){ST.queued=true;draw();return}
+  ST.syncing=true;ST.err="";draw();
+  try{
+   const uid=ST.user.uid,snap=snapshot(),h=hash(snap),json=JSON.stringify(snap);
+   if(json.length>MAXB)throw Object.assign(new Error("Your data is too large for one cloud snapshot (limit about 1 MB)."),{code:"too-large"});
+   const m=fbm(),doc=await AD.getDoc(uid),cloud=doc&&doc.exists?doc.data:null,cur=cloud?cloud.updatedAt:"none";
+   if(!force&&m.uid===uid&&m.lastCloudAt&&cur!==m.lastCloudAt){const cb=cloud&&parseCloud(cloud);if(cb){openConflict(snap,cb,cloud);return}}
+   const at=new Date().toISOString();
+   await AD.setDoc(uid,{bundle:json,updatedAt:at,deviceLabel:label(),schemaVersion:SCHEMA,hash:h});
+   fbset({uid,lastCloudAt:at,lastHash:h,lastSyncedAt:Date.now(),forcePush:undefined});ST.dirty=false;ST.queued=false}
+  catch(e){if(!e||!e.protected){ST.err=errMsg(e);if(/too-large/.test(e&&e.code||""))ST.err=e.message}}
+  finally{ST.syncing=false;draw()}}
+ function sched(){if(!ST.user||blocked())return;ST.dirty=true;clearTimeout(tm);tm=setTimeout(()=>{push(false)},DEBOUNCE);draw()}
+ /* ----- first-link / both-changed conflict dialog ----- */
+ function sideHtml(title,s,when){return'<div class="sc-side"><b>'+esc(title)+'</b><br>'+s.courses+' course'+(s.courses===1?"":"s")+' · '+s.lec+' lectures ('+s.done+' done)<br>'+s.xp+' XP · '+s.mcq+' MCQ sets<br><span class="meta">'+esc(when)+'</span></div>'}
+ function openConflict(local,cloudBundle,cloudDoc){
+  ST.conflict={local,cloud:cloudBundle,doc:cloudDoc};ST.busy=false;showModal()}
+ function showModal(){
+  const c=ST.conflict;if(!c)return;closeModal();
+  const el=document.createElement("div");el.id="mhqSyncConflict";el.setAttribute("role","dialog");el.setAttribute("aria-modal","true");el.setAttribute("aria-labelledby","mhqSyncConflictT");el.tabIndex=-1;
+  el.innerHTML='<div class="sc-card"><h2 id="mhqSyncConflictT">Which copy should win?</h2><div class="meta">This device and your Medical HQ account both have progress that differs. Nothing is changed until you choose.</div><div class="sc-two">'+sideHtml("This device",stats(c.local),"changed here")+sideHtml("Cloud ("+(c.doc.deviceLabel||"another device")+")",stats(c.cloud),"saved "+fmt(c.doc.updatedAt))+'</div><div class="sc-btns"><button type="button" class="primary" data-acct="merge">Merge Both</button><button type="button" data-acct="usecloud">Use Cloud Data</button><button type="button" data-acct="uselocal">Upload This Device</button><button type="button" data-acct="later">Decide later</button></div><div class="meta" style="margin-top:8px">Merge Both keeps every course, the higher XP and the most completed steps per lecture, and combines MCQs, sessions, exams and rewards.</div></div>';
+  document.body.appendChild(el);modalEl=el;try{el.querySelector("button").focus()}catch(e){}
+  el.addEventListener("keydown",e=>{if(e.key==="Escape"){e.preventDefault();closeModal()}else if(e.key==="Tab"){const bs=[].slice.call(el.querySelectorAll("button")),i=bs.indexOf(document.activeElement);e.preventDefault();bs[(i+(e.shiftKey?-1:1)+bs.length)%bs.length].focus()}});
+  draw()}
+ function closeModal(){if(modalEl){modalEl.remove();modalEl=null}}
+ async function resolve(kind){
+  const c=ST.conflict;if(!c)return;
+  if(kind==="later"){closeModal();draw();return}
+  if(blocked()){closeModal();draw();return}
+  closeModal();
+  if(kind==="usecloud"){ST.conflict=null;await applyBundle(c.cloud,c.doc.updatedAt)}
+  else if(kind==="uselocal"){ST.conflict=null;fbset({uid:ST.user.uid,lastCloudAt:c.doc.updatedAt});await push(true)}
+  else if(kind==="merge"){
+   let merged;try{merged=mergeSnapshots(c.local,c.cloud)}catch(e){ST.err="Could not merge: nothing was changed.";draw();return}
+   ST.conflict=null;await applyBundle(merged,c.doc.updatedAt,{forcePush:true})}
+  draw()}
+ /* ----- UI ----- */
+ function panelHtml(){
+  let h='<div class="acct-card"><div class="acct-h"><div class="label">☁️ MEDICAL HQ ACCOUNT</div>';
+  const s=status();
+  if(ST.user)h+='<span class="acct-badge" id="mhqAcctBadge" data-s="'+s+'" role="status">'+BADGE[s]+'</span>';
+  h+='</div>';
+  if(ST.user){
+   h+='<div class="meta" style="margin:6px 0 2px">Signed in as</div><div class="acct-who">'+esc(ST.user.displayName||ST.user.email||"your account")+(ST.user.displayName&&ST.user.email?' <span class="meta">('+esc(ST.user.email)+')</span>':"")+'</div>';
+   h+='<div class="meta" style="margin-top:4px">Last synced: '+esc(fmt(fbm().lastSyncedAt))+'</div>';
+   if(s==="paused")h+='<div class="meta acct-msg acct-err">Sync paused while recovery protection is active. Nothing is uploaded or replaced.</div>';
+   if(ST.err)h+='<div class="meta acct-msg acct-err">'+esc(ST.err)+'</div>';
+   if(ST.msg)h+='<div class="meta acct-msg">'+esc(ST.msg)+'</div>';
+   if(ST.conflict)h+='<div class="cloud-row"><button type="button" class="primary" data-acct="reopen">CHOOSE WHICH COPY TO KEEP</button></div>';
+   h+='<div class="cloud-row"><button type="button" class="primary" data-acct="sync"'+(ST.busy||ST.syncing?" disabled":"")+'>SYNC NOW</button><button type="button" data-acct="signout">SIGN OUT</button></div>';
+  }else{
+   h+='<div class="meta" style="margin:6px 0 10px">Sign in to keep your courses, XP and streaks in sync across your phone and computer. Your data always stays on this device too, so the app works offline.</div>';
+   h+='<div class="cloud-row"><button type="button" class="primary" data-acct="google">CONTINUE WITH GOOGLE</button></div>';
+   h+='<div class="acct-sep"></div><div class="cloud-row"><input type="email" id="mhqAcctEmail" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="Email"></div><div class="cloud-row"><input type="password" id="mhqAcctPw" autocomplete="current-password" placeholder="Password"></div>';
+   h+='<div class="cloud-row"><button type="button" class="primary" data-acct="signin">SIGN IN</button><button type="button" data-acct="create">CREATE ACCOUNT</button><button type="button" data-acct="reset">FORGOT PASSWORD</button></div>';
+   if(ST.formErr)h+='<div class="meta acct-msg acct-err" role="alert">'+esc(ST.formErr)+'</div>';
+   if(ST.formMsg)h+='<div class="meta acct-msg" role="status">'+esc(ST.formMsg)+'</div>';
+   if(ST.sdk)h+='<div class="meta acct-msg acct-err">'+esc(ST.sdk)+'</div>';
+  }
+  h+='<details><summary class="meta">Firebase setup'+(configured()?" (configured)":" (not set up)")+'</summary><div class="meta" style="margin:4px 0 8px">Create a free Firebase project with Authentication (Google and Email/Password) and Firestore, then paste its web-app config here. It is kept only on this device.</div><textarea id="mhqAcctCfg" spellcheck="false" autocapitalize="off" placeholder=\'{"apiKey":"…","authDomain":"…","projectId":"…","appId":"…"}\'></textarea><div class="cloud-row"><button type="button" data-acct="savecfg">SAVE CONFIG</button>'+(fbm().cfg?'<button type="button" data-acct="clearcfg">REMOVE CONFIG</button>':"")+'</div></details></div>';
+  return h}
+ function draw(){
+  try{
+   const host=$("mhqAcct");if(host){const keepE=$("mhqAcctEmail")&&$("mhqAcctEmail").value,keepP=$("mhqAcctPw")&&$("mhqAcctPw").value,keepC=$("mhqAcctCfg")&&$("mhqAcctCfg").value,open=host.querySelector("details")&&host.querySelector("details").open,ae=document.activeElement&&document.activeElement.id;
+    host.innerHTML=panelHtml();if(keepE)$("mhqAcctEmail").value=keepE;if(keepP)$("mhqAcctPw").value=keepP;if(keepC)$("mhqAcctCfg").value=keepC;if(open&&host.querySelector("details"))host.querySelector("details").open=true;if(ae&&$(ae)&&ae.indexOf("mhqAcct")===0)try{$(ae).focus()}catch(e){}}
+   drawNotice()}catch(e){}}
+ function drawNotice(){
+  const el=$("mhqAcctNotice");if(!el)return;let h="";
+  if(ST.user){const s=status();
+   if(ST.conflict)h='<div class="acct-chip" role="status"><span>☁️ Choose which copy to keep</span><button type="button" data-acct="reopen">Choose</button></div>';
+   else if(s==="paused")h='<div class="acct-chip" role="status"><span>☁️ Sync paused (recovery mode)</span></div>';
+   else if(s==="queued")h='<div class="acct-chip" role="status"><span>☁️ Offline — changes queued</span></div>';
+   else if(s==="error")h='<div class="acct-chip" role="status"><span>☁️ Sync problem</span><button type="button" data-acct="sync">Retry</button></div>'}
+  else if(!ST.dismissed&&!fbm().dismissed){let tok=false;try{tok=!!(window.mhqCloud&&window.mhqCloud.status().token)}catch(e){}
+   if(!tok)h='<div class="acct-chip"><span>☁️ Sign in to sync across devices</span><button type="button" data-acct="goto">Sign in</button><button type="button" data-acct="dismiss" aria-label="Dismiss">✕</button></div>'}
+  if(el.innerHTML!==h)el.innerHTML=h}
+ async function act(a){
+  if(a==="reopen"){showModal();return}
+  if(a==="goto"){try{showView("dataView");const p=$("cloudPanel");p&&p.scrollIntoView&&p.scrollIntoView({block:"start"})}catch(e){}return}
+  if(a==="dismiss"){ST.dismissed=true;fbset({dismissed:true});drawNotice();return}
+  if(a==="sync"){if(blocked()){draw();return}ST.err="";ST.msg="";if(ST.dirty){await push(false)}else await check("manual");if(!ST.err&&!ST.conflict&&status()!=="paused")say("☁️ Synced");return}
+  if(a==="signout"){try{AD&&await AD.signOut()}catch(e){}ST.user=null;ST.err="";ST.msg="";ST.dirty=false;ST.queued=false;ST.conflict=null;closeModal();fbset({uid:undefined,lastCloudAt:undefined,lastHash:undefined,rebase:undefined,forcePush:undefined});draw();return}
+  if(a==="savecfg"){const t=($("mhqAcctCfg")||{}).value||"";let o=null;try{o=JSON.parse(t)}catch(e){const m=t.match(/\{[\s\S]*\}/);if(m){try{o=Function('"use strict";return ('+m[0].replace(/[^\x20-\x7E\n]/g,"")+")")()}catch(e2){}}}
+   if(!o||typeof o!=="object"||!o.apiKey||!o.projectId){ST.formErr="That does not look like a Firebase web config. It needs at least apiKey and projectId.";draw();return}
+   const keep={};["apiKey","authDomain","projectId","storageBucket","messagingSenderId","appId","measurementId"].forEach(k=>{if(typeof o[k]==="string")keep[k]=o[k]});fbset({cfg:keep});ST.formErr="";ST.formMsg="Saved. Reloading to connect…";draw();setTimeout(()=>location.reload(),600);return}
+  if(a==="clearcfg"){fbset({cfg:undefined});ST.formMsg="Config removed. Reloading…";draw();setTimeout(()=>location.reload(),500);return}
+  /* sign-in actions */
+  const em=(($("mhqAcctEmail")||{}).value||"").trim(),pw=($("mhqAcctPw")||{}).value||"";
+  ST.formErr="";ST.formMsg="";
+  if(!AD||(AD.real&&!configured())){ST.formErr=errMsg({code:"unconfigured"});draw();return}
+  if(navigator.onLine===false){ST.formErr=errMsg({code:"offline"});draw();return}
+  try{
+   if(a==="google"){await AD.signInGoogle()}
+   else if(a==="signin"){if(!em||!pw){ST.formErr="Enter your email and password.";draw();return}await AD.signInEmail(em,pw)}
+   else if(a==="create"){if(!em||!pw){ST.formErr="Enter an email and a password (6+ characters).";draw();return}await AD.createAccount(em,pw)}
+   else if(a==="reset"){if(!em){ST.formErr="Enter your email above first.";draw();return}await AD.resetPassword(em);ST.formMsg="Password reset email sent. Check your inbox."}
+  }catch(e){ST.formErr=errMsg(e)}
+  draw()}
+ /* ----- start-up (never blocks, never throws) ----- */
+ function onUser(u){
+  ST.user=u||null;ST.err="";
+  if(!u){draw();return}
+  draw();setTimeout(()=>check("signin"),0)}
+ function setAdapter(a){AD=a;try{a.onAuth(onUser)}catch(e){}}
+ function mount(){
+  const p=$("cloudPanel");if(p&&!$("mhqAcct")){
+   const g=document.createElement("div");g.id="mhqGistHost";while(p.firstChild)g.appendChild(p.firstChild);
+   const a=document.createElement("div");a.id="mhqAcct";p.appendChild(a);p.appendChild(g)}
+  const n=$("cloudNotice");if(n&&!$("mhqAcctNotice")){
+   const g=document.createElement("div");g.id="mhqGistNotice";while(n.firstChild)g.appendChild(n.firstChild);
+   const a=document.createElement("div");a.id="mhqAcctNotice";n.appendChild(a);n.appendChild(g)}
+  document.addEventListener("click",e=>{const b=e.target&&e.target.closest&&e.target.closest("[data-acct]");if(!b)return;if(b.closest("#mhqSyncConflict")){resolve(b.dataset.acct);return}act(b.dataset.acct)});
+  document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target&&(e.target.id==="mhqAcctPw"||e.target.id==="mhqAcctEmail")){e.preventDefault();act("signin")}});
+ }
+ mount();
+ if(typeof origSave==="function"){const prev=window.save;window.save=function(){const r=prev.apply(this,arguments);try{if(ST.user&&now()-T0>3000)sched()}catch(e){}return r}}
+ document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&ST.user)check("visible")});
+ window.addEventListener("online",()=>{ST.queued=false;if(ST.user){if(ST.dirty)push(false);else check("online")}draw()});
+ window.addEventListener("offline",()=>{if(ST.user&&ST.dirty)ST.queued=true;draw()});
+ /* the public adapter. useAdapter() is also the seam the tests use to plug in a mock backend. */
+ const API={
+  configured,status:()=>({user:ST.user?{uid:ST.user.uid,email:ST.user.email}:null,state:status(),configured:configured(),conflict:!!ST.conflict,meta:fbm(),dirty:ST.dirty}),
+  signInGoogle:()=>act("google"),signInEmail:(e,p)=>AD&&AD.signInEmail(e,p),createAccount:(e,p)=>AD&&AD.createAccount(e,p),resetPassword:e=>AD&&AD.resetPassword(e),
+  signOut:()=>act("signout"),syncNow:()=>act("sync"),saveConfig:j=>{const t=$("mhqAcctCfg");if(t)t.value=typeof j==="string"?j:JSON.stringify(j);return act("savecfg")},
+  useAdapter:a=>{AD=null;setAdapter(a)},merge:mergeSnapshots,snapshot,version:SCHEMA,constants:{DEBOUNCE}};
+ window.mhqCloudAccount=API;
+ draw();
+ setTimeout(()=>{
+  /* reserved: nothing to do after the 3 s start-up grace period */
+ },3200);
+ try{
+  if(window.__mhqCloudAdapter)setAdapter(window.__mhqCloudAdapter);
+  else if(configured()){setTimeout(()=>{if(!AD)setAdapter(realAdapter())},0)}
+ }catch(e){}
 })();
 </script>
 <script>
