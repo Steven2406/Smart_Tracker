@@ -1454,6 +1454,16 @@ html[data-theme="dark"]{--v-prog:#6fb0f0;--v-watch:#b794f0}
 .v81-t{position:relative;aspect-ratio:1;min-height:20px;padding:0;border-radius:5px;border:2px solid transparent}
 .v81-t.col{border-color:var(--text)}.v81-t.ex::after{content:"";position:absolute;right:-2px;top:-2px;width:7px;height:7px;border-radius:50%;background:var(--gold);border:1px solid var(--surface)}
 .v81-lg{display:flex;gap:10px;flex-wrap:wrap;font-size:var(--fs-11);color:var(--muted);margin-top:8px}.v81-lg span:before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;background:var(--k);vertical-align:-1px}
+.exam-an{margin-top:12px;border-top:1px solid var(--line);padding-top:8px}.exam-an>summary{cursor:pointer;font-weight:800;font-size:var(--fs-13);min-height:36px;display:flex;align-items:center;gap:6px;list-style:none}.exam-an>summary::-webkit-details-marker{display:none}.exam-an>summary:after{content:"▾";margin-left:auto;color:var(--muted)}.exam-an[open]>summary:after{content:"▴"}
+.xa-sec{margin-top:12px}.xa-h{font-size:var(--fs-11);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:800;margin-bottom:6px}
+.xa-seg{display:flex;gap:2px;height:12px;border-radius:6px;overflow:hidden;background:var(--line)}.xa-seg i{display:block;height:100%;min-width:0}
+.xa-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.xa-pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:var(--fs-12);background:var(--surface2);color:var(--text)}.xa-pill:before{content:"";width:9px;height:9px;border-radius:50%;background:var(--k)}.xa-pill b{font-weight:800}
+.xa-chart{width:100%;height:auto;display:block;max-width:100%}.xa-chart text{fill:var(--muted);font-size:9px}
+.xa-lg{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:var(--fs-11);color:var(--muted);margin-top:4px}.xa-lg span:before{content:"";display:inline-block;width:12px;height:4px;border-radius:2px;margin-right:5px;background:var(--k);vertical-align:2px}
+.xa-plan{display:grid;grid-template-columns:repeat(auto-fit,minmax(50px,1fr));gap:6px;margin-top:8px}.xa-plan div{border:1px solid var(--line);border-radius:10px;padding:6px 4px;text-align:center;font-size:var(--fs-11);color:var(--muted)}.xa-plan b{display:block;font-size:var(--fs-16);color:var(--text)}
+.xa-btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.xa-btns button{flex:1 1 140px;min-width:0;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.v81-t::before{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;border-radius:0 0 3px 3px;background:var(--sc,transparent)}.v81-t.dim{opacity:.22}
+.v81-sub{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.v81-sl{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface2);color:var(--text);border-radius:999px;padding:3px 10px;min-height:28px;font-size:var(--fs-11);max-width:100%}.v81-sl:before{content:"";flex:none;width:12px;height:4px;border-radius:2px;background:var(--sc)}.v81-sl[aria-pressed=true]{border-color:var(--text);box-shadow:inset 0 0 0 1px var(--text);font-weight:800}
 .v81-bl{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:var(--fs-13)}.v81-bl span{flex:none;width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.v81-bl b{flex:none;min-width:44px;text-align:right}
 .v81-b{flex:1;height:10px;border-radius:6px;background:var(--line);overflow:hidden}.v81-b i{display:block;height:100%;background:var(--accent);border-radius:6px}
 .v81-svg{width:100%;max-width:340px;display:block;margin:6px auto 0}.v81-svg text{fill:var(--muted);font-size:var(--fs-11)}
@@ -2087,7 +2097,7 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v9.1.0</span></small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v9.2.0</span></small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -4665,6 +4675,55 @@ function mhqSaveExamResult(id,score,note){
   if(!sc&&!nt){delete e.result;if(e.status==="completed")delete e.status}else{e.result={score:sc,note:nt,at:new Date().toISOString()};e.status="completed"}
   document.getElementById("mhqResultSheet")?.remove();save();render();toast("📝 Result saved");
 }
+/* ===== v9.2.0 per-exam analytics: computed only from the lectures an exam includes (examLectureIds), read-only, nothing stored ===== */
+const XA_STAGES=[["untouched","Untouched","var(--line)"],["watched","Just watched","var(--v-watch)"],["progress","In progress","var(--v-prog)"],["cleared","Cleared","var(--good)"]];
+function examLectureStage(l){const s=l.steps||[];if(s.every(Boolean)&&s.length)return "cleared";if(!s.some(Boolean))return "untouched";if(s[0]===true&&!s[1]&&!s[2]&&!s[3])return "watched";return "progress";}
+function examAnalytics(e){
+  const ls=examLectureIds(e).map(id=>data.find(l=>l.id===id)).filter(Boolean),N=ls.length;
+  const stages={untouched:[],watched:[],progress:[],cleared:[]};ls.forEach(l=>stages[examLectureStage(l)].push(l));
+  const days=[];for(let i=13;i>=0;i--)days.push(dateKeyOffset(-i));
+  const steps=days.map(d=>ls.reduce((n,l)=>n+(l.steps||[]).filter((v,i)=>v&&(l.stepDates||[])[i]===d).length,0));
+  const clearedOn=days.map(d=>ls.filter(l=>examLectureStage(l)==="cleared"&&l.completionDate===d).length);
+  const base=ls.filter(l=>examLectureStage(l)==="cleared"&&(!l.completionDate||l.completionDate<days[0])).length;
+  const actual=[];let run=base;clearedOn.forEach(n=>{run+=n;actual.push(run)});
+  const dl=examDaysLeft(e),target=13+Math.max(0,dl-1);   /* day index (0 = 13 days ago) of the planned finish: the day before the exam, never earlier than today */
+  const expected=days.map((d,i)=>Math.min(N,Math.round((base+(N-base)*Math.min(1,i/target))*100)/100));
+  const cleared=stages.cleared.length,remaining=N-cleared,expToday=expected[13],behind=Math.max(0,Math.round(expToday-cleared));
+  const since7=dateKeyOffset(-6),last7=ls.filter(l=>examLectureStage(l)==="cleared"&&l.completionDate&&l.completionDate>=since7).length,pace7=Math.round(last7/7*100)/100;
+  let projDate=null,projDays=null;if(remaining>0&&pace7>0){projDays=Math.ceil(remaining/pace7);const d=new Date(todayKey+"T12:00:00");d.setDate(d.getDate()+projDays);projDate=localDateKey(d)}
+  const nDays=Math.max(1,dl),plan=[];{const b=Math.floor(remaining/nDays),x=remaining%nDays;for(let i=0;i<Math.min(5,nDays);i++)plan.push(b+(i<x?1:0))}
+  const perDay=remaining?Math.ceil(remaining/nDays):0;
+  const pr=a=>a.slice().sort((p,q)=>lecturePriority(q)-lecturePriority(p))[0]||null;
+  let tq=0,tc=0,tested=0;ls.forEach(l=>{const m=lectureMCQStats(l);let q=m.questions||0,c=m.correct||0;try{const x=externalStatsForLecture(l.id);q+=x.questions||0;c+=x.correct||0}catch(er){}tq+=q;tc+=c;if(learningProfile(l).attempts>0)tested++});
+  return {total:N,counts:{untouched:stages.untouched.length,watched:stages.watched.length,progress:stages.progress.length,cleared},ids:{untouched:stages.untouched.map(l=>l.id),watched:stages.watched.map(l=>l.id),progress:stages.progress.map(l=>l.id),cleared:stages.cleared.map(l=>l.id)},
+    days,steps,clearedOn,actual,expected,base,remaining,behind,daysLeft:dl,pace7,projDate,projDays,plan,perDay,planDays:nDays,
+    next:{untouched:pr(stages.untouched),watched:pr(stages.watched)},mcq:{untested:N-tested,tested,questions:tq,correct:tc,accuracy:tq?Math.round(tc/tq*100):null}};
+}
+const examAnOpen={};
+function examAnToggle(id,open){examAnOpen[id]=!!open}
+function examAnalyticsHtml(e){
+  const a=examAnalytics(e);if(!a.total)return "";
+  const N=a.total,seg=XA_STAGES.map(([k,n,c])=>a.counts[k]?`<i style="width:${a.counts[k]/N*100}%;background:${c}" title="${n}: ${a.counts[k]}"></i>`:"").join("");
+  const pills=XA_STAGES.map(([k,n,c])=>`<span class="xa-pill" data-stage="${k}" style="--k:${c}">${n} <b>${a.counts[k]}</b></span>`).join("");
+  const W=300,H=110,L=18,R=292,T=8,B=92,mx=Math.max(1,...a.steps),my=Math.max(1,N),X=i=>L+(R-L)*i/13,Yc=v=>B-(B-T)*v/my,Ys=v=>B-(B-T)*v/mx;
+  const bars=a.steps.map((v,i)=>v?`<rect x="${(X(i)-5).toFixed(1)}" y="${Ys(v).toFixed(1)}" width="10" height="${(B-Ys(v)).toFixed(1)}" rx="2" fill="var(--accent)" opacity=".35"/>`:"").join("");
+  const line=(arr,c,dash)=>`<polyline fill="none" stroke="${c}" stroke-width="2" ${dash?'stroke-dasharray="5 4"':""} points="${arr.map((v,i)=>X(i).toFixed(1)+","+Yc(v).toFixed(1)).join(" ")}"/>`;
+  const chart=`<svg class="xa-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Past 14 days for ${escapeHtml(e.name)}: ${a.steps.reduce((x,y)=>x+y,0)} study steps, ${a.clearedOn.reduce((x,y)=>x+y,0)} lectures cleared; ${a.actual[13]} cleared against ${a.expected[13]} expected today"><line x1="${L}" y1="${B}" x2="${R}" y2="${B}" stroke="var(--line)"/>${bars}${line(a.expected,"var(--gold)",true)}${line(a.actual,"var(--good)",false)}<text x="${L}" y="${H-4}">${a.days[0].slice(5)}</text><text x="${R}" y="${H-4}" text-anchor="end">${a.days[13].slice(5)}</text><text x="${R}" y="${T+8}" text-anchor="end">${N} lectures</text></svg>`;
+  const tr=a.remaining===0?`<span class="exam-chip ok">✓ All lectures cleared</span>`:`<span class="exam-chip ${a.behind>0?"warn":"ok"}" data-xa="track">${a.behind>0?"⚠ "+a.behind+" lecture"+(a.behind===1?"":"s")+" behind schedule":"✓ On track"}</span>`;
+  const proj=a.remaining===0?"":(a.projDate?`At your 7-day pace (${a.pace7}/day) you finish on <b>${fmtExamDate(a.projDate)}</b>${a.projDate>e.date?" — after the exam":""}.`:`No lecture cleared in the last 7 days, so there is no projected finish yet.`);
+  const names=["Today","Tomorrow"];const dn=i=>i<2?names[i]:fmtShort(i);
+  function fmtShort(i){const d=new Date(todayKey+"T12:00:00");d.setDate(d.getDate()+i);return d.toLocaleDateString(undefined,{weekday:"short"})}
+  const planHtml=a.remaining===0?`<div class="meta">Nothing left to catch up on — keep reviews current.</div>`:`<div class="meta" data-xa="target">${a.daysLeft<=0?"Exam day: clear what you can today.":"Clear <b>"+a.perDay+"</b> lecture"+(a.perDay===1?"":"s")+" a day"+(a.daysLeft>1?" until "+fmtExamDate(dateKeyOffset(a.daysLeft-1))+" (1-day buffer before the exam)":" today (the exam is tomorrow)")+" to be done in time."}</div><div class="xa-plan">${a.plan.map((v,i)=>`<div><b>${v}</b>${dn(i)}</div>`).join("")}</div>`;
+  const btn=(l,lab)=>l?`<button type="button" data-xa-open="${l.id}" onclick="openLecture(${l.id})">${lab}: L${l.id} · ${escapeHtml(l.title)}</button>`:"";
+  const btns=btn(a.next.untouched,"Start")+btn(a.next.watched,"Continue");
+  const m=a.mcq;
+  return `<details class="exam-an" data-exam-an="${e.id}" ${examAnOpen[e.id]?"open":""} ontoggle="examAnToggle('${e.id}',this.open)"><summary>📊 EXAM ANALYTICS</summary>
+   <div class="xa-sec" data-xa="breakdown"><div class="xa-h">Lecture breakdown</div><div class="xa-seg" role="img" aria-label="${XA_STAGES.map(([k,n])=>n+" "+a.counts[k]).join(", ")}">${seg}</div><div class="xa-pills">${pills}</div></div>
+   <div class="xa-sec" data-xa="trend"><div class="xa-h">Past 14 days · pace</div>${chart}<div class="xa-lg"><span style="--k:var(--accent)">steps / day</span><span style="--k:var(--good)">cleared (actual)</span><span style="--k:var(--gold)">on-track plan</span></div><div style="margin-top:6px">${tr} <span class="meta">${a.actual[13]} cleared vs ${a.expected[13]} expected today</span></div>${proj?`<div class="meta" style="margin-top:4px" data-xa="proj">${proj}</div>`:""}</div>
+   <div class="xa-sec" data-xa="plan"><div class="xa-h">Return to track</div>${planHtml}${btns?`<div class="xa-btns">${btns}</div>`:""}</div>
+   <div class="xa-sec" data-xa="mcq"><div class="xa-h">Testing readiness</div><div class="mini-grid"><div class="card"><div class="label">Untested</div><b>${m.untested}/${N}</b></div><div class="card"><div class="label">Tested</div><b>${m.tested}/${N}</b></div><div class="card"><div class="label">MCQ accuracy</div><b>${m.accuracy==null?"—":m.accuracy+"%"}</b></div></div><div class="meta" style="margin-top:4px">${m.questions?m.correct+" of "+m.questions+" questions correct across this exam's lectures only":"No MCQs logged for this exam's lectures yet."}</div></div></details>`;
+}
+window.mhqExamAnalytics=examAnalytics;
 function renderExams(){
   try{renderAcademicTimeline()}catch(e){try{console.error(e)}catch(x){}}
   const list=document.getElementById("examList");if(!list)return;
@@ -4677,6 +4736,7 @@ function renderExams(){
       <div class="mini-grid" style="margin-top:12px"><div class="card"><div class="label">Cleared</div><b>${s.cleared}/${s.total}</b></div><div class="card"><div class="label">Tested</div><b>${s.tested}/${s.total}</b></div><div class="card"><div class="label">Readiness</div><b>${s.mastery}%</b></div></div>
       <div style="margin-top:10px">${examPaceHtml(s)}</div>
       ${s.weakest.length?`<div class="label" style="margin-top:14px">Focus on</div>${s.weakest.map(l=>`<div class="exam-weak"><span>L${l.id} · ${escapeHtml(l.title)} <span class="meta">${inferredMastery(l)}%</span></span><button type="button" onclick="openLecture(${l.id})">OPEN</button></div>`).join("")}`:""}
+      ${examAnalyticsHtml(e)}
       <div class="exam-card-actions">${pick?`<button type="button" class="primary" onclick="openLecture(${pick.id})">STUDY NEXT</button>`:""}<button type="button" data-gt="${e.id}" onclick="mhqGauntlet('${e.id}')">⚔️ GAUNTLET</button><button type="button" onclick="openExamEditor('${e.id}')">EDIT</button></div><div class="gaunt-host" data-eid="${e.id}"></div></div>`;
   };
   list.innerHTML=(up.length?up.map(card).join(""):`<div class="empty">No upcoming exams. Tap ADD EXAM to set a date and choose the lectures it covers.</div>`)
@@ -7340,7 +7400,22 @@ function buddy(sp,mo,sk,stg,anim){
    ['Matthew 11:28','Come unto me, all ye that labour and are heavy laden, and I will give you rest.','تَعَالَوْا إِلَيَّ يَا جَمِيعَ الْمُتْعَبِينَ وَالثَّقِيلِي الأَحْمَالِ، وَأَنَا أُرِيحُكُمْ.'],
    ['Psalm 23:1','The Lord is my shepherd; I shall not want.','الرَّبُّ رَاعِيَّ فَلاَ يُعْوِزُنِي شَيْءٌ.'],
    ['Psalm 121:1–2','I will lift up mine eyes unto the hills, from whence cometh my help. My help cometh from the Lord, which made heaven and earth.','أَرْفَعُ عَيْنَيَّ إِلَى الْجِبَالِ، مِنْ حَيْثُ يَأْتِي عَوْنِي. مَعُونَتِي مِنْ عِنْدِ الرَّبِّ، صَانِعِ السَّمَاوَاتِ وَالأَرْضِ.'],
-   ['Galatians 6:9','And let us not be weary in well doing: for in due season we shall reap, if we faint not.','فَلاَ نَفْشَلْ فِي عَمَلِ الْخَيْرِ، لأَنَّنَا سَنَحْصُدُ فِي وَقْتِهِ إِنْ كُنَّا لاَ نَكِلُّ.']],
+   ['Galatians 6:9','And let us not be weary in well doing: for in due season we shall reap, if we faint not.','فَلاَ نَفْشَلْ فِي عَمَلِ الْخَيْرِ، لأَنَّنَا سَنَحْصُدُ فِي وَقْتِهِ إِنْ كُنَّا لاَ نَكِلُّ.'],
+    ['Proverbs 16:3','Commit thy works unto the Lord, and thy thoughts shall be established.','أَلْقِ عَلَى الرَّبِّ أَعْمَالَكَ فَتَثْبُتَ أَفْكَارُكَ.'],
+    ['Proverbs 2:6','For the Lord giveth wisdom: out of his mouth cometh knowledge and understanding.','لأَنَّ الرَّبَّ يُعْطِي حِكْمَةً. مِنْ فِيهِ الْمَعْرِفَةُ وَالْفَهْمُ.'],
+    ['Proverbs 4:7','Wisdom is the principal thing; therefore get wisdom: and with all thy getting get understanding.','ابْتِدَاءُ الْحِكْمَةِ اقْتَنِ الْحِكْمَةَ، وَبِكُلِّ مُقْتَنَاكَ اقْتَنِ الْفَهْمَ.'],
+    ['Proverbs 21:5','The thoughts of the diligent tend only to plenteousness; but of every one that is hasty only to want.','أَفْكَارُ الْمُجْتَهِدِ إِنَّمَا هِيَ لِلْوَفْرِ، وَكُلُّ عَجُولٍ إِنَّمَا هُوَ لِلْعَوَزِ.'],
+    ['Proverbs 12:24','The hand of the diligent shall bear rule: but the slothful shall be under tribute.','يَدُ الْمُجْتَهِدِينَ تَسُودُ، وَالرَّخْوَةُ تَكُونُ تَحْتَ الْجِزْيَةِ.'],
+    ['John 14:27','Peace I leave with you, my peace I give unto you: not as the world giveth, give I unto you. Let not your heart be troubled, neither let it be afraid.','سَلاَمًا أَتْرُكُ لَكُمْ. سَلاَمِي أُعْطِيكُمْ. لَيْسَ كَمَا يُعْطِي الْعَالَمُ أُعْطِيكُمْ أَنَا. لاَ تَضْطَرِبْ قُلُوبُكُمْ وَلاَ تَرْهَبْ.'],
+    ['Philippians 4:6–7','Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God. And the peace of God, which passeth all understanding, shall keep your hearts and minds through Christ Jesus.','لاَ تَهْتَمُّوا بِشَيْءٍ، بَلْ فِي كُلِّ شَيْءٍ بِالصَّلاَةِ وَالدُّعَاءِ مَعَ الشُّكْرِ لِتُعْلَمْ طِلْبَاتُكُمْ لَدَى اللهِ. وَسَلاَمُ اللهِ الَّذِي يَفُوقُ كُلَّ عَقْلٍ يَحْفَظُ قُلُوبَكُمْ وَأَفْكَارَكُمْ فِي الْمَسِيحِ يَسُوعَ.'],
+    ['Isaiah 26:3','Thou wilt keep him in perfect peace, whose mind is stayed on thee: because he trusteth in thee.','ذُو الرَّأْيِ الْمُمَكَّنِ تَحْفَظُهُ سَلاَمًا سَلاَمًا، لأَنَّهُ عَلَيْكَ مُتَوَكِّلٌ.'],
+    ['Psalm 4:8','I will both lay me down in peace, and sleep: for thou, Lord, only makest me dwell in safety.','بِسَلاَمَةٍ أَضْطَجِعُ بَلْ أَيْضًا أَنَامُ، لأَنَّكَ أَنْتَ يَا رَبُّ مُنْفَرِدًا فِي طُمَأْنِينَةٍ تُسَكِّنُنِي.'],
+    ['2 Corinthians 12:9','My grace is sufficient for thee: for my strength is made perfect in weakness.','تَكْفِيكَ نِعْمَتِي، لأَنَّ قُوَّتِي فِي الضَّعْفِ تُكْمَلُ.'],
+    ['Isaiah 41:10','Fear thou not; for I am with thee: be not dismayed; for I am thy God: I will strengthen thee; yea, I will help thee; yea, I will uphold thee with the right hand of my righteousness.','لاَ تَخَفْ لأَنِّي مَعَكَ. لاَ تَتَلَفَّتْ لأَنِّي إِلهُكَ. قَدْ أَيَّدْتُكَ وَأَعَنْتُكَ وَعَضَدْتُكَ بِيَمِينِ بِرِّي.'],
+    ['Psalm 55:22','Cast thy burden upon the Lord, and he shall sustain thee: he shall never suffer the righteous to be moved.','أَلْقِ عَلَى الرَّبِّ هَمَّكَ فَهُوَ يَعُولُكَ. لاَ يَدَعُ الصِّدِّيقَ يَتَزَعْزَعُ إِلَى الأَبَدِ.'],
+    ['1 Corinthians 15:58','Therefore, my beloved brethren, be ye stedfast, unmoveable, always abounding in the work of the Lord, forasmuch as ye know that your labour is not in vain in the Lord.','إِذًا يَا إِخْوَتِي الأَحِبَّاءَ كُونُوا رَاسِخِينَ غَيْرَ مُتَزَعْزِعِينَ، مُكْثِرِينَ فِي عَمَلِ الرَّبِّ كُلَّ حِينٍ، عَالِمِينَ أَنَّ تَعَبَكُمْ لَيْسَ بَاطِلاً فِي الرَّبِّ.'],
+    ['Romans 12:12','Rejoicing in hope; patient in tribulation; continuing instant in prayer.','فَرِحِينَ فِي الرَّجَاءِ، صَابِرِينَ فِي الضِّيقِ، مُواظِبِينَ عَلَى الصَّلاَةِ.'],
+    ['Jeremiah 29:11','For I know the thoughts that I think toward you, saith the Lord, thoughts of peace, and not of evil, to give you an expected end.','لأَنِّي عَرَفْتُ الأَفْكَارَ الَّتِي أَنَا مُفْتَكِرٌ بِهَا عَنْكُمْ، يَقُولُ الرَّبُّ، أَفْكَارَ سَلاَمٍ لاَ شَرٍّ، لأُعْطِيَكُمْ آخِرَةً وَرَجَاءً.']],
   xmas:[
    ['Luke 2:11','For unto you is born this day in the city of David a Saviour, which is Christ the Lord.','أَنَّهُ وُلِدَ لَكُمُ الْيَوْمَ فِي مَدِينَةِ دَاوُدَ مُخَلِّصٌ هُوَ الْمَسِيحُ الرَّبُّ.'],
    ['John 1:5','And the light shineth in darkness; and the darkness comprehended it not.','وَالنُّورُ يُضِيءُ فِي الظُّلْمَةِ، وَالظُّلْمَةُ لَمْ تُدْرِكْهُ.']],
@@ -7509,7 +7584,8 @@ function buddy(sp,mo,sk,stg,anim){
   if(C.ev){
    if(C.ev.theme==='xmas')return VERSES.xmas[Math.abs(diff(C.ev.a,t))%2];
    var E=C.ev.easter,m={};m[addDays(E,-7)]='palm';m[addDays(E,-3)]='cov';m[addDays(E,-2)]='fri';m[E]='res';if(m[t])return VERSES[m[t]]}
-  return VERSES.daily[((diff(EPOCH,t)%12)+12)%12]}
+  var n=VERSES.daily.length;return VERSES.daily[((diff(EPOCH,t)%n)+n)%n]}
+ window.mhqVerses=function(){return VERSES.daily.map(function(x){return x.slice()})};
  window.renderVerse=function(){
   var el=document.getElementById('verseCard');if(!el)return;var o=load();
   if(!o.on){el.innerHTML='';el.dataset.h='';return}
@@ -7779,10 +7855,16 @@ function buddy(sp,mo,sk,stg,anim){
  function cvyHTML(){
   var c=counts(),p=function(v){return c.N?Math.round(v/c.N*100):0};
   return'<div class="v81-cvy" role="img" aria-label="College has taken '+c.t+' of '+c.N+' lectures, you cleared '+c.y+'"><div class="v81-bl"><span>College</span><div class="v81-b"><i style="width:'+p(c.t)+'%;background:var(--v-prog)"></i></div><b>'+c.t+'/'+c.N+'</b></div><div class="v81-bl"><span>You</span><div class="v81-b"><i style="width:'+p(c.y)+'%;background:var(--good)"></i></div><b>'+c.y+'/'+c.N+'</b></div><div class="meta">'+(c.t?(c.behind?c.behind+' taken lecture'+(c.behind===1?'':'s')+' still to clear':'You’re caught up with the college')+(c.ahead?' · '+c.ahead+' ahead of it':''):'Mark lectures as taken in college (🏫) to compare your pace.')+'</div></div>'}
- function mapHTML(){
-  var ne=nearest(),set=ne?ne.set:{},cs={0:0,1:0,2:0,3:0};
-  var tiles=data.map(function(l){var s=stage(l);cs[s]++;return'<button type="button" class="v81-t'+(l.college?' col':'')+(set[l.id]?' ex':'')+'" style="background:'+STC[s]+'" onclick="openLecture('+l.id+')" aria-label="Lecture '+l.id+', '+['untouched','listened or watched only','in progress','cleared'][s]+(l.college?', taken in college':'')+'" title="L'+l.id+' · '+esc(l.title)+'"></button>'}).join('');
-  return'<div class="v81-tiles">'+tiles+'</div><div class="v81-lg"><span style="--k:var(--good)">cleared '+cs[3]+'</span><span style="--k:var(--v-prog)">in progress '+cs[2]+'</span><span style="--k:var(--v-watch)">watched '+cs[1]+'</span><span style="--k:var(--line)">untouched '+cs[0]+'</span></div><div class="meta" style="margin-top:4px">Outlined = taken in college'+(ne?' · gold dot = in '+esc(ne.e.name):'')+'</div>'}
+  /* v9.2.0 subject colours: palette index = the subject's order in the course (stable), mid-tones with >= 3:1 contrast on both light and dark surfaces; the highlight filter lives in memory only */
+  var SUBJ_PAL=['#d9382b','#2b83e0','#3b9a4a','#7b57d6','#e0701a','#14958a','#d6409f','#b98300','#6c8aa0','#9a6b4b','#b44fcf'],subjHl=null;
+  function subjectList(){var o=[];data.forEach(function(l){var s=l.subject||'';if(o.indexOf(s)<0)o.push(s)});return o}
+  function subjectColor(s){var i=subjectList().indexOf(s||'');if(i<0)i=0;return i<SUBJ_PAL.length?SUBJ_PAL[i]:'hsl('+((i*47)%360)+',55%,42%)'}
+  window.mhqSubjectColor=subjectColor;window.mhqSubjPalette=SUBJ_PAL;
+  window.mhqSubjHl=function(i){var s=subjectList()[i];subjHl=(subjHl===s)?null:s;try{window.renderV81&&window.renderV81()}catch(e){}};
+  function mapHTML(withId){
+   var ne=nearest(),set=ne?ne.set:{},cs={0:0,1:0,2:0,3:0},subs=subjectList();
+  var tiles=data.map(function(l){var s=stage(l);cs[s]++;return'<button type="button" class="v81-t'+(l.college?' col':'')+(set[l.id]?' ex':'')+(subjHl!==null&&(l.subject||'')!==subjHl?' dim':'')+'" data-subject="'+esc(l.subject||'')+'" style="background:'+STC[s]+';--sc:'+subjectColor(l.subject)+'" onclick="openLecture('+l.id+')" aria-label="Lecture '+l.id+', '+['untouched','listened or watched only','in progress','cleared'][s]+(l.college?', taken in college':'')+', subject '+esc(l.subject||'none')+'" title="L'+l.id+' · '+esc(l.title)+'"></button>'}).join('');
+  return'<div'+(withId?' id="v81Tiles"':'')+' class="v81-tiles">'+tiles+'</div><div class="v81-lg"><span style="--k:var(--good)">cleared '+cs[3]+'</span><span style="--k:var(--v-prog)">in progress '+cs[2]+'</span><span style="--k:var(--v-watch)">watched '+cs[1]+'</span><span style="--k:var(--line)">untouched '+cs[0]+'</span></div>'+(subs.length>1?'<div class="v81-sub" role="group" aria-label="Subject colours: tap one to highlight it">'+subs.map(function(s,i){return'<button type="button" class="v81-sl" style="--sc:'+subjectColor(s)+'" aria-pressed="'+(subjHl===s)+'" data-subj="'+esc(s)+'" onclick="mhqSubjHl('+i+')">'+esc(s||'No subject')+'</button>'}).join('')+'</div>':'')+'<div class="meta" style="margin-top:4px">Outlined = taken in college'+(ne?' · gold dot = in '+esc(ne.e.name):'')+'</div>'}
  function radarHTML(){
   var subj={};data.forEach(function(l){(subj[l.subject]=subj[l.subject]||[]).push(inferredMastery(l))});
   var K=Object.keys(subj);if(K.length<2)return'';
@@ -7818,7 +7900,7 @@ function buddy(sp,mo,sk,stg,anim){
  function hostIn(viewId,id){var v=$(viewId);if(!v)return null;var e=$(id);if(!e){e=document.createElement('div');e.id=id;var t=topOf(v);if(t)t.parentNode.insertBefore(e,t.nextSibling);else v.insertBefore(e,v.firstChild)}else if(e.parentNode!==v){var t2=topOf(v);if(t2)t2.parentNode.insertBefore(e,t2.nextSibling);else v.insertBefore(e,v.firstChild)}return e}
  function paintOver(){
   var rd=radarHTML(),dn=donutHTML(),h;
-  h=hostIn('courseMapView','v81Course');if(h)put(h,'<div class="section card"><div class="label">LECTURE MAP</div>'+mapHTML()+'</div><div class="section card"><div class="label">COLLEGE vs YOU</div>'+cvyHTML()+'</div>'+(rd?'<div class="section card"><div class="label">MASTERY BY SUBJECT</div>'+rd+'</div>':''));
+  h=hostIn('courseMapView','v81Course');if(h)put(h,'<div class="section card"><div class="label">LECTURE MAP</div>'+mapHTML(true)+'</div><div class="section card"><div class="label">COLLEGE vs YOU</div>'+cvyHTML()+'</div>'+(rd?'<div class="section card"><div class="label">MASTERY BY SUBJECT</div>'+rd+'</div>':''));
   h=hostIn('insightsView','v81Week');if(h)put(h,'<div class="section card"><div class="label">LAST 7 DAYS</div>'+weekHTML()+'</div>');
   h=hostIn('mistakesView','v81Mist');if(h)put(h,dn?'<div class="section card"><div class="label">MISTAKES BY TYPE</div>'+dn+'</div>':'')}
  function chipsFor(r){
@@ -8078,8 +8160,12 @@ function buddy(sp,mo,sk,stg,anim){
  document.addEventListener('click',function(ev){var c=ev.target.closest&&ev.target.closest('#verseCard .ss-verse');if(!c)return;
   var ar=c.querySelector('.ss-ar'),en=c.querySelector('.ss-en'),rf=c.querySelector('.meta');verseClose();
   vov=document.createElement('div');vov.className='ss-quiet';vov.setAttribute('role','dialog');vov.setAttribute('aria-label','Verse of the day');
-  vov.innerHTML='<div class="ss-qc"><div class="label">VERSE OF THE DAY</div><div class="ss-ar" dir="rtl" lang="ar" style="font-size:var(--fs-22);margin:12px 0">'+(ar?ar.innerHTML:'')+'</div><div class="ss-en" style="font-size:var(--fs-16)">'+(en?en.innerHTML:'')+'</div><div class="meta" style="margin-top:6px">'+(rf?rf.innerHTML:'')+'</div><div class="v78-yn" style="margin-top:16px"><button type="button" class="yes" onclick="mhqVerseClose()">Close</button></div></div>';
-  document.body.appendChild(vov)});
+  vov.innerHTML='<div class="ss-qc"><div class="label">VERSE OF THE DAY</div><div class="ss-ar" dir="rtl" lang="ar" style="font-size:var(--fs-22);margin:12px 0">'+(ar?ar.innerHTML:'')+'</div><div class="ss-en" style="font-size:var(--fs-16)">'+(en?en.innerHTML:'')+'</div><div class="meta" style="margin-top:6px">'+(rf?rf.innerHTML:'')+'</div><div class="v78-yn" style="margin-top:16px"><button type="button" class="no" data-vnext>Next verse ›</button> <button type="button" class="yes" onclick="mhqVerseClose()">Close</button></div></div>';
+  document.body.appendChild(vov);
+  /* v9.2.0: tap through the whole library (in-memory position only) */
+  var nb=vov.querySelector('[data-vnext]'),vi=-1,cur=rf?rf.textContent:'';var LIB=window.mhqVerses?window.mhqVerses():[];LIB.forEach(function(x,i){if(x[0]===cur)vi=i});
+  if(nb)nb.onclick=function(){var L=LIB;vi=(vi+1)%L.length;var v=L[vi],a=vov.querySelector('.ss-ar'),e=vov.querySelector('.ss-en'),m=vov.querySelector('.meta');if(a)a.textContent=v[2];if(e)e.textContent=v[1];if(m)m.textContent=v[0]}});
+
  /* streak banner and buddy alarm switch on at 20:00: refresh around the boundary */
  setInterval(function(){try{window.renderUrgency&&window.renderUrgency()}catch(e){}},60000);
  /* ---------- init ---------- */
