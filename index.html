@@ -2087,7 +2087,7 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v9.0.0</span></small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v9.1.0</span></small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -5143,6 +5143,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
  window.addEventListener('storage',render);document.addEventListener('DOMContentLoaded',()=>{reconcileWallet();render()});new MutationObserver(syncThemeColor).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 applyAppearance();
 window.mhqMotivationRender=()=>{reconcileWallet();render()};
+window.mhqMotivationReload=function(){try{if(window.mhqLoadProtect&&window.mhqLoadProtect.active)return false;const s=localStorage.getItem(KEY),v=s?JSON.parse(s):null;if(!v||typeof v!=='object'||Array.isArray(v))return false;M=v;M.rewardCreditsEarned=Number(M.rewardCreditsEarned||0);M.rewardCreditsSpent=Number(M.rewardCreditsSpent||0);M.ownedItems=Array.isArray(M.ownedItems)?M.ownedItems:[];M.equipped=Object.assign({skin:'clinical',frame:null,emblem:null,banner:null,vmap:{},fx:'full',intensity:'standard'},(M.equipped&&typeof M.equipped==='object')?M.equipped:{});try{if(window.mhqGlobal&&window.mhqGlobal.ready)window.mhqGlobal.applyWallet(M)}catch(e){}applyAppearance();return true}catch(e){return false}};
 })();
 </script>
 <script id="mhq-v55-interaction-polish">
@@ -5629,7 +5630,7 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
 #mhqSyncConflict .sc-btns button.primary{background:var(--accent);color:var(--on-accent,#fff);border-color:var(--accent)}
 </style>
 <script id="mhq-cloud-account">
-/* Medical HQ Account (v9.0.0): Firebase sign-in plus a users/{uid} cloud snapshot. localStorage stays the instant, offline-first source of truth:
+/* Medical HQ Account (v9.1.0): Firebase sign-in plus split-document cloud sync (users/{uid} root + users/{uid}/courses/{courseId}) with real-time, no-reload updates. localStorage stays the instant, offline-first source of truth:
    nothing here ever blocks start-up, no Firebase file is requested unless a project is configured, and the only persisted state lives inside the existing global key mhqBackupMetaV60. */
 (function(){
  const S=window.mhqStore;if(!S||S.blocked||!S.raw)return;
@@ -5642,7 +5643,8 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
   messagingSenderId:"837859528635",
   appId:"1:837859528635:web:7de94d742c675f19fb3e9e"
  };
- const SDK="https://www.gstatic.com/firebasejs/10.12.2/",SCHEMA=1,META="mhqBackupMetaV60",DEBOUNCE=2500,MAXB=900000;
+ const SDK="https://www.gstatic.com/firebasejs/10.12.2/",SCHEMA=2,THEME_KEY="medicalHQThemeV57",META="mhqBackupMetaV60",DEBOUNCE=2500,MAXB=900000;
+ const TAB="t"+Date.now().toString(36)+Math.random().toString(36).slice(2,8);   /* per-tab writeId: lets a tab recognise and ignore the echo of its own writes */
  const $=id=>document.getElementById(id);
  const say=t=>{try{toast(t)}catch(e){}};
  const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -5709,6 +5711,7 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
  /* ----- state ----- */
  const ST={user:null,busy:false,syncing:false,dirty:false,queued:false,err:"",msg:"",sdk:"",conflict:null,pendingPull:false,formErr:"",formMsg:"",dismissed:false};
  let AD=null,tm=null,modalEl=null;
+ const LIVE={unsub:null,uid:null,cache:{},t:null};
  function errMsg(e){
   const c=(e&&(e.code||e.message))||"";
   if(/offline|network|unavailable/i.test(c)||navigator.onLine===false)return"You are offline. Your progress is safe on this device and will sync when you are back online.";
@@ -5719,52 +5722,137 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
   if(/invalid-email/i.test(c))return"That email address does not look right.";
   if(/too-many-requests/i.test(c))return"Too many attempts. Wait a minute and try again.";
   if(/popup-closed|cancelled-popup/i.test(c))return"Sign-in was cancelled.";
+  if(/unauthorized-domain/i.test(c))return"This web address is not allowed to sign in yet. In the Firebase console open Authentication > Settings > Authorized domains, add the address you are using now (for example your GitHub Pages domain), then try again.";
+  if(/operation-not-allowed/i.test(c))return"This sign-in method is switched off for the Firebase project. In the Firebase console open Authentication > Sign-in method, turn on Google (and Email/Password), then try again.";
+  if(/invalid-action-code|expired-action-code/i.test(c))return"That sign-in or password-reset link is invalid or has expired. Request a new one and try again.";
+  if(/too-large/i.test(c)&&e&&e.message)return e.message;
   if(/unconfigured|api-key|invalid-api|project/i.test(c))return"Cloud accounts are not set up yet: add your Firebase project below first.";
   if(/sdk/i.test(c))return"Could not load the sign-in service. Check your connection and try again.";
-  if(/permission/i.test(c))return"The cloud database refused the request. Check the Firestore rules for users/{uid}.";
+  if(/permission/i.test(c))return"The cloud database refused the request. Check the Firestore rules: they must allow the signed-in user to read and write users/{uid} and users/{uid}/courses/{courseId}.";
   return"Something went wrong: "+(e&&e.message?e.message:"try again")}
  /* ----- real Firebase adapter (the compat SDK is requested only when a project is configured, and never blocks anything) ----- */
  function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.async=true;s.onload=res;s.onerror=()=>rej(new Error("sdk"));document.head.appendChild(s)})}
  function realAdapter(){
-  let auth=null,db=null,ready=null,cb=null;
+  let auth=null,db=null,ready=null,cb=null,ok=false;
   function init(){return ready||(ready=(async()=>{
    if(!(window.firebase&&firebase.auth&&firebase.firestore)){await loadScript(SDK+"firebase-app-compat.js");await Promise.all([loadScript(SDK+"firebase-auth-compat.js"),loadScript(SDK+"firebase-firestore-compat.js")])}
-   const app=firebase.apps&&firebase.apps.length?firebase.app():firebase.initializeApp(cfg());auth=firebase.auth();db=firebase.firestore();
+   const app=firebase.apps&&firebase.apps.length?firebase.app():firebase.initializeApp(cfg());auth=firebase.auth();db=firebase.firestore();ok=true;
+   try{auth.getRedirectResult().catch(e=>{ST.formErr=errMsg(e);draw()})}catch(e){}   /* errors that come back after a redirect sign-in (unauthorized domain, sign-in method off) */
    auth.onAuthStateChanged(u=>{if(cb)cb(u?{uid:u.uid,email:u.email,displayName:u.displayName}:null)});
   })().catch(e=>{ready=null;throw e}))}
+  const col=uid=>db.collection("users/"+uid+"/courses");
+  /* The popup is opened by signInWithPopup itself, so this must run synchronously inside the tap: no await may come first. */
+  function popup(){
+   const p=new firebase.auth.GoogleAuthProvider();try{p.setCustomParameters({prompt:"select_account"})}catch(e){}
+   return auth.signInWithPopup(p).catch(e=>{
+    const c=(e&&e.code)||"";
+    if(c==="auth/popup-blocked"||c==="auth/operation-not-supported-in-this-environment"){fbset({pending:true});return auth.signInWithRedirect(p)}   /* closing the popup or a second tap never redirects */
+    throw e})}
   return{real:true,configured,
    onAuth(f){cb=f;init().catch(e=>{ST.sdk=errMsg(e);draw()})},
-   async signInGoogle(){await init();const p=new firebase.auth.GoogleAuthProvider();
-    const wv=/; wv\)|FBAN|FBAV|Instagram|Line\//i.test(navigator.userAgent||"");
-    if(wv){fbset({pending:true});await auth.signInWithRedirect(p);return}
-    try{await auth.signInWithPopup(p)}catch(e){if(/popup-blocked|operation-not-supported|web-storage-unsupported/i.test(e&&e.code||"")){fbset({pending:true});await auth.signInWithRedirect(p);return}throw e}},
+   signInGoogle(){if(ok&&auth)return popup();return init().then(popup)},   /* SDK already warm (the normal case): popup opens in the same tick as the tap */
    async signInEmail(em,pw){await init();await auth.signInWithEmailAndPassword(em,pw)},
    async createAccount(em,pw){await init();await auth.createUserWithEmailAndPassword(em,pw)},
    async resetPassword(em){await init();await auth.sendPasswordResetEmail(em)},
    async signOut(){await init();await auth.signOut()},
-   async getDoc(uid){await init();const s=await db.doc("users/"+uid).get();return{exists:s.exists,data:s.exists?s.data():null}},
-   async setDoc(uid,d){await init();await db.doc("users/"+uid).set(d)}}}
+   async getRoot(uid){await init();const s=await db.doc("users/"+uid).get();return{exists:s.exists,data:s.exists?s.data():null}},
+   async getCourse(uid,id){await init();const s=await col(uid).doc(id).get();return s.exists?s.data():null},
+   async commit(uid,w){await init();const bt=db.batch();Object.keys(w.courses||{}).forEach(id=>bt.set(col(uid).doc(id),w.courses[id]));(w.deletes||[]).forEach(id=>bt.delete(col(uid).doc(id)));bt.set(db.doc("users/"+uid),w.root);await bt.commit()},   /* course documents and the root go in one atomic batch */
+   subscribe(uid,h){if(!ok)return null;
+    const u1=db.doc("users/"+uid).onSnapshot(s=>h.root({exists:s.exists,data:s.exists?s.data():null,pending:!!(s.metadata&&s.metadata.hasPendingWrites)}),e=>h.error&&h.error(e));
+    const u2=col(uid).onSnapshot(s=>h.courses({docs:s.docs.map(d=>({id:d.id,data:d.data()})),pending:!!(s.metadata&&s.metadata.hasPendingWrites)}),e=>h.error&&h.error(e));
+    return()=>{try{u1()}catch(e){}try{u2()}catch(e){}}}}}
  /* ----- engine ----- */
  function pending(){return ST.dirty||ST.queued}
  function status(){
   if(!ST.user)return"signedout";if(blocked())return"paused";if(ST.err)return"error";if(ST.syncing||ST.busy||ST.dirty)return"syncing";if(ST.queued||navigator.onLine===false)return"queued";return"synced"}
  const BADGE={synced:"Synced",syncing:"Syncing…",queued:"Offline — queued",paused:"Sync paused (recovery mode)",error:"Sync problem"};
- async function applyBundle(b,cloudAt,extra){
-  if(typeof studyRunning!=="undefined"&&studyRunning){ST.pendingPull=true;ST.msg="A newer copy is waiting. It will be applied when your Focus session ends.";draw();return false}
+ /* ----- cloud layout v2: users/{uid} root + users/{uid}/courses/{courseId}. The root is written last and is the commit marker. ----- */
+ const keyOk=id=>typeof id==="string"&&/^[a-z0-9_-]{1,30}$/i.test(id);
+ const CKEYS=()=>(S.BASE&&S.BASE.length)?S.BASE:["medicalHQ","mhqCourseV59","mhqLastLectureV58","mhqMotivationV52","mhqMotivationV51"];
+ function courseInfo(keys){const c=pj(keys&&keys.mhqCourseV59)||{};return{title:String(c.name||"Untitled course"),short:String(c.short||""),lecturesCount:Array.isArray(c.lectures)?c.lectures.length:0}}
+ function courseHash(c){let h=2166136261>>>0;const feed=s=>{s=String(s);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0}};feed(c.id);Object.keys(c.keys).sort().forEach(k=>{feed(k);feed(norm(c.keys[k]))});return h.toString(36)}
+ const chOf=snap=>{const o={};(snap.courses||[]).forEach(c=>{o[c.id]=courseHash(c)});return o};
+ const ctOf=idx=>{const o={};Object.keys(idx||{}).forEach(id=>{o[id]=idx[id]&&idx[id].updatedAt});return o};
+ const curTheme=()=>{const t=S.raw.get(THEME_KEY)||document.documentElement.dataset.theme;return t==="dark"||t==="light"?t:null};
+ function courseDoc(c,at){const d={v:2,courseId:c.id,updatedAt:at,writeId:TAB};CKEYS().forEach(k=>{if(typeof c.keys[k]==="string")d[k]=c.keys[k]});return d}
+ const keysOfDoc=d=>{const k={};CKEYS().forEach(n=>{if(typeof d[n]==="string")k[n]=d[n]});return k};
+ function rootDoc(snap,at,index,h){return{v:2,updatedAt:at,writeId:TAB,deviceLabel:label(),schemaVersion:SCHEMA,registry:{active:snap.active,list:(snap.courses||[]).map(c=>c.id)},globalAccount:snap.global==null?null:snap.global,theme:curTheme(),courseIndex:index,hash:h}}
+ function tooLarge(c,d){const n=JSON.stringify(d).length;if(n>MAXB){const nm=(courseInfo(c.keys).title||c.id);throw Object.assign(new Error("The course “"+nm+"” is too large for one cloud document (limit about 1 MB)."),{code:"too-large"})}}
+ function bundleFrom(root,docs,only){
+  const reg=root.registry||{},ids=(Array.isArray(reg.list)?reg.list:Object.keys(root.courseIndex||{})).filter(keyOk);
+  return{backupType:"medical-hq-all",version:1,exportedAt:root.updatedAt,active:keyOk(reg.active)?reg.active:ids[0],global:typeof root.globalAccount==="string"?root.globalAccount:null,list:ids,
+   courses:ids.filter(id=>docs[id]&&(!only||only.indexOf(id)>=0)).map(id=>({id,keys:keysOfDoc(docs[id])}))}}
+ async function loadDocs(uid,root,ids){
+  const out={},need=[];
+  ids.forEach(id=>{const ix=(root.courseIndex||{})[id],c=LIVE.cache[id];if(c&&ix&&c.updatedAt===ix.updatedAt)out[id]=c;else need.push(id)});
+  await Promise.all(need.map(async id=>{const d=await AD.getCourse(uid,id);if(d)out[id]=d}));
+  return out}
+ const rootIds=root=>((root.registry&&Array.isArray(root.registry.list))?root.registry.list:Object.keys(root.courseIndex||{})).filter(keyOk);
+ async function fullBundle(uid,root){const ids=rootIds(root);return bundleFrom(root,await loadDocs(uid,root,ids))}
+ async function changedBundle(uid,root,m){
+  const idx=root.courseIndex||{},ids=rootIds(root),ct=m.ct||{},have=S.registry().list;
+  const need=ids.filter(id=>!ct[id]||(idx[id]&&idx[id].updatedAt!==ct[id])||have.indexOf(id)<0);
+  const bd=bundleFrom(root,await loadDocs(uid,root,need),need);bd.partial=true;
+  bd.removed=Object.keys(ct).filter(id=>ids.indexOf(id)<0);return bd}
+ function parseCloud(doc){const b=doc&&typeof doc.bundle==="string"?pj(doc.bundle):(doc&&doc.bundle&&typeof doc.bundle==="object"?doc.bundle:null);return(b&&b.backupType==="medical-hq-all"&&Array.isArray(b.courses))?b:null}
+ /* v9.0.0 -> v9.1.0: a single users/{uid} document holding the whole bundle is split into the v2 root + course documents, keeping every key and the original updatedAt (linked devices see no spurious change). */
+ async function migrateLegacy(uid,legacy){
+  const cb=parseCloud(legacy);if(!cb)throw Object.assign(new Error("The cloud copy is not in the expected format."),{code:"bad-format"});
+  const at=legacy.updatedAt||new Date().toISOString(),docs={},index={};
+  cb.courses.forEach(c=>{if(!c||!keyOk(c.id)||!c.keys)return;const d=courseDoc(c,at);tooLarge(c,d);docs[c.id]=d;index[c.id]=Object.assign({updatedAt:at},courseInfo(c.keys))});
+  const root=rootDoc({active:cb.active,global:cb.global,courses:cb.courses.filter(c=>docs[c.id])},at,index,hash(cb));root.deviceLabel=legacy.deviceLabel||label();root.migratedFrom=1;
+  await AD.commit(uid,{root,courses:docs,deletes:[]});return root}
+ /* ----- applying a cloud copy ----- */
+ const lecSig=j=>{const c=pj(j);return c&&Array.isArray(c.lectures)?JSON.stringify(c.lectures.map(l=>[l&&l.title,l&&l.subject])):""};
+ let DEFER=null;
+ function armDefer(){if(DEFER)return;DEFER=setInterval(()=>{if(!ST.deferred){clearInterval(DEFER);DEFER=null;return}if(typeof studyRunning!=="undefined"&&studyRunning)return;clearInterval(DEFER);DEFER=null;ST.deferred=null;ST.msg="";check("deferred")},800)}
+ function writeCourses(b,reg){
+  b.courses.forEach(c=>{if(!c||!keyOk(c.id)||!c.keys)return;
+   CKEYS().forEach(k=>{const kk=S.key(k,c.id);if(typeof c.keys[k]==="string")S.raw.set(kk,c.keys[k]);else S.raw.remove(kk)});
+   if(reg.list.indexOf(c.id)<0)reg.list.push(c.id)})}
+ /* the old behaviour, kept only as the fallback when the open course's lecture list changed remotely: write everything, then reload so the lecture list and boss definitions rebuild cleanly */
+ function applyBundleReload(b,cloudAt,extra,root){
+  const reg=S.registry();writeCourses(b,reg);
+  (b.removed||[]).forEach(id=>{if(id!==S.active&&reg.list.indexOf(id)>=0){S.keysOf(id).forEach(k=>S.raw.remove(k));reg.list=reg.list.filter(x=>x!==id)}});
+  if(b.active&&reg.list.indexOf(b.active)>=0&&!b.partial)reg.active=b.active;
+  try{window.mhqGlobal&&window.mhqGlobal.mergeBackup(b.global)}catch(e){}
+  fbset(Object.assign({uid:ST.user.uid,lastCloudAt:cloudAt,lastHash:null,rebase:true,lastSyncedAt:Date.now(),ct:root?ctOf(root.courseIndex):undefined,th:root&&root.theme||undefined},extra||{}));
+  try{mhqMarkRestore("restore")}catch(e){}
+  S.saveRegistry(reg);S.freeze();location.reload();return"reload"}
+ function applyRemoteTheme(root){
+  const t=root&&root.theme;if(t!=="dark"&&t!=="light")return;
+  if(t!==fbm().th&&document.documentElement.dataset.theme!==t&&typeof window.mhqToggleTheme==="function"){try{window.mhqToggleTheme()}catch(e){}}}
+ /* applyCloudStateLive(bundle): hydrate the running app from a cloud copy without reloading the page */
+ async function applyCloudStateLive(b,cloudAt,extra,root){
+  if(typeof studyRunning!=="undefined"&&studyRunning){ST.deferred={cloudAt};ST.pendingPull=true;ST.msg="A newer copy is waiting. It will be applied when your Focus session ends.";armDefer();draw();return false}
   if(blocked()){draw();return false}
   try{const bad=typeof mhqBackupStateProblem==="function"?mhqBackupStateProblem(b):null;if(bad){ST.err=bad;draw();return false}}catch(e){}
-  const reg=S.registry();
-  b.courses.forEach(c=>{if(!c||!/^[a-z0-9_-]{1,30}$/i.test(c.id)||!c.keys)return;
-   S.BASE.forEach(k=>{const kk=S.key(k,c.id);if(typeof c.keys[k]==="string")S.raw.set(kk,c.keys[k]);else S.raw.remove(kk)});
-   if(reg.list.indexOf(c.id)<0)reg.list.push(c.id)});
-  if(b.active&&reg.list.indexOf(b.active)>=0)reg.active=b.active;
-  try{window.mhqGlobal&&window.mhqGlobal.mergeBackup(b.global)}catch(e){}
-  fbset(Object.assign({uid:ST.user.uid,lastCloudAt:cloudAt,lastHash:null,rebase:true,lastSyncedAt:Date.now()},extra||{}));
-  try{mhqMarkRestore("restore")}catch(e){}
-  S.saveRegistry(reg);S.freeze();location.reload();return true}
- function parseCloud(doc){const b=doc&&typeof doc.bundle==="string"?pj(doc.bundle):(doc&&doc.bundle&&typeof doc.bundle==="object"?doc.bundle:null);return(b&&b.backupType==="medical-hq-all"&&Array.isArray(b.courses))?b:null}
- async function check(why){
-  if(!AD||!ST.user||ST.busy||ST.conflict)return;
+  ST.pendingPull=false;ST.deferred=null;
+  const act=S.active,ac=(b.courses||[]).find(c=>c&&c.id===act);
+  if(ac&&ac.keys&&typeof ac.keys.mhqCourseV59==="string"&&lecSig(ac.keys.mhqCourseV59)!==lecSig(S.raw.get(S.key("mhqCourseV59",act))))return applyBundleReload(b,cloudAt,extra,root);   /* lectures added / removed / renamed in the open course */
+  const reg=S.registry(),before=reg.list.join("|");
+  writeCourses(b,reg);
+  (b.removed||[]).forEach(id=>{if(id!==act&&reg.list.indexOf(id)>=0){S.keysOf(id).forEach(k=>S.raw.remove(k));reg.list=reg.list.filter(x=>x!==id)}});   /* a course deleted on another device (never the one that is open here) */
+  if(reg.list.join("|")!==before)S.saveRegistry(reg);
+  ST.applying=true;
+  try{
+   try{const G=window.mhqGlobal;if(G&&typeof b.global==="string"){G.mergeBackup(b.global);G.booted=false;G.boot();   /* re-open the global account from storage so XP, wallet and streak are the merged ones */
+    const ra=pj(b.global);if(G.ready&&G.acct&&ra&&ra.equipped&&typeof ra.equipped==="object"&&!Array.isArray(ra.equipped)){G.acct.equipped=clone(ra.equipped);G.dirty=true;G.flush()}}}catch(e){}   /* the equipped skin / frame / intensity travel with the global account (merged ownership is already in place) */
+   try{window.mhqMotivationReload&&window.mhqMotivationReload()}catch(e){}
+   if(ac){load();try{if(current&&Array.isArray(data))current=data.find(x=>x&&x.id===current.id)||null}catch(e){}}   /* the same loader the app runs at start-up: data, exams, studySessions, achievements, bosses, review cards, tests, clinical state, streak, bonus XP, audio ... */
+   applyRemoteTheme(root);
+   try{render()}catch(e){}try{renderExtraViews()}catch(e){}
+  }finally{ST.applying=false}
+  const snap=snapshot(),h=hash(snap);
+  fbset(Object.assign({uid:ST.user.uid,lastCloudAt:cloudAt,lastHash:h,ch:chOf(snap),ct:root?ctOf(root.courseIndex):undefined,th:root&&root.theme||undefined,rebase:undefined,lastSyncedAt:Date.now()},extra||{}));
+  ST.err="";draw();
+  if(extra&&extra.forcePush)await push(true);
+  return true}
+ const applyBundle=(b,cloudAt,extra,root)=>applyCloudStateLive(b,cloudAt,extra,root);
+ async function check(why,pre){
+  if(!AD||!ST.user||ST.conflict)return;
+  if(ST.busy){ST.recheck=true;return}
   if(blocked()){draw();return}
   if(navigator.onLine===false){draw();return}
   ST.busy=true;ST.err="";draw();
@@ -5772,25 +5860,26 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
    const uid=ST.user.uid,m=fbm(),snap=snapshot(),h=hash(snap);
    if(m.rebase){fbset({lastHash:h,rebase:undefined});m.lastHash=h}
    if(m.forcePush&&m.uid===uid){ST.busy=false;await push(true);return}
-   const doc=await AD.getDoc(uid),cloud=doc&&doc.exists?doc.data:null;
-   if(!cloud){
+   const rd=pre||await AD.getRoot(uid);let root=rd&&rd.exists?rd.data:null;
+   if(root&&root.v!==2){root=await migrateLegacy(uid,root)}   /* first sync after v9.0.0: split the old single document, losing nothing */
+   if(!root){
     if(hasProgress(snap)){ST.busy=false;await push(true);return}
-    fbset({uid,lastCloudAt:"none",lastHash:h,lastSyncedAt:Date.now()});
+    fbset({uid,lastCloudAt:"none",lastHash:h,ch:chOf(snap),lastSyncedAt:Date.now()});
    }else{
-    const cb=parseCloud(cloud);if(!cb){ST.err="The cloud copy is not in the expected format.";return}
     const linked=m.uid===uid&&m.lastCloudAt;
     if(!linked){
-     if(!hasProgress(snap)){ST.busy=false;await applyBundle(cb,cloud.updatedAt);return}
-     if(hash(cb)===h){fbset({uid,lastCloudAt:cloud.updatedAt,lastHash:h,lastSyncedAt:Date.now()})}
-     else openConflict(snap,cb,cloud)
-    }else if(cloud.updatedAt!==m.lastCloudAt){
-     if(m.lastHash&&h===m.lastHash){ST.busy=false;await applyBundle(cb,cloud.updatedAt);return}
-     openConflict(snap,cb,cloud)
+     const cb=await fullBundle(uid,root);
+     if(!hasProgress(snap)){ST.busy=false;await applyBundle(cb,root.updatedAt,{},root);return}
+     if(hash(cb)===h){fbset({uid,lastCloudAt:root.updatedAt,lastHash:h,ch:chOf(snap),ct:ctOf(root.courseIndex),th:root.theme||undefined,lastSyncedAt:Date.now()})}
+     else openConflict(snap,cb,root)
+    }else if(root.updatedAt!==m.lastCloudAt){
+     if(m.lastHash&&h===m.lastHash){const cb=await changedBundle(uid,root,m);ST.busy=false;await applyBundle(cb,root.updatedAt,{},root);return}
+     openConflict(snap,await fullBundle(uid,root),root)
     }else if(h!==m.lastHash){ST.dirty=true;ST.busy=false;await push(false);return}
     else fbset({lastSyncedAt:Date.now()});
    }
   }catch(e){if(!e||!e.protected){ST.err=errMsg(e);if(navigator.onLine===false)ST.queued=true}}
-  finally{ST.busy=false;draw()}}
+  finally{ST.busy=false;draw();if(ST.recheck){ST.recheck=false;setTimeout(()=>check("recheck"),0)}}}
  async function push(force){
   if(!AD||!ST.user)return;
   if(blocked()){draw();return}
@@ -5798,16 +5887,38 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
   if(navigator.onLine===false){ST.queued=true;draw();return}
   ST.syncing=true;ST.err="";draw();
   try{
-   const uid=ST.user.uid,snap=snapshot(),h=hash(snap),json=JSON.stringify(snap);
-   if(json.length>MAXB)throw Object.assign(new Error("Your data is too large for one cloud snapshot (limit about 1 MB)."),{code:"too-large"});
-   const m=fbm(),doc=await AD.getDoc(uid),cloud=doc&&doc.exists?doc.data:null,cur=cloud?cloud.updatedAt:"none";
-   if(!force&&m.uid===uid&&m.lastCloudAt&&cur!==m.lastCloudAt){const cb=cloud&&parseCloud(cloud);if(cb){openConflict(snap,cb,cloud);return}}
-   const at=new Date().toISOString();
-   await AD.setDoc(uid,{bundle:json,updatedAt:at,deviceLabel:label(),schemaVersion:SCHEMA,hash:h});
-   fbset({uid,lastCloudAt:at,lastHash:h,lastSyncedAt:Date.now(),forcePush:undefined});ST.dirty=false;ST.queued=false}
-  catch(e){if(!e||!e.protected){ST.err=errMsg(e);if(/too-large/.test(e&&e.code||""))ST.err=e.message}}
+   const uid=ST.user.uid,snap=snapshot(),h=hash(snap),m=fbm(),rd=await AD.getRoot(uid);let root=rd&&rd.exists?rd.data:null;
+   if(root&&root.v!==2)root=await migrateLegacy(uid,root);   /* never write over a v9.0.0 document without converting it first */
+   if(!force&&m.uid===uid&&m.lastCloudAt&&root&&root.updatedAt!==m.lastCloudAt){openConflict(snap,await fullBundle(uid,root),root);return}
+   if(!force&&root&&m.uid===uid&&m.lastHash===h&&root.updatedAt===m.lastCloudAt){ST.dirty=false;ST.queued=false;fbset({lastSyncedAt:Date.now()});return}   /* nothing changed: no write */
+   const idx=(root&&root.courseIndex)||{},at=new Date().toISOString(),docs={},index={},local=snap.courses.map(c=>c.id);
+   snap.courses.forEach(c=>{
+    const ch=courseHash(c),known=idx[c.id];
+    if(force||!known||!m.ch||m.ch[c.id]!==ch){const d=courseDoc(c,at);tooLarge(c,d);docs[c.id]=d;index[c.id]=Object.assign({updatedAt:at},courseInfo(c.keys))}   /* only courses whose content changed */
+    else index[c.id]=Object.assign({},known,courseInfo(c.keys))});
+   const deletes=Object.keys(idx).filter(id=>local.indexOf(id)<0);   /* courses deleted on this device */
+   const nr=rootDoc(snap,at,index,h);
+   await AD.commit(uid,{root:nr,courses:docs,deletes});
+   fbset({uid,lastCloudAt:at,lastHash:h,ch:chOf(snap),ct:ctOf(index),th:nr.theme||undefined,lastSyncedAt:Date.now(),forcePush:undefined});ST.dirty=false;ST.queued=false}
+  catch(e){if(!e||!e.protected){ST.err=errMsg(e)}}
   finally{ST.syncing=false;draw()}}
- function sched(){if(!ST.user||blocked())return;ST.dirty=true;clearTimeout(tm);tm=setTimeout(()=>{push(false)},DEBOUNCE);draw()}
+ /* ----- real-time: onSnapshot on users/{uid} and users/{uid}/courses while signed in, online and visible ----- */
+ function liveOk(){return !!(ST.user&&AD&&typeof AD.subscribe==="function"&&navigator.onLine!==false&&document.visibilityState==="visible")}
+ function stopLive(){if(LIVE.unsub){try{LIVE.unsub()}catch(e){}}LIVE.unsub=null;LIVE.uid=null;LIVE.cache={};clearTimeout(LIVE.t)}
+ function onCoursesSnap(s){
+  if(!s||s.pending)return;const ids={};
+  (s.docs||[]).forEach(d=>{if(!d)return;ids[d.id]=1;if(d.data&&d.data.writeId!==TAB)LIVE.cache[d.id]=d.data});
+  Object.keys(LIVE.cache).forEach(id=>{if(!ids[id])delete LIVE.cache[id]})}
+ function onRootSnap(s){
+  if(!s||s.pending||!s.exists||!s.data)return;   /* hasPendingWrites: that is this device's own write */
+  const d=s.data;if(d.v!==2||d.writeId===TAB)return;   /* this tab's own write coming back */
+  if(d.updatedAt===fbm().lastCloudAt)return;
+  clearTimeout(LIVE.t);LIVE.t=setTimeout(()=>{if(ST.user&&!ST.conflict)check("live",{exists:true,data:d})},350)}
+ function startLive(){
+  const uid=ST.user.uid;LIVE.uid=uid;
+  try{LIVE.unsub=AD.subscribe(uid,{root:onRootSnap,courses:onCoursesSnap,error:()=>{}})||null}catch(e){LIVE.unsub=null}}
+ function liveSync(){if(liveOk()){if(!LIVE.unsub||LIVE.uid!==ST.user.uid){stopLive();startLive()}}else stopLive()}
+ function sched(){if(!ST.user||blocked()||ST.applying)return;ST.dirty=true;clearTimeout(tm);tm=setTimeout(()=>{push(false)},DEBOUNCE);draw()}
  /* ----- first-link / both-changed conflict dialog ----- */
  function sideHtml(title,s,when){return'<div class="sc-side"><b>'+esc(title)+'</b><br>'+s.courses+' course'+(s.courses===1?"":"s")+' · '+s.lec+' lectures ('+s.done+' done)<br>'+s.xp+' XP · '+s.mcq+' MCQ sets<br><span class="meta">'+esc(when)+'</span></div>'}
  function openConflict(local,cloudBundle,cloudDoc){
@@ -5860,7 +5971,9 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
   try{
    const host=$("mhqAcct");if(host){const keepE=$("mhqAcctEmail")&&$("mhqAcctEmail").value,keepP=$("mhqAcctPw")&&$("mhqAcctPw").value,keepC=$("mhqAcctCfg")&&$("mhqAcctCfg").value,open=host.querySelector("details")&&host.querySelector("details").open,ae=document.activeElement&&document.activeElement.id;
     host.innerHTML=panelHtml();if(keepE)$("mhqAcctEmail").value=keepE;if(keepP)$("mhqAcctPw").value=keepP;if(keepC)$("mhqAcctCfg").value=keepC;if(open&&host.querySelector("details"))host.querySelector("details").open=true;if(ae&&$(ae)&&ae.indexOf("mhqAcct")===0)try{$(ae).focus()}catch(e){}}
-   drawNotice()}catch(e){}}
+   drawNotice();maybeWarm()}catch(e){}}
+ function maybeWarm(){   /* lazy SDK, loaded when the sign-in panel is actually on screen, so a later Google tap can open its popup in the same tick */
+  try{if(ST.user||AD||window.__mhqCloudAdapter||!configured()||blocked()||navigator.onLine===false)return;const h=$("mhqAcct");if(h&&h.offsetParent!==null)setAdapter(realAdapter())}catch(e){}}
  function drawNotice(){
   const el=$("mhqAcctNotice");if(!el)return;let h="";
   if(ST.user){const s=status();
@@ -5873,10 +5986,10 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
   if(el.innerHTML!==h)el.innerHTML=h}
  async function act(a){
   if(a==="reopen"){showModal();return}
-  if(a==="goto"){try{showView("dataView");const p=$("cloudPanel");p&&p.scrollIntoView&&p.scrollIntoView({block:"start"})}catch(e){}return}
+  if(a==="goto"){maybeWarm();try{showView("dataView");const p=$("cloudPanel");p&&p.scrollIntoView&&p.scrollIntoView({block:"start"})}catch(e){}return}
   if(a==="dismiss"){ST.dismissed=true;fbset({dismissed:true});drawNotice();return}
   if(a==="sync"){if(blocked()){draw();return}ST.err="";ST.msg="";if(ST.dirty){await push(false)}else await check("manual");if(!ST.err&&!ST.conflict&&status()!=="paused")say("☁️ Synced");return}
-  if(a==="signout"){try{AD&&await AD.signOut()}catch(e){}ST.user=null;ST.err="";ST.msg="";ST.dirty=false;ST.queued=false;ST.conflict=null;closeModal();fbset({uid:undefined,lastCloudAt:undefined,lastHash:undefined,rebase:undefined,forcePush:undefined});draw();return}
+  if(a==="signout"){stopLive();try{AD&&await AD.signOut()}catch(e){}ST.user=null;ST.deferred=null;ST.pendingPull=false;ST.err="";ST.msg="";ST.dirty=false;ST.queued=false;ST.conflict=null;closeModal();fbset({uid:undefined,lastCloudAt:undefined,lastHash:undefined,rebase:undefined,forcePush:undefined,ch:undefined,ct:undefined,th:undefined});draw();return}
   if(a==="savecfg"){const t=($("mhqAcctCfg")||{}).value||"";let o=null;try{o=JSON.parse(t)}catch(e){const m=t.match(/\{[\s\S]*\}/);if(m){try{o=Function('"use strict";return ('+m[0].replace(/[^\x20-\x7E\n]/g,"")+")")()}catch(e2){}}}
    if(!o||typeof o!=="object"||!o.apiKey||!o.projectId){ST.formErr="That does not look like a Firebase web config. It needs at least apiKey and projectId.";draw();return}
    const keep={};["apiKey","authDomain","projectId","storageBucket","messagingSenderId","appId","measurementId"].forEach(k=>{if(typeof o[k]==="string")keep[k]=o[k]});fbset({cfg:keep});ST.formErr="";ST.formMsg="Saved. Reloading to connect…";draw();setTimeout(()=>location.reload(),600);return}
@@ -5899,7 +6012,7 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
   ST.user=u||null;ST.err="";
   if(!u){draw();return}
   if(fbm().pending)fbset({pending:undefined});
-  draw();setTimeout(()=>check("signin"),0)}
+  draw();setTimeout(()=>check("signin"),0);liveSync()}
  function setAdapter(a){AD=a;try{a.onAuth(onUser)}catch(e){}}
  function mount(){
   const p=$("cloudPanel");if(p&&!$("mhqAcct")){
@@ -5913,15 +6026,17 @@ el.innerHTML=`<summary><b>📘 How XP works</b></summary><ul class="xp-list">
  }
  mount();
  if(typeof origSave==="function"){const prev=window.save;window.save=function(){const r=prev.apply(this,arguments);try{if(ST.user&&now()-T0>3000)sched()}catch(e){}return r}}
- document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&ST.user)check("visible")});
- window.addEventListener("online",()=>{ST.queued=false;if(ST.user){if(ST.dirty)push(false);else check("online")}draw()});
- window.addEventListener("offline",()=>{if(ST.user&&ST.dirty)ST.queued=true;draw()});
+ document.addEventListener("visibilitychange",()=>{liveSync();if(document.visibilityState==="visible"&&ST.user)check("visible")});
+ { const v=document.getElementById("dataView");if(v&&window.MutationObserver)new MutationObserver(()=>{if(!ST.user)maybeWarm()}).observe(v,{attributes:true,attributeFilter:["class"]}) }
+ window.addEventListener("online",()=>{ST.queued=false;if(ST.user){if(ST.dirty)push(false);else check("online");liveSync()}draw()});
+ window.addEventListener("offline",()=>{if(ST.user&&ST.dirty)ST.queued=true;stopLive();draw()});
  /* the public adapter. useAdapter() is also the seam the tests use to plug in a mock backend. */
  const API={
   configured,status:()=>({user:ST.user?{uid:ST.user.uid,email:ST.user.email}:null,state:status(),configured:configured(),conflict:!!ST.conflict,meta:fbm(),dirty:ST.dirty}),
   signInGoogle:()=>act("google"),signInEmail:(e,p)=>AD&&AD.signInEmail(e,p),createAccount:(e,p)=>AD&&AD.createAccount(e,p),resetPassword:e=>AD&&AD.resetPassword(e),
   signOut:()=>act("signout"),syncNow:()=>act("sync"),saveConfig:j=>{const t=$("mhqAcctCfg");if(t)t.value=typeof j==="string"?j:JSON.stringify(j);return act("savecfg")},
-  useAdapter:a=>{AD=null;setAdapter(a)},merge:mergeSnapshots,snapshot,version:SCHEMA,constants:{DEBOUNCE}};
+  useAdapter:a=>{stopLive();AD=null;setAdapter(a)},merge:mergeSnapshots,snapshot,version:SCHEMA,constants:{DEBOUNCE},
+  applyCloudStateLive:(b,at,x,r)=>applyCloudStateLive(b,at,x,r),live:()=>({subscribed:!!LIVE.unsub,uid:LIVE.uid,cached:Object.keys(LIVE.cache)}),tab:TAB,split:{rootDoc,courseDoc,courseInfo,courseHash}};
  window.mhqCloudAccount=API;
  draw();
  setTimeout(()=>{
