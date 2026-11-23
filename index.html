@@ -759,6 +759,17 @@ body.mhq-modal-open{overflow:hidden}
 .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:3px;background:var(--surface2);border:1px solid var(--line);border-radius:13px}
 .seg button{min-height:34px;padding:6px 4px;border:0;border-radius:10px;background:none;color:var(--muted);font-size:var(--fs-13)}
 .seg button.active{background:var(--surface);color:var(--accent);box-shadow:var(--shadow)}
+/* v9.3.0 unified subject colours (Study list, subject pills, subject filters) + curriculum stage filters */
+#statusSeg{display:flex;position:relative;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+#statusSeg::-webkit-scrollbar{display:none}
+#statusSeg button{flex:1 0 auto;white-space:nowrap;padding:6px 11px}
+.v93-n{font-style:normal;font-weight:800;font-size:var(--fs-11);margin-left:5px;opacity:.85}
+.lecture[style*="--sc"]{position:relative}
+.lecture[style*="--sc"]::before{content:"";position:absolute;left:-9px;top:10px;bottom:10px;width:4px;border-radius:3px;background:var(--sc);pointer-events:none}
+.v93-bd{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:99px;font-size:var(--fs-11);font-weight:800;letter-spacing:.05em;line-height:1.5;vertical-align:1px;border:1px solid var(--line);background:var(--surface2);color:var(--muted)}
+.v93-bd.jw{color:var(--text);border-color:color-mix(in srgb,var(--v-watch) 55%,transparent);background:color-mix(in srgb,var(--v-watch) 14%,transparent)}
+.csp-pill[style*="--sc"] .csp-t>span:first-child::before,#filters button[style*="--sc"]::before{content:"";display:inline-block;width:8px;height:8px;margin-right:6px;border-radius:50%;background:var(--sc);box-shadow:0 0 0 1.5px var(--surface)}
+.csp-pill.active[style*="--sc"] .csp-t>span:first-child::before,#filters button.active[style*="--sc"]::before{box-shadow:0 0 0 1.5px var(--accent-ink)}
 
 /* Course setup */
 .head-right{display:flex;align-items:center;gap:10px}.add-btn{min-height:34px;padding:6px 12px;border-color:var(--accent);color:var(--accent);white-space:nowrap}
@@ -2097,7 +2108,7 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v9.2.0</span></small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v9.3.0</span></small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -2170,7 +2181,7 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
     <div class="section-head"><h2>GIT Curriculum</h2><div class="head-right"><small id="shown">0 lectures</small><button type="button" class="add-btn" onclick="mhqOpenAddLectures()">＋ Add lectures</button></div></div>
     <div class="lecture-tools">
       <label class="search"><span aria-hidden="true">🔍</span><input id="lectureSearch" type="search" placeholder="Search title, subject or number" autocomplete="off" enterkeyhint="search" oninput="setLectureSearch(this.value)"><button type="button" class="search-clear" id="lectureSearchClear" hidden aria-label="Clear search" onclick="setLectureSearch('',true)">✕</button></label>
-      <div class="seg" id="statusSeg" role="group" aria-label="Completion filter"><button type="button" class="active" data-s="all" onclick="setLectureStatus('all')">All</button><button type="button" data-s="todo" onclick="setLectureStatus('todo')">Not completed</button><button type="button" data-s="done" onclick="setLectureStatus('done')">Completed</button></div>
+      <div class="seg" id="statusSeg" role="group" aria-label="Completion filter"><button type="button" class="active" data-s="all" onclick="setLectureStatus('all')">All</button><button type="button" data-s="todo" onclick="setLectureStatus('todo')">Not completed</button><button type="button" data-s="untouched" onclick="setLectureStatus('untouched')">Untouched</button><button type="button" data-s="watched" onclick="setLectureStatus('watched')">Just watched</button><button type="button" data-s="progress" onclick="setLectureStatus('progress')">In progress</button><button type="button" data-s="done" onclick="setLectureStatus('done')">Completed</button></div>
       <button type="button" class="lt-next" id="nextUnfinishedBtn" hidden onclick="mhqJumpNextUnfinished()">⚡ Next Unfinished</button>
     </div>
     <div class="subj-strip" id="subjStrip" role="group" aria-label="Subject progress" hidden></div>
@@ -3532,7 +3543,7 @@ function render(){
  const missionTarget=3, missionPct=Math.min(100,Math.round(todaySteps/missionTarget*100));
  document.getElementById("missionFill").style.width=missionPct+"%";
  renderFallbackNext();
- document.getElementById("filters").innerHTML=subjects.map(s=>`<button class="${s===activeFilter?'active':''}" data-s="${escapeHtml(s)}" onclick="filter(this.dataset.s)">${escapeHtml(s)}</button>`).join("");
+ document.getElementById("filters").innerHTML=subjects.map(s=>`<button class="${s===activeFilter?'active':''}" data-s="${escapeHtml(s)}"${s==="All"?"":mhqScAttr(s)} onclick="filter(this.dataset.s)">${escapeHtml(s)}</button>`).join("");
  try{renderSubjectStrip();updateNextUnfinishedBtn()}catch(e){}
  renderLectureList();
  save();
@@ -3549,7 +3560,7 @@ function renderSubjectStrip(){
   el.hidden=false;
   el.innerHTML=subs.map(s=>{
     const all=data.filter(l=>l.subject===s),done=all.filter(l=>l.steps.every(Boolean)).length,p=all.length?Math.round(done/all.length*100):0,on=activeFilter===s;
-    return `<button type="button" class="csp-pill${on?' active':''}" data-s="${escapeHtml(s)}" aria-pressed="${on}" aria-label="${escapeHtml(s)}: ${done} of ${all.length} lectures completed, ${p}%. ${on?'Tap to show all subjects':'Tap to filter by this subject'}" title="${done}/${all.length} completed" onclick="mhqSubjectPill(this.dataset.s)"><span class="csp-t"><span>${escapeHtml(s)}</span><b>${p}%</b></span><i class="csp-bar"><u style="width:${p}%"></u></i></button>`;
+    return `<button type="button" class="csp-pill${on?' active':''}" data-s="${escapeHtml(s)}" aria-pressed="${on}"${mhqScAttr(s)} aria-label="${escapeHtml(s)}: ${done} of ${all.length} lectures completed, ${p}%. ${on?'Tap to show all subjects':'Tap to filter by this subject'}" title="${done}/${all.length} completed" onclick="mhqSubjectPill(this.dataset.s)"><span class="csp-t"><span>${escapeHtml(s)}</span><b>${p}%</b></span><i class="csp-bar"><u style="width:${p}%"></u></i></button>`;
   }).join("");
 }
 function mhqSubjectPill(s){
@@ -3571,10 +3582,23 @@ function updateNextUnfinishedBtn(){
 function mhqJumpNextUnfinished(){const l=nextUnfinishedLecture();if(l)openLecture(l.id)}
 let searchQuery="",statusFilter="all";
 function lectureDone(x){return x.steps.every(Boolean)}
+/* v9.3.0: stage of a lecture (untouched = 0 steps, watched = step 1 only, progress = 1-3 steps except Just Watched, done = 4/4) and the subject colour from the Lecture Map (mhqSubjectColor), read-only */
+function mhqStageKey(x){const s=x.steps||[];if(lectureDone(x))return"done";if(!s.some(Boolean))return"untouched";if(s[0]&&!s[1]&&!s[2]&&!s[3])return"watched";return"progress"}
+function mhqScAttr(s){try{const c=typeof window.mhqSubjectColor==="function"?window.mhqSubjectColor(s):"";return c?` style="--sc:${c}"`:""}catch(e){return""}}
+/* the Lecture Map script loads after the first render, so it repaints the colours once when it is ready */
+function mhqRepaintSubjectColors(){try{if(typeof window.mhqSubjectColor!=="function")return;document.querySelectorAll("#filters button[data-s]").forEach(b=>{if(b.dataset.s==="All")return;const c=window.mhqSubjectColor(b.dataset.s);if(c)b.style.setProperty("--sc",c)});renderSubjectStrip();renderLectureList()}catch(e){}}
+function mhqStageBadge(x){const k=mhqStageKey(x);return k==="untouched"?'<span class="v93-bd">UNTOUCHED</span>':k==="watched"?'<span class="v93-bd jw">JUST WATCHED</span>':""}
+function mhqPaintStatusCounts(){
+  const seg=document.getElementById("statusSeg");if(!seg)return;
+  const keep=statusFilter,names={all:"All",todo:"Not completed",untouched:"Untouched",watched:"Just watched",progress:"In progress",done:"Completed"};
+  try{seg.querySelectorAll("button[data-s]").forEach(b=>{const k=b.dataset.s;statusFilter=k;const n=data.filter(lectureMatches).length;let i=b.querySelector(".v93-n");if(!i){i=document.createElement("i");i.className="v93-n";b.appendChild(i)}i.textContent=n;b.setAttribute("aria-label",(names[k]||k)+", "+n+(n===1?" lecture":" lectures"))})}catch(e){}finally{statusFilter=keep}
+  const a=seg.querySelector("button.active");if(a){const l=a.offsetLeft,r=l+a.offsetWidth;if(l<seg.scrollLeft)seg.scrollLeft=Math.max(0,l-8);else if(r>seg.scrollLeft+seg.clientWidth)seg.scrollLeft=r-seg.clientWidth+8}
+}
 function lectureMatches(x){
   if(activeFilter!=="All"&&x.subject!==activeFilter)return false;
   if(statusFilter==="todo"&&lectureDone(x))return false;
   if(statusFilter==="done"&&!lectureDone(x))return false;
+  if((statusFilter==="untouched"||statusFilter==="watched"||statusFilter==="progress")&&mhqStageKey(x)!==statusFilter)return false;
   const q=searchQuery.trim().toLowerCase();
   if(q){const hay=(x.id+" "+x.title+" "+x.subject).toLowerCase();if(!q.split(/\s+/).every(t=>hay.includes(t)))return false}
   return true;
@@ -3586,9 +3610,9 @@ function renderLectureList(){
   document.getElementById("list").innerHTML=visible.map(x=>{
     const p=Math.round(x.steps.filter(Boolean).length/4*100);
     const ws=lectureStatus(x);
-    return `<div class="lecture"><div class="num">${x.id}</div><div><div class="title">${x.title}</div><div class="meta">${x.subject} · ${p}% study progress · Mastery ${x.mastery}% · <span class="${ws.className}">${ws.label}</span></div></div><div><span class="badge ${p===100?'done':''}">${p===100?'COMPLETED':p+'%'}</span> <button onclick="openLecture(${x.id})">OPEN</button></div></div>`
+    return `<div class="lecture"${mhqScAttr(x.subject)}><div class="num">${x.id}</div><div><div class="title">${x.title}</div><div class="meta">${x.subject} · ${p}% study progress · Mastery ${x.mastery}% · <span class="${ws.className}">${ws.label}</span>${mhqStageBadge(x)}</div></div><div><span class="badge ${p===100?'done':''}">${p===100?'COMPLETED':p+'%'}</span> <button onclick="openLecture(${x.id})">OPEN</button></div></div>`
   }).join("")||'<div class="empty">No lectures match these filters.<br><button type="button" style="margin-top:10px" onclick="resetLectureFilters(true)">Clear filters</button></div>';
-  document.querySelectorAll("#statusSeg button").forEach(b=>b.classList.toggle("active",b.dataset.s===statusFilter));
+  document.querySelectorAll("#statusSeg button").forEach(b=>b.classList.toggle("active",b.dataset.s===statusFilter));mhqPaintStatusCounts();
   const clr=document.getElementById("lectureSearchClear");if(clr)clr.hidden=!searchQuery;
   renderResumeCard();
 }
@@ -8260,9 +8284,10 @@ function buddy(sp,mo,sk,stg,anim){
  try{window.renderHQ()}catch(e){}
 })();
 </script>
+<script id="mhq-subject-colors">window.mhqRepaintSubjectColors&&window.mhqRepaintSubjectColors()</script>
 <script id="mhq-fade">
 (function(){
- var SEL='.section-switcher,.filters,.subj-strip';
+ var SEL='.section-switcher,.filters,.subj-strip,#statusSeg';
  function upd(el){if(!el.clientWidth){return}var m=el.scrollWidth-el.clientWidth;
   if(m<6){el.classList.remove('hq-fade-l','hq-fade-r');return}
   el.classList.toggle('hq-fade-l',el.scrollLeft>6);el.classList.toggle('hq-fade-r',el.scrollLeft<m-6)}
