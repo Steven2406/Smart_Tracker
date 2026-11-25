@@ -770,6 +770,38 @@ body.mhq-modal-open{overflow:hidden}
 .v93-bd.jw{color:var(--text);border-color:color-mix(in srgb,var(--v-watch) 55%,transparent);background:color-mix(in srgb,var(--v-watch) 14%,transparent)}
 .csp-pill[style*="--sc"] .csp-t>span:first-child::before,#filters button[style*="--sc"]::before{content:"";display:inline-block;width:8px;height:8px;margin-right:6px;border-radius:50%;background:var(--sc);box-shadow:0 0 0 1.5px var(--surface)}
 .csp-pill.active[style*="--sc"] .csp-t>span:first-child::before,#filters button.active[style*="--sc"]::before{box-shadow:0 0 0 1.5px var(--accent-ink)}
+/* v9.4.0 curriculum filter cleanup: 2 visible rows (#subjStrip, then the unified #statusSeg); #filters and the v8.1 tools bar stay in the DOM, hidden and in sync */
+#curriculumView #filters,#curriculumView #v81Tools{display:none!important}
+#statusSeg{margin:8px 0}
+#statusSeg button{min-height:40px}
+#statusSeg button[hidden]{display:none}
+#statusSeg .v94-x[data-x="taken"]{margin-left:6px}
+/* v9.4.0 Study Circle */
+#studyCircleCard{padding:16px}
+#studyCircleCard .sc-note,#studyCircleCard .sc-empty{font-size:var(--fs-13);color:var(--muted);margin:6px 0 12px;line-height:1.45}
+#studyCircleCard .sc-lab{display:block;font-size:var(--fs-11);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:800;margin:10px 0 4px;flex:1 0 100%}
+#studyCircleCard .sc-form{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+#studyCircleCard .sc-in{flex:1 1 150px;min-width:0;min-height:44px;box-sizing:border-box;padding:8px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface2);color:var(--text);font:inherit}
+#studyCircleCard .sc-btn,.sc-pill{min-height:44px;box-sizing:border-box;padding:8px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface2);color:var(--text);font-weight:700;font-size:var(--fs-13)}
+#studyCircleCard .sc-btn.p{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+#studyCircleCard .sc-btn:disabled{opacity:.55}
+#studyCircleCard .sc-code{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+#studyCircleCard .sc-code code{flex:1 1 110px;min-width:0;font-size:var(--fs-18,18px);font-weight:800;letter-spacing:.14em;padding:8px 12px;border-radius:12px;background:var(--soft);border:1px dashed var(--line);text-align:center}
+#studyCircleCard .sc-msg{min-height:18px;margin:6px 0;font-size:var(--fs-13);color:var(--muted)}
+#studyCircleCard .sc-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 10px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+#studyCircleCard .sc-av{width:38px;height:38px;border-radius:50%;background:var(--soft);border:1px solid var(--line);display:grid;place-items:center;font-weight:800}
+#studyCircleCard .sc-main{min-width:0}
+#studyCircleCard .sc-nm{font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#studyCircleCard .sc-lvl{font-weight:600;color:var(--muted)}
+#studyCircleCard .sc-chips{display:flex;flex-wrap:wrap;gap:2px 10px;font-size:var(--fs-12);color:var(--muted);margin-top:2px}
+#studyCircleCard .sc-chips span{white-space:nowrap}
+#studyCircleCard .sc-status.ok{color:var(--good);font-weight:700}
+#studyCircleCard .sc-act{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap}
+#studyCircleCard .sc-act .sc-btn{flex:1 1 120px}
+#studyCircleCard .sc-foot{margin-top:10px;display:flex;justify-content:flex-end}
+.sc-pill{display:flex;align-items:center;gap:10px;margin:8px 0;max-width:100%;border-radius:99px}
+.sc-pill span{white-space:nowrap}
+.sc-dot{background:var(--accent);color:var(--accent-ink);border-radius:99px;padding:2px 8px;font-size:var(--fs-11)}
 
 /* Course setup */
 .head-right{display:flex;align-items:center;gap:10px}.add-btn{min-height:34px;padding:6px 12px;border-color:var(--accent);color:var(--accent);white-space:nowrap}
@@ -2108,7 +2140,7 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v9.3.0</span></small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v9.4.0</span></small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -2134,6 +2166,7 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
   </div>
 
   <div id="paceNote"></div>
+  <div id="studyCirclePill"></div>
   <div id="buddyCard"></div>
   <div id="trophyShelf"></div>
   <div class="section card next-card">
@@ -2181,10 +2214,10 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
     <div class="section-head"><h2>GIT Curriculum</h2><div class="head-right"><small id="shown">0 lectures</small><button type="button" class="add-btn" onclick="mhqOpenAddLectures()">＋ Add lectures</button></div></div>
     <div class="lecture-tools">
       <label class="search"><span aria-hidden="true">🔍</span><input id="lectureSearch" type="search" placeholder="Search title, subject or number" autocomplete="off" enterkeyhint="search" oninput="setLectureSearch(this.value)"><button type="button" class="search-clear" id="lectureSearchClear" hidden aria-label="Clear search" onclick="setLectureSearch('',true)">✕</button></label>
-      <div class="seg" id="statusSeg" role="group" aria-label="Completion filter"><button type="button" class="active" data-s="all" onclick="setLectureStatus('all')">All</button><button type="button" data-s="todo" onclick="setLectureStatus('todo')">Not completed</button><button type="button" data-s="untouched" onclick="setLectureStatus('untouched')">Untouched</button><button type="button" data-s="watched" onclick="setLectureStatus('watched')">Just watched</button><button type="button" data-s="progress" onclick="setLectureStatus('progress')">In progress</button><button type="button" data-s="done" onclick="setLectureStatus('done')">Completed</button></div>
       <button type="button" class="lt-next" id="nextUnfinishedBtn" hidden onclick="mhqJumpNextUnfinished()">⚡ Next Unfinished</button>
     </div>
     <div class="subj-strip" id="subjStrip" role="group" aria-label="Subject progress" hidden></div>
+    <div class="seg" id="statusSeg" role="group" aria-label="Stage, college and select filter"><button type="button" class="active" data-s="all" onclick="setLectureStatus('all')">All</button><button type="button" hidden data-s="todo" onclick="setLectureStatus('todo')">Not completed</button><button type="button" data-s="untouched" onclick="setLectureStatus('untouched')">Untouched</button><button type="button" data-s="watched" onclick="setLectureStatus('watched')">Just watched</button><button type="button" data-s="progress" onclick="setLectureStatus('progress')">In progress</button><button type="button" data-s="done" onclick="setLectureStatus('done')">Completed</button><button type="button" class="v94-x" data-x="taken" aria-pressed="false" onclick="mhqV94Taken()">🏫 Taken<i class="v93-n"></i></button><button type="button" class="v94-x" data-x="select" aria-pressed="false" onclick="mhqV94Select()">☑ Select</button></div>
     <div class="filters" id="filters"></div>
     <div class="card" id="list"></div>
   </div>
@@ -2277,6 +2310,7 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
       <div class="rpg-level-orb"><div><span>LEVEL</span><b id="rpgLevelBig">1</b></div></div>
       <div><div class="label">CURRENT RANK</div><h2 style="margin:4px 0" id="rpgRankBig">Medical Student</h2><div class="meta" id="rpgRankSub">Keep earning XP through real study.</div><div class="rpg-xp-head" style="margin-top:12px"><span id="rpgXpLabel">0 / 100 XP</span><b id="rpgNextLabel">100 XP to next level</b></div><div class="rpg-xp-bar"><div id="rpgXpFill" class="rpg-xp-fill" style="width:0%"></div></div></div>
     </div>
+    <div id="studyCircleCard" class="section card"></div>
     <div class="section card"><div class="section-head"><h2>🧬 Medical Stats</h2><small>Live from your study data</small></div><div id="rpgStats" class="rpg-stats"></div></div>
     <div class="section"><div class="section-head"><h2>🎖️ Rank Progression</h2><small>Long-term journey</small></div><div id="rpgRanks" class="rpg-grid"></div></div>
     <div class="section card"><div class="section-head"><h2>🔓 Level Milestones</h2><small>Every level matters</small></div><div id="rpgLevels" class="rpg-level-list"></div></div>
@@ -3588,10 +3622,17 @@ function mhqScAttr(s){try{const c=typeof window.mhqSubjectColor==="function"?win
 /* the Lecture Map script loads after the first render, so it repaints the colours once when it is ready */
 function mhqRepaintSubjectColors(){try{if(typeof window.mhqSubjectColor!=="function")return;document.querySelectorAll("#filters button[data-s]").forEach(b=>{if(b.dataset.s==="All")return;const c=window.mhqSubjectColor(b.dataset.s);if(c)b.style.setProperty("--sc",c)});renderSubjectStrip();renderLectureList()}catch(e){}}
 function mhqStageBadge(x){const k=mhqStageKey(x);return k==="untouched"?'<span class="v93-bd">UNTOUCHED</span>':k==="watched"?'<span class="v93-bd jw">JUST WATCHED</span>':""}
+/* v9.4.0: the college (Taken) and bulk-select controls live in #statusSeg; the original v8.1 tools bar stays in the DOM (hidden) as the single source of truth, so older code and tests keep working */
+function mhqV94Taken(){try{const ft=document.querySelector("#v81Tools .v81-ft"),on=!!(ft&&[...ft.querySelectorAll("button")].some(b=>b.classList.contains("active")&&/Taken/.test(b.textContent)&&!/Not cleared/.test(b.textContent)));mhqColFilter(on?"all":"taken")}catch(e){}}
+function mhqV94Select(){try{const ft=document.querySelector("#v81Tools .v81-ft"),on=!!(ft&&ft.querySelector(".v81-sel.on"));mhqSelMode(!on);if(on){const bar=document.getElementById("v81Bar");if(bar)bar.remove()}}catch(e){}}
 function mhqPaintStatusCounts(){
   const seg=document.getElementById("statusSeg");if(!seg)return;
   const keep=statusFilter,names={all:"All",todo:"Not completed",untouched:"Untouched",watched:"Just watched",progress:"In progress",done:"Completed"};
   try{seg.querySelectorAll("button[data-s]").forEach(b=>{const k=b.dataset.s;statusFilter=k;const n=data.filter(lectureMatches).length;let i=b.querySelector(".v93-n");if(!i){i=document.createElement("i");i.className="v93-n";b.appendChild(i)}i.textContent=n;b.setAttribute("aria-label",(names[k]||k)+", "+n+(n===1?" lecture":" lectures"))})}catch(e){}finally{statusFilter=keep}
+  try{const ft=document.querySelector("#v81Tools .v81-ft"),tk=seg.querySelector('[data-x="taken"]'),sl=seg.querySelector('[data-x="select"]');
+   const tOn=!!(ft&&[...ft.querySelectorAll("button")].some(b=>b.classList.contains("active")&&/Taken/.test(b.textContent)&&!/Not cleared/.test(b.textContent))),sOn=!!(ft&&ft.querySelector(".v81-sel.on"));
+   if(tk){tk.classList.toggle("active",tOn);tk.setAttribute("aria-pressed",tOn?"true":"false");const n=data.filter(x=>x.college).length,i=tk.querySelector(".v93-n");if(i)i.textContent=n;tk.setAttribute("aria-label","Taken in college, "+n+(n===1?" lecture":" lectures")+(tOn?", filter on":""))}
+   if(sl){sl.classList.toggle("active",sOn);sl.setAttribute("aria-pressed",sOn?"true":"false");if(sl.dataset.st!==(sOn?"1":"0")){sl.dataset.st=sOn?"1":"0";sl.textContent=sOn?"✕ Cancel":"☑ Select"}}}catch(e){}
   const a=seg.querySelector("button.active");if(a){const l=a.offsetLeft,r=l+a.offsetWidth;if(l<seg.scrollLeft)seg.scrollLeft=Math.max(0,l-8);else if(r>seg.scrollLeft+seg.clientWidth)seg.scrollLeft=r-seg.clientWidth+8}
 }
 function lectureMatches(x){
@@ -6539,13 +6580,13 @@ function buddy(sp,mo,sk,stg,anim){
  function key(c,k){return[c.sp,k,root.dataset.skin||'clinical',stage(),getComputedStyle(root).getPropertyValue('--accent'),c.name].join('|')}
  function paint(host,id,cls,c,M,force,big){
   var el=document.getElementById(host);if(!el)return;
-  var k=key(c,M.k),sy=say(M,c),vt=bvLine(),line=(Date.now()<petUntil)?{t:petLine}:(vt?{t:vt}:sy);
+  var k=key(c,M.k),sy=say(M,c),vt=bvLine(),fb=(!big&&window.mhqFriendBubble)?window.mhqFriendBubble():null,line=(Date.now()<petUntil)?{t:petLine}:(fb?fb:(vt?{t:vt}:sy));
   var stg=['Student','Learner','Resident','Consultant'][stage()-1];
   if(lastKey[host]!==k||force||!document.getElementById(id)){
    lastKey[host]=k;
    el.innerHTML='<div class="section card '+cls+'"><button type="button" class="bd-pet" id="'+id+'" aria-label="Pet '+esc(c.name)+'" onclick="mhqPetBuddy(\''+host+'\')">'+buddy(c.sp,M.k,root.dataset.skin||'clinical',stage())+'</button><div class="bd-say"><div class="bd-nm">'+esc(c.name).toUpperCase()+' · '+stg.toUpperCase()+'</div><div id="'+id+'T"></div></div></div>'}
   var t=document.getElementById(id+'T');if(!t)return;
-  var html='<div class="bd-bub">'+esc(line.t)+'</div>'+(line.a&&!big&&Date.now()>=petUntil?'<button type="button" class="bd-act primary" onclick="'+line.a[1]+'">'+esc(line.a[0])+'</button>':'');
+  var html='<div class="bd-bub">'+esc(line.t)+'</div>'+(line.a&&!big&&Date.now()>=petUntil?'<button type="button" class="bd-act primary" onclick="'+line.a[1]+'">'+esc(line.a[0])+'</button>':'')+(line.b&&!big&&Date.now()>=petUntil?'<button type="button" class="bd-act" onclick="'+line.b[1]+'">'+esc(line.b[0])+'</button>':'');
   if(t.dataset.h!==html){t.innerHTML=html;t.dataset.h=html}}
  window.renderBuddy=function(force){
   var c=cfg(),home=document.getElementById('buddyCard'),foc=document.getElementById('buddyFocus');
@@ -7968,7 +8009,7 @@ function buddy(sp,mo,sk,stg,anim){
   if(!$('todayRings')){var tr=document.createElement('div');tr.id='todayRings';hv.appendChild(tr)}
   var more=$('homeMore');if(!more){more=document.createElement('details');more.id='homeMore';more.className='section card v81-more';more.innerHTML='<summary>More · Season &amp; verse</summary>';hv.appendChild(more)}
   ['seasonCard','verseCard'].forEach(function(i){var e=$(i);if(e)more.appendChild(e)});
-  var order=['protectCard','cloudNotice','urgencyBox','.hero-slim','paceNote','homeExamCard','vitalsBox','todayRings','roundsCard','weeklyCard','.next-card','buddyCard','trophyShelf','homeMore','.adaptive-review-card','.home-stats'];
+  var order=['protectCard','cloudNotice','urgencyBox','.hero-slim','paceNote','homeExamCard','vitalsBox','todayRings','roundsCard','weeklyCard','.next-card','studyCirclePill','buddyCard','trophyShelf','homeMore','.adaptive-review-card','.home-stats'];
   order.forEach(function(sel){var e=sel.charAt(0)==='.'?hv.querySelector(sel):$(sel);if(e)hv.appendChild(e)});
   laid=true}
  /* ---------- lecture sheet toggle ---------- */
@@ -8282,6 +8323,258 @@ function buddy(sp,mo,sk,stg,anim){
  var r0=window.renderHQ;
  window.renderHQ=function(){try{window.mhqStreakNormalize();window.renderRest()}catch(e){}return r0&&r0.apply(this,arguments)};
  try{window.renderHQ()}catch(e){}
+})();
+</script>
+<script id="mhq-study-circle">
+/* Medical HQ v9.4.0: Private Study Circle (up to 5 close friends) + 1-on-1 Friend Streaks. Opt-in, code-only: nothing is public or searchable without the exact 6-character code.
+   Firestore layout (all new collections, the v9.1.0 users/{uid} split documents are untouched):
+     friendCodes/{CODE}                -> { uid, updatedAt }            (resolve a code to an account; no listing)
+     friendCircle/{uid}                -> { uid, code, nickname, friends:[{uid,fs,both}], updatedAt }   (owner only)
+     friendCards/{uid}                 -> { uid, nickname, level, streak, todaySteps, dailyGoalDone, activeCourse, lastActiveDate, updatedAt }   (the ONLY public summary)
+     friendCards/{uid}/nudges/{fromUid}-> { fromUid, fromName, type, at }
+     friendCards/{uid}/links/{fromUid} -> { fromUid, fromName, at, remove? }   (the reciprocal half of "add by code")
+   Nothing is stored in a new localStorage key: the local cache lives inside mhqBackupMetaV60 (JSON part, key "sc"). Every Firestore call goes through one swappable backend (window.__mhqFriendBackend) so tests can run it offline. */
+(function(){
+ "use strict";
+ var A=window.mhqCloudAccount;if(!A||window.mhqStudyCircle)return;
+ var META="mhqBackupMetaV60",MAXF=5,GOAL=3,AL="23456789ABCDEFGHJKMNPQRSTUVWXYZ",CARD_KEYS=["uid","nickname","level","streak","todaySteps","dailyGoalDone","activeCourse","lastActiveDate","updatedAt"];
+ var ST={sc:null,loaded:false,nudges:[],sent:{},lastUid:"",lastCircle:"",lastCard:"",armed:null,msg:"",fails:[],pt:0,busy:false,kt:0};
+ function $(i){return document.getElementById(i)}
+ function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+ function clean(s,n){return String(s==null?"":s).replace(/[\u0000-\u001f<>]/g,"").replace(/\s+/g," ").trim().slice(0,n||20)}
+ function say(t){try{toast(t)}catch(e){}}
+ function dkey(d){return typeof localDateKey==="function"?localDateKey(d):d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+ function today(){return dkey(new Date())}
+ function prevDay(k){var p=String(k).split("-");return dkey(new Date(+p[0],+p[1]-1,+p[2]-1))}
+ /* ---- local cache inside mhqBackupMetaV60 ("<last backup ms>|{json}"): same format the v9.1.0 account module uses ---- */
+ function mread(){var raw="";try{raw=localStorage.getItem(META)||""}catch(e){}var i=raw.indexOf("|"),o={};if(i>=0){try{o=JSON.parse(raw.slice(i+1))||{}}catch(e){o={}}}return{ts:i<0?raw:raw.slice(0,i),o:o}}
+ function mwrite(m){try{localStorage.setItem(META,(m.ts||"0")+"|"+JSON.stringify(m.o))}catch(e){}}
+ function persist(){if(!ST.sc)return;var m=mread();m.o.sc=ST.sc;mwrite(m)}
+ function drop(){var m=mread();if(m.o.sc!==undefined){delete m.o.sc;mwrite(m)}}
+ /* ---- backend: the real Firestore compat SDK (already loaded by the account module once somebody is signed in) unless a test supplies one ---- */
+ function db(){if(!(window.firebase&&firebase.apps&&firebase.apps.length&&firebase.firestore))throw Object.assign(new Error("offline"),{code:"offline"});return firebase.firestore()}
+ var REAL={
+  getCircle:function(u){return db().doc("friendCircle/"+u).get().then(function(s){return s.exists?s.data():null})},
+  setCircle:function(u,d){return db().doc("friendCircle/"+u).set(d)},
+  claimCode:function(c,u){var r=db().doc("friendCodes/"+c);return db().runTransaction(function(t){return t.get(r).then(function(s){if(s.exists&&s.data().uid!==u)return false;t.set(r,{uid:u,updatedAt:Date.now()});return true})})},
+  releaseCode:function(c,u){var r=db().doc("friendCodes/"+c);return r.get().then(function(s){if(s.exists&&s.data().uid===u)return r.delete()})},
+  resolveCode:function(c){return db().doc("friendCodes/"+c).get().then(function(s){return s.exists?s.data().uid:null})},
+  putCard:function(u,c){return db().doc("friendCards/"+u).set(c)},
+  getCard:function(u){return db().doc("friendCards/"+u).get().then(function(s){return s.exists?s.data():null})},
+  deleteCard:function(u){return db().doc("friendCards/"+u).delete()},
+  putNudge:function(to,from,n){return db().doc("friendCards/"+to+"/nudges/"+from).set(n)},
+  listNudges:function(u){return db().collection("friendCards/"+u+"/nudges").get().then(function(q){return q.docs.map(function(d){return d.data()})})},
+  deleteNudge:function(u,from){return db().doc("friendCards/"+u+"/nudges/"+from).delete()},
+  putLink:function(to,from,i){return db().doc("friendCards/"+to+"/links/"+from).set(i)},
+  listLinks:function(u){return db().collection("friendCards/"+u+"/links").get().then(function(q){return q.docs.map(function(d){return d.data()})})},
+  deleteLink:function(u,from){return db().doc("friendCards/"+u+"/links/"+from).delete()}
+ };
+ function BE(){return window.__mhqFriendBackend||REAL}
+ /* ---- identity: Firebase displayName, else the part of the e-mail before @ ---- */
+ function me(){
+  var s;try{s=A.status()}catch(e){return null}
+  if(!s||!s.user||!s.user.uid)return null;
+  var dn="";
+  try{var B=window.__mhqFriendBackend;if(B&&B.profile){var p=B.profile(s.user.uid);dn=(p&&p.displayName)||""}else if(window.firebase&&firebase.apps&&firebase.apps.length){var cu=firebase.auth().currentUser;dn=(cu&&cu.displayName)||""}}catch(e){}
+  return{uid:String(s.user.uid),email:s.user.email||"",name:clean(dn||String(s.user.email||"").split("@")[0])||"Friend"}}
+ function load(u){
+  if(!ST.sc||ST.sc.uid!==u.uid){
+   var s=mread().o.sc;
+   ST.sc=(s&&s.uid===u.uid)?{uid:s.uid,on:!!s.on,nick:clean(s.nick),code:/^[A-Z0-9]{6}$/.test(s.code||"")?s.code:"",friends:Array.isArray(s.friends)?s.friends.filter(function(f){return f&&f.uid}).slice(0,MAXF):[],cards:(s.cards&&typeof s.cards==="object")?s.cards:{}}:{uid:u.uid,on:false,nick:"",code:"",friends:[],cards:{}};
+   ST.loaded=false;ST.nudges=[];ST.sent={};ST.lastCircle="";ST.lastCard=""}
+  return ST.sc}
+ function find(sc,uid){for(var i=0;i<sc.friends.length;i++)if(sc.friends[i].uid===uid)return sc.friends[i];return null}
+ function rm(sc,uid){sc.friends=sc.friends.filter(function(f){return f.uid!==uid});delete sc.cards[uid]}
+ /* ---- codes ---- */
+ function gen(){var a=new Uint32Array(6),c="",i;if(window.crypto&&crypto.getRandomValues)crypto.getRandomValues(a);else for(i=0;i<6;i++)a[i]=Math.floor(Math.random()*4294967296);for(i=0;i<6;i++)c+=AL.charAt(a[i]%AL.length);return c}
+ function show(c){return c?c.slice(0,3)+"-"+c.slice(3):""}
+ function norm(s){return String(s||"").toUpperCase().replace(/[^A-Z0-9]/g,"")}
+ async function makeCode(B,u,sc){
+  for(var i=0;i<10;i++){var c=gen();if(await B.claimCode(c,u.uid)){var old=sc.code;sc.code=c;if(old&&old!==c){try{await B.releaseCode(old,u.uid)}catch(e){}}return c}}
+  throw new Error("code")}
+ /* ---- my card: ONLY the summary fields. Never exam dates, MCQ scores, weak topics or lecture titles. ---- */
+ function mySteps(){try{return(typeof todaySteps==="number"&&typeof lastStudyDate==="string"&&lastStudyDate===today())?Math.max(0,todaySteps):0}catch(e){return 0}}
+ function myStreak(){try{var t=today();return(typeof lastStudyDate==="string"&&(lastStudyDate===t||lastStudyDate===prevDay(t)))?Math.max(0,appStreak|0):0}catch(e){return 0}}
+ function myCard(sc,u){
+  var st=mySteps(),lvl=1;try{lvl=rpgInfo().level}catch(e){}
+  var crs="";try{crs=clean(COURSE.short||COURSE.name,12)}catch(e){}
+  return{uid:u.uid,nickname:sc.nick||u.name,level:lvl,streak:myStreak(),todaySteps:st,dailyGoalDone:st>=GOAL,activeCourse:crs,lastActiveDate:(typeof lastStudyDate==="string"&&lastStudyDate)||"",updatedAt:Date.now()}}
+ function pub(c){var o={};CARD_KEYS.forEach(function(k){if(c&&c[k]!==undefined)o[k]=c[k]});o.nickname=clean(o.nickname);o.activeCourse=clean(o.activeCourse,12);o.level=Math.max(1,+o.level||1);o.streak=Math.max(0,+o.streak||0);o.todaySteps=Math.max(0,+o.todaySteps||0);o.dailyGoalDone=!!o.dailyGoalDone;o.lastActiveDate=String(o.lastActiveDate||"");return o}
+ function chash(c){var o=Object.assign({},c);delete o.updatedAt;return JSON.stringify(o)}
+ /* ---- 1-on-1 friend streak: +1 on each day BOTH of you were active (lastActiveDate === today), back to 1 after a day either of you missed ---- */
+ function bump(rec,mine,theirs,t){
+  if(mine&&theirs&&mine.lastActiveDate===t&&theirs.lastActiveDate===t&&rec.both!==t){rec.fs=(rec.both===prevDay(t))?(+rec.fs||0)+1:1;rec.both=t;return true}return false}
+ function fstreak(rec,t){return(rec&&rec.both&&(rec.both===t||rec.both===prevDay(t)))?(+rec.fs||0):0}
+ /* ---- serialised work: one network job at a time ---- */
+ var Q=Promise.resolve();function q(fn){var r=Q.then(fn);Q=r.catch(function(){});return r}
+ function fail(e){var m=(e&&e.message)||"error";return{ok:false,reason:(e&&e.code==="offline")||/offline|network|unavailable/i.test(m)?"offline":"error",error:m}}
+ async function pushCircle(B,u,sc){
+  var d={uid:u.uid,code:sc.code,nickname:sc.nick,friends:sc.friends.map(function(f){return{uid:f.uid,fs:+f.fs||0,both:f.both||""}}),updatedAt:Date.now()},h=JSON.stringify([d.code,d.nickname,d.friends]);
+  if(h!==ST.lastCircle){await B.setCircle(u.uid,d);ST.lastCircle=h}}
+ async function core(){
+  var u=me();if(!u)return;var B=BE(),sc=load(u),t=today();
+  if(!ST.loaded){
+   var c=await B.getCircle(u.uid);ST.loaded=true;
+   if(c){sc.on=true;if(c.code&&!sc.code)sc.code=c.code;if(c.nickname&&!sc.nick)sc.nick=clean(c.nickname);
+    (c.friends||[]).forEach(function(f){if(!f||!f.uid)return;var ex=find(sc,f.uid);if(!ex){if(sc.friends.length<MAXF)sc.friends.push({uid:String(f.uid),nick:"",fs:+f.fs||0,both:f.both||""})}else if((f.both||"")>(ex.both||"")){ex.both=f.both;ex.fs=+f.fs||0}})}}
+  if(!sc.on){persist();render();return}
+  if(!sc.nick)sc.nick=u.name;
+  if(!sc.code)await makeCode(B,u,sc);
+  var links=(await B.listLinks(u.uid))||[],i,l,f;
+  for(i=0;i<links.length;i++){l=links[i];if(!l||!l.fromUid)continue;var ex=find(sc,l.fromUid);
+   if(l.remove){if(ex)rm(sc,l.fromUid)}else if(!ex&&sc.friends.length<MAXF&&l.fromUid!==u.uid){sc.friends.push({uid:String(l.fromUid),nick:clean(l.fromName),fs:0,both:""})}
+   await B.deleteLink(u.uid,l.fromUid)}
+  var card=myCard(sc,u);await B.putCard(u.uid,card);ST.lastCard=chash(card);
+  for(i=0;i<sc.friends.length;i++){f=sc.friends[i];var fc=await B.getCard(f.uid);if(fc){fc=pub(fc);sc.cards[f.uid]=fc;if(fc.nickname)f.nick=fc.nickname;bump(f,card,fc,t)}}
+  var ns=(await B.listNudges(u.uid))||[],keep=[];
+  for(i=0;i<ns.length;i++){var n=ns[i];if(!n||!n.fromUid)continue;if(find(sc,n.fromUid))keep.push({fromUid:String(n.fromUid),fromName:clean(n.fromName),type:n.type==="cheer"?"cheer":"nudge",at:+n.at||0});else{try{await B.deleteNudge(u.uid,n.fromUid)}catch(e){}}}
+  keep.sort(function(a,b){return a.at-b.at});
+  var chg=JSON.stringify(keep)!==JSON.stringify(ST.nudges);ST.nudges=keep;
+  persist();await pushCircle(B,u,sc);render();if(chg)buddy()}
+ /* only my card changed (a study step was ticked): one write, no reads */
+ async function pubOnly(){
+  var u=me();if(!u||!ST.sc||!ST.sc.on||ST.sc.uid!==u.uid)return;var B=BE(),sc=ST.sc,card=myCard(sc,u);
+  if(chash(card)===ST.lastCard)return;await B.putCard(u.uid,card);ST.lastCard=chash(card);
+  var t=today(),ch=false;sc.friends.forEach(function(f){if(sc.cards[f.uid]&&bump(f,card,sc.cards[f.uid],t))ch=true});
+  if(ch){persist();await pushCircle(B,u,sc)}render()}
+ function buddy(){try{if(typeof renderBuddy==="function")renderBuddy(true)}catch(e){}}
+ /* ---- public state (what the UI and the tests read) ---- */
+ function state(){
+  var u=me(),sc=u?load(u):null,t=today(),y=prevDay(t);
+  var out={signedIn:!!u,enabled:!!(sc&&sc.on),uid:u?u.uid:"",nickname:sc?(sc.nick||u.name):"",defaultNickname:u?u.name:"",code:sc?sc.code:"",codeDisplay:sc?show(sc.code):"",max:MAXF,count:sc?sc.friends.length:0,full:!!(sc&&sc.friends.length>=MAXF),friends:[],nudges:ST.nudges.slice(),today:t,busy:ST.busy};
+  if(sc)sc.friends.forEach(function(f){
+   var c=sc.cards[f.uid],live=c&&c.lastActiveDate===t,steps=live?c.todaySteps:0,done=!!(live&&(c.dailyGoalDone||steps>=GOAL));
+   out.friends.push({uid:f.uid,nickname:(c&&c.nickname)||f.nick||"Friend",level:c?c.level:1,streak:(c&&(c.lastActiveDate===t||c.lastActiveDate===y))?c.streak:0,friendStreak:fstreak(f,t),todaySteps:steps,dailyGoalDone:done,activeCourse:c?c.activeCourse:"",lastActiveDate:c?c.lastActiveDate:"",waiting:!c,action:done?"cheer":"nudge",sent:ST.sent[f.uid]===t+(done?"cheer":"nudge")})});
+  return out}
+ /* ---- actions (also the mockable window.mhqCloudAccount hooks) ---- */
+ function ready(){var u=me();return u?null:{ok:false,reason:"signedout"}}
+ async function enable(){var u=me();if(!u)return{ok:false,reason:"signedout"};return q(async function(){var B=BE(),sc=load(u);try{if(!ST.loaded&&!sc.on){}sc.on=true;if(!sc.nick)sc.nick=u.name;if(!sc.code)await makeCode(B,u,sc);persist();await core();return{ok:true}}catch(e){return fail(e)}})}
+ async function setNick(name){
+  var u=me();if(!u)return{ok:false,reason:"signedout"};var n=clean(name);if(!n)return{ok:false,reason:"empty"};
+  return q(async function(){var B=BE(),sc=load(u);try{sc.on=true;sc.nick=n;if(!sc.code)await makeCode(B,u,sc);persist();await core();return{ok:true,nickname:n}}catch(e){return fail(e)}})}
+ async function regen(){
+  var u=me();if(!u)return{ok:false,reason:"signedout"};
+  return q(async function(){var B=BE(),sc=load(u);try{sc.on=true;if(!sc.nick)sc.nick=u.name;await makeCode(B,u,sc);persist();await pushCircle(B,u,sc);render();return{ok:true,code:sc.code,codeDisplay:show(sc.code)}}catch(e){return fail(e)}})}
+ async function addByCode(raw){
+  var u=me();if(!u)return{ok:false,reason:"signedout"};var code=norm(raw);
+  if(!/^[A-Z0-9]{6}$/.test(code))return{ok:false,reason:"format"};
+  var now=Date.now();ST.fails=ST.fails.filter(function(x){return now-x<60000});if(ST.fails.length>=5)return{ok:false,reason:"slowdown"};
+  return q(async function(){var B=BE(),sc=load(u);
+   try{
+    if(sc.code===code)return{ok:false,reason:"self"};
+    if(sc.friends.length>=MAXF)return{ok:false,reason:"full"};
+    var uid=await B.resolveCode(code);
+    if(!uid){ST.fails.push(Date.now());return{ok:false,reason:"notfound"}}
+    if(uid===u.uid)return{ok:false,reason:"self"};
+    if(find(sc,uid))return{ok:false,reason:"duplicate"};
+    sc.on=true;if(!sc.nick)sc.nick=u.name;if(!sc.code)await makeCode(B,u,sc);
+    sc.friends.push({uid:uid,nick:"",fs:0,both:""});
+    await B.putLink(uid,u.uid,{fromUid:u.uid,fromName:sc.nick,at:Date.now()});
+    persist();await core();return{ok:true,uid:uid}
+   }catch(e){return fail(e)}})}
+ async function removeFriend(uid){
+  var u=me();if(!u)return{ok:false,reason:"signedout"};
+  return q(async function(){var B=BE(),sc=load(u);if(!find(sc,uid))return{ok:false,reason:"notfriend"};
+   try{rm(sc,uid);ST.nudges=ST.nudges.filter(function(n){return n.fromUid!==uid});persist();
+    try{await B.putLink(uid,u.uid,{fromUid:u.uid,fromName:sc.nick,at:Date.now(),remove:true})}catch(e){}
+    try{await B.deleteNudge(u.uid,uid)}catch(e){}
+    await pushCircle(B,u,sc);render();buddy();return{ok:true}}catch(e){return fail(e)}})}
+ async function leave(){
+  var u=me();if(!u)return{ok:false,reason:"signedout"};
+  return q(async function(){var B=BE(),sc=load(u);
+   try{var fr=sc.friends.slice();for(var i=0;i<fr.length;i++){try{await B.putLink(fr[i].uid,u.uid,{fromUid:u.uid,fromName:sc.nick,at:Date.now(),remove:true})}catch(e){}}
+    if(sc.code){try{await B.releaseCode(sc.code,u.uid)}catch(e){}}try{await B.deleteCard(u.uid)}catch(e){}
+    try{await B.setCircle(u.uid,{uid:u.uid,code:"",nickname:sc.nick,friends:[],updatedAt:Date.now(),left:true})}catch(e){}
+    sc.friends=[];sc.cards={};sc.code="";sc.on=false;ST.nudges=[];ST.lastCircle="";ST.lastCard="";persist();render();buddy();return{ok:true}}catch(e){return fail(e)}})}
+ async function send(uid,type){
+  var u=me();if(!u)return{ok:false,reason:"signedout"};
+  return q(async function(){var B=BE(),sc=load(u);if(!find(sc,uid))return{ok:false,reason:"notfriend"};
+   try{var fc=sc.cards[uid],t=today(),steps=(fc&&fc.lastActiveDate===t)?+fc.todaySteps||0:0,ty=(type==="nudge"||type==="cheer")?type:(steps>=GOAL?"cheer":"nudge");
+    await B.putNudge(uid,u.uid,{fromUid:u.uid,fromName:sc.nick||u.name,type:ty,at:Date.now()});ST.sent[uid]=t+ty;render();return{ok:true,type:ty}}catch(e){return fail(e)}})}
+ async function dismiss(fromUid,opts){
+  var u=me();if(!u)return{ok:false,reason:"signedout"};
+  return q(async function(){var B=BE();
+   try{await B.deleteNudge(u.uid,fromUid)}catch(e){return fail(e)}
+   ST.nudges=ST.nudges.filter(function(n){return n.fromUid!==fromUid});
+   var r={ok:true};
+   if(opts&&opts.cheerBack){try{var sc=load(u);if(find(sc,fromUid)){await B.putNudge(fromUid,u.uid,{fromUid:u.uid,fromName:sc.nick||u.name,type:"cheer",at:Date.now()});ST.sent[fromUid]=today()+"cheer";r.cheered=true}}catch(e){r.cheered=false}}
+   render();buddy();return r})}
+ /* ---- Study Buddy bubble: the oldest unread nudge/cheer becomes the buddy's line, with Cheer back / Dismiss ---- */
+ window.mhqFriendBubble=function(){
+  var n=ST.nudges&&ST.nudges[0];if(!n)return null;var nm=n.fromName||"A friend";
+  return{t:n.type==="cheer"?"🎉 "+nm+" is cheering you on! Keep it up!":"👋 "+nm+" nudged you — "+(mySteps()>=GOAL?"you already hit today’s goal, nice!":"you’re at "+mySteps()+"/"+GOAL+" steps today. Let’s go!"),a:["🎉 Cheer back","mhqFriendBubbleAct('cheer')"],b:["Dismiss","mhqFriendBubbleAct('dismiss')"]}};
+ window.mhqFriendBubbleAct=function(k){var n=ST.nudges[0];if(n)dismiss(n.fromUid,{cheerBack:k==="cheer"}).catch(function(){})};
+ /* ---- UI ---- */
+ var ERR={format:"Enter the 6-character code.",notfound:"No one has that code. Check it with your friend.",full:"Your circle is full (5 friends max).",duplicate:"That friend is already in your circle.",self:"That is your own code.",signedout:"Sign in first.",slowdown:"Too many tries. Wait a minute and try again.",offline:"You are offline. Try again when you are back online.",error:"Something went wrong. Try again.",empty:"Type a nickname first."};
+ function renderCard(){
+  var host=$("studyCircleCard");if(!host)return;var S=state();
+  var hk=[S.signedIn,S.enabled,S.nickname,S.codeDisplay,S.full].join("|");
+  if(host.dataset.hk!==hk||!$("scList")){
+   host.dataset.hk=hk;
+   var h='<div class="section-head"><h2>🤝 Study Circle</h2><small>'+(S.enabled?S.count+'/'+S.max+' friends':'Private · up to 5 close friends')+'</small></div>';
+   if(!S.signedIn)h+='<div class="sc-note">Sign in to your Medical HQ account to start a private circle with up to 5 close friends. Friends only see your level, streak and today’s steps, never exam dates, scores, weak topics or lecture titles.</div><button type="button" class="sc-btn p" data-sc="signin">Open account settings</button>';
+   else if(!S.enabled)h+='<div class="sc-note">Opt in to get a private code. Only people you give the code to can add you, and they only see your level, streak, today’s steps and course name. Nothing is public or searchable.</div><button type="button" class="sc-btn p" id="scEnable" data-sc="enable">Start my Study Circle</button>';
+   else h+='<div class="sc-form"><label class="sc-lab" for="scNick">Your nickname</label><input id="scNick" class="sc-in" maxlength="20" autocomplete="off" value="'+esc(S.nickname)+'"><button type="button" class="sc-btn" id="scNickSave" data-sc="nick">Save</button></div>'+
+    '<div class="sc-code"><span class="sc-lab">Your private code</span><code id="scCode" data-code="'+esc(S.code)+'">'+esc(S.codeDisplay)+'</code><button type="button" class="sc-btn" id="scCopy" data-sc="copy">Copy Code</button><button type="button" class="sc-btn" id="scRegen" data-sc="regen">Regenerate Code</button></div>'+
+    '<div class="sc-form"><label class="sc-lab" for="scAddInput">Add a friend by code</label><input id="scAddInput" class="sc-in" maxlength="9" autocomplete="off" autocapitalize="characters" placeholder="ABC-123"'+(S.full?' disabled':'')+'><button type="button" class="sc-btn p" id="scAddBtn" data-sc="add"'+(S.full?' disabled':'')+'>Add</button></div><div class="sc-msg" id="scMsg" role="status" aria-live="polite"></div>';
+   h+='<div id="scList"></div>';
+   if(S.enabled)h+='<div class="sc-foot"><button type="button" class="sc-btn" id="scLeave" data-sc="leave">Leave circle</button></div>';
+   host.innerHTML=h}
+  var msg=$("scMsg");if(msg&&msg.textContent!==ST.msg)msg.textContent=ST.msg;
+  var L=$("scList");if(!L)return;var t=S.today,lh="";
+  if(S.enabled){
+   if(!S.friends.length)lh='<div class="sc-empty">No friends yet. Share your code, or enter theirs above.</div>';
+   S.friends.forEach(function(f){
+    var nm=esc(f.nickname),done=f.dailyGoalDone;
+    lh+='<div class="sc-row" data-uid="'+esc(f.uid)+'"><div class="sc-av" aria-hidden="true">'+esc((f.nickname||"?").charAt(0).toUpperCase())+'</div><div class="sc-main"><div class="sc-nm">'+nm+'<span class="sc-lvl"> · Lv '+f.level+'</span></div><div class="sc-chips">'+
+     (f.waiting?'<span class="sc-wait">Waiting for their first update…</span>':'<span class="sc-streak" title="Personal streak">🔥 '+f.streak+'</span><span class="sc-fs" title="1-on-1 friend streak">🤝🔥 '+f.friendStreak+'</span>'+(f.activeCourse?'<span class="sc-mod">'+esc(f.activeCourse)+'</span>':'')+'<span class="sc-status'+(done?' ok':'')+'">'+(done?'✅ '+GOAL+'/'+GOAL+' Goal Done':Math.min(f.todaySteps,GOAL)+'/'+GOAL+' steps')+'</span>')+'</div></div>'+
+     '<div class="sc-act">'+(f.waiting?'':'<button type="button" class="sc-btn '+(f.action==="cheer"?'p':'')+' sc-nudge" data-sc="nudge" data-uid="'+esc(f.uid)+'"'+(f.sent?' disabled':'')+'>'+(f.sent?'Sent ✓':f.action==="cheer"?'🎉 Cheer':'👋 Nudge')+'</button>')+'<button type="button" class="sc-btn sc-remove" data-sc="remove" data-uid="'+esc(f.uid)+'" aria-label="Remove '+nm+'">Remove</button></div></div>'});
+  }
+  if(L.dataset.h!==lh){L.innerHTML=lh;L.dataset.h=lh}
+ }
+ function renderPill(){
+  var host=$("studyCirclePill");if(!host)return;var S=state(),h="";
+  if(S.signedIn&&S.enabled&&S.count>0){
+   var best=0;S.friends.forEach(function(f){best=Math.max(best,f.friendStreak)});
+   h='<button type="button" class="sc-pill" id="scPill" data-sc="open" aria-label="Study Circle: '+S.count+' friend'+(S.count===1?'':'s')+(S.nudges.length?', '+S.nudges.length+' new':'')+'"><span>🤝 '+S.count+' friend'+(S.count===1?'':'s')+'</span><span>🤝🔥 '+best+'</span>'+(S.nudges.length?'<b class="sc-dot">'+S.nudges.length+' new</b>':'')+'</button>'}
+  if(host.dataset.h!==h){host.innerHTML=h;host.dataset.h=h}}
+ function render(){try{renderCard();renderPill()}catch(e){}}
+ function flash(t){ST.msg=t||"";render()}
+ function arm(key){var n=Date.now();if(ST.armed&&ST.armed.k===key&&n-ST.armed.t<3500){ST.armed=null;return true}ST.armed={k:key,t:n};return false}
+ async function copyCode(){
+  var c=ST.sc&&ST.sc.code;if(!c)return;var txt=show(c);
+  try{if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(txt);say("Code copied");return}}catch(e){}
+  try{var ta=document.createElement("textarea");ta.value=txt;ta.setAttribute("readonly","");ta.style.cssText="position:fixed;opacity:0";document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();say("Code copied")}catch(e){say("Code: "+txt)}}
+ document.addEventListener("click",function(e){
+  var b=e.target&&e.target.closest&&e.target.closest("[data-sc]");if(!b)return;var a=b.dataset.sc,uid=b.dataset.uid;
+  if(a==="open"){try{if(ST.nudges.length&&typeof mhqBuddyOpen==="function")mhqBuddyOpen();else showView("rpgView")}catch(x){}return}   /* a waiting nudge: the pill opens the Study Buddy sheet where the bubble is; otherwise it opens Progress */
+  if(a==="signin"){try{showView("dataView")}catch(x){}return}
+  if(a==="enable"){flash("");enable().then(function(r){if(!r.ok)flash(ERR[r.reason]||ERR.error)});return}
+  if(a==="copy"){copyCode();return}
+  if(a==="nick"){var v=$("scNick");setNick(v&&v.value).then(function(r){flash(r.ok?"Nickname saved.":(ERR[r.reason]||ERR.error))});return}
+  if(a==="regen"){if(!arm("regen")){b.textContent="Tap again to confirm";setTimeout(function(){if(b.isConnected&&b.dataset.sc==="regen")b.textContent="Regenerate Code"},3600);return}b.textContent="Regenerate Code";regen().then(function(r){flash(r.ok?"New code ready. The old one no longer works.":(ERR[r.reason]||ERR.error))});return}
+  if(a==="add"){var i=$("scAddInput");addByCode(i&&i.value).then(function(r){if(r.ok){if(i)i.value="";flash("Friend added.")}else flash(ERR[r.reason]||ERR.error)});return}
+  if(a==="nudge"){send(uid).then(function(r){if(!r.ok)flash(ERR[r.reason]||ERR.error)});return}
+  if(a==="remove"){if(!arm("rm"+uid)){b.textContent="Tap again";setTimeout(function(){if(b.isConnected)b.textContent="Remove"},3600);return}removeFriend(uid).then(function(r){flash(r.ok?"Friend removed.":(ERR[r.reason]||ERR.error))});return}
+  if(a==="leave"){if(!arm("leave")){b.textContent="Tap again to leave";setTimeout(function(){if(b.isConnected)b.textContent="Leave circle"},3600);return}leave().then(function(){flash("")});return}
+ });
+ document.addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target){if(e.target.id==="scAddInput"){e.preventDefault();var b=$("scAddBtn");if(b)b.click()}else if(e.target.id==="scNick"){e.preventDefault();var s=$("scNickSave");if(s)s.click()}}});
+ /* ---- wiring: follows the account module's own sign-in state (its panel redraws on every change), never blocks start-up ---- */
+ function kick(){
+  clearTimeout(ST.kt);ST.kt=setTimeout(function(){
+   var u=me(),id=u?u.uid:"";
+   if(id!==ST.lastUid){var was=ST.lastUid;ST.lastUid=id;ST.sc=null;ST.nudges=[];if(!id&&was)drop();if(id)q(core).catch(function(){});buddy()}
+   render()},250)}
+ try{var host=$("mhqAcct");if(host&&window.MutationObserver)new MutationObserver(kick).observe(host,{childList:true,subtree:true})}catch(e){}
+ var sv=window.save;if(typeof sv==="function")window.save=function(){var r=sv.apply(this,arguments);try{if(ST.sc&&ST.sc.on&&me()){clearTimeout(ST.pt);ST.pt=setTimeout(function(){q(pubOnly).catch(function(){})},4000)}}catch(e){}return r};
+ document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible"&&ST.sc&&ST.sc.on&&me())q(core).catch(function(){})});
+ setInterval(function(){if(document.visibilityState==="visible"&&ST.sc&&ST.sc.on&&me()&&navigator.onLine!==false)q(core).catch(function(){})},90000);
+ setTimeout(kick,1200);render();
+ /* ---- the hooks (window.mhqCloudAccount.*): all mockable, all return {ok,...} and never throw ---- */
+ Object.assign(A,{
+  getFriendState:state,addFriendByCode:addByCode,removeFriend:removeFriend,regenerateFriendCode:regen,setFriendNickname:setNick,sendFriendNudge:send,dismissFriendNudge:dismiss,
+  enableStudyCircle:enable,leaveStudyCircle:leave,refreshFriends:function(){return q(core).then(function(){return state()},function(e){return Object.assign(fail(e),{state:state()})})},publishFriendCard:function(){return q(pubOnly).then(function(){return state()},function(e){return fail(e)})}});
+ window.mhqStudyCircle={maxFriends:MAXF,cardKeys:CARD_KEYS.slice(),friendStreak:fstreak,pub:pub};
 })();
 </script>
 <script id="mhq-subject-colors">window.mhqRepaintSubjectColors&&window.mhqRepaintSubjectColors()</script>
