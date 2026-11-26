@@ -579,6 +579,12 @@ input[type=checkbox],input[type=range]{accent-color:var(--accent);min-height:0;p
 .weak-main{min-width:0}.weak-title{font-weight:700}.weak-reason{font-size:var(--fs-13);color:var(--muted);margin-top:4px;line-height:1.45}
 .weak-score{font-family:var(--serif);font-weight:700;font-size:var(--fs-22)}
 @media(max-width:560px){.weak-item{grid-template-columns:1fr}.weak-item button{justify-self:start}}
+/* v9.5.0 cross-course reviews: This Course | All Courses switcher + module badge (same look as the HQ scope switcher) */
+.mhq-rscope{display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:3px;margin:0 0 10px;background:var(--surface2);border:1px solid var(--line);border-radius:12px;max-width:100%;box-sizing:border-box}
+.mhq-rscope[hidden]{display:none}
+.mhq-rscope button{min-height:36px;min-width:0;padding:4px 6px;border:0;border-radius:9px;background:none;color:var(--muted);font-size:var(--fs-12);font-weight:600;box-shadow:none}
+.mhq-rscope button.active{background:var(--surface);color:var(--accent);font-weight:800;box-shadow:var(--shadow)}
+.adaptive-meta .hq-mod,.review-row .meta .hq-mod,.weak-main .meta .hq-mod{display:inline-block;padding:0 7px;border-radius:8px;background:var(--soft);color:var(--accent);font-size:var(--fs-12);font-weight:800;margin-right:3px}
 
 /* Focus */
 .study-panel{text-align:center}
@@ -2140,7 +2146,7 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v9.4.0</span></small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v9.5.0</span></small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -2193,6 +2199,7 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
 
   <div class="section card adaptive-review-card">
     <div class="section-head"><h2>🧠 Reviews due</h2><small id="hqDueCount"></small></div>
+    <div class="mhq-rscope" id="hqRevScope" role="group" aria-label="Reviews scope" hidden></div>
     <div id="hqAdaptiveReview"></div>
   </div>
 
@@ -2272,6 +2279,7 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
       <h1>🎯 Weaknesses & Review Targets</h1>
       <div class="sub">Your weakest or least-tested topics rise to the top automatically. Use this page to decide what deserves attention next.</div>
     </div>
+    <div class="mhq-rscope" id="weaknessScope" role="group" aria-label="Weaknesses scope" hidden></div>
     <div class="grid">
       <div class="card stat"><div class="label">PRIORITY TOPICS</div><div class="num" id="weakPriorityCount">0</div><div class="meta">Weak + Review</div></div>
       <div class="card stat"><div class="label">NEEDS TESTING</div><div class="num" id="weakUntestedCount">0</div><div class="meta">No MCQ evidence yet</div></div>
@@ -2385,7 +2393,7 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
     </div>
   </div>
 
-  <div id="reviewView" class="view"><div class="hero"><div class="label">SPACED REVIEW ENGINE</div><h1>🧠 Review Queue</h1><div class="sub">Your next review is calculated from MCQ performance and mastery. Weak topics return sooner; stronger topics get more spacing.</div></div><div class="card"><h3 style="margin-top:0">Due & Upcoming Reviews</h3><div id="reviewQueue"></div></div></div>
+  <div id="reviewView" class="view"><div class="hero"><div class="label">SPACED REVIEW ENGINE</div><h1>🧠 Review Queue</h1><div class="sub">Your next review is calculated from MCQ performance and mastery. Weak topics return sooner; stronger topics get more spacing.</div></div><div class="card"><h3 style="margin-top:0">Due & Upcoming Reviews</h3><div class="mhq-rscope" id="reviewScope" role="group" aria-label="Reviews scope" hidden></div><div id="reviewQueue"></div></div></div>
   <div id="mistakesView" class="view">
     <div class="section card">
       <div class="section-head"><h2>📓 Mistake notebook</h2><small id="mnSub">Learn from every mistake</small></div>
@@ -2991,6 +2999,8 @@ function externalDueItems(){
 }
 function renderAdaptiveReview(){
   const el=document.getElementById("hqAdaptiveReview"); if(!el)return;
+  try{mhqPaintRevScopes()}catch(e){}
+  if(mhqRevAllOn()){mhqRenderAdaptiveAll(el);return}
   const items=[],seen=new Set();
   data.forEach(l=>{const s=reviewStatus(l);if(s.state==="due"){seen.add(l.id);items.push({kind:"lecture",lecture:l,label:l.title,meta:`${l.subject} · ${s.label}`,rank:inferredMastery(l)});}});
   externalDueItems().forEach(o=>{if(o.kind==="lecture"&&seen.has(o.lecture.id))return;items.push({...o,meta:`${o.meta} · evidence ${o.percent}%`,rank:o.percent});});
@@ -3070,6 +3080,8 @@ function renderExternalTests(){
 
 function renderReviewQueue(){
   const el=document.getElementById('reviewQueue'); if(!el)return;
+  try{mhqPaintRevScopes()}catch(e){}
+  if(mhqRevAllOn()){mhqRenderReviewQueueAll(el);return}
   const rows=data.map(x=>({x,s:reviewStatus(x),m:inferredMastery(x),a:lectureMCQStats(x)}));
   const due=rows.filter(o=>o.s.state==='due').sort((a,b)=>a.m-b.m);
   const upcoming=rows.filter(o=>o.s.state==='scheduled').sort((a,b)=>a.s.days-b.s.days);
@@ -3089,6 +3101,233 @@ function renderReviewQueue(){
     ${upcoming.length?`<div class="label" style="margin:18px 0 8px">UPCOMING REVIEWS</div>${upcoming.map(o=>row(o,'🟢','VIEW')).join('')}`:''}`;
 }
 function renderReviewView(){renderReviewQueue();}
+
+/* ===== v9.5.0: cross-course Reviews & Weaknesses (This Course | All Courses) ===== */
+/* Read-only: other courses are only ever READ (raw reads, parsed in try/catch, nothing written back). No new localStorage key: the scope is the HQ scope kept in memory
+   (window.__hqScope) and the one-shot jump target lives in sessionStorage. */
+const MHQ_PENDING_OPEN_KEY="mhqPendingOpenLectureV1";
+const MHQ_XC_CACHE=new Map();
+function mhqRevList(){try{const S=window.mhqStore;return(S&&!S.blocked&&S.registry)?S.registry().list.slice():[]}catch(e){return[]}}
+function mhqRevAllOn(){return window.__hqScope==='all'&&mhqRevList().length>=2}
+/* mirrors of externalStatsForLecture / learningProfile / reviewStatus / lecturePriority / lectureStatus that take the course's own saved evidence instead of the live globals */
+function mhqXcExt(ctx,id){
+  const rows=ctx.tests.filter(t=>Number(t.lectureId)===Number(id));
+  if(!rows.length)return {sessions:0,average:null,correct:0,questions:0,confidence:null,lastDate:null};
+  const questions=rows.reduce((n,t)=>n+safeNumber(t.total,0),0),correct=rows.reduce((n,t)=>n+safeNumber(t.correct,0),0);
+  const cv=rows.map(t=>Number(t.confidence)).filter(n=>n>=1&&n<=5);
+  return {sessions:rows.length,average:questions?Math.round(correct/questions*100):null,correct,questions,confidence:cv.length?Math.round(cv.reduce((a,b)=>a+b,0)/cv.length/5*100):null,lastDate:rows.map(t=>t.dateKey).sort().at(-1)||null};
+}
+function mhqXcApplication(ctx,l){
+  const related=ctx.cases.filter(c=>Array.isArray(c.lectureIds)?c.lectureIds.includes(l.id):Array.isArray(c.topics)&&c.topics.includes(l.title));
+  if(!related.length)return null;
+  const attempted=related.map(c=>ctx.cstate[c.id]).filter(x=>x&&Number(x.attempts)>0);
+  if(!attempted.length)return null;
+  const a=attempted.reduce((n,x)=>n+Number(x.attempts||0),0),ok=attempted.reduce((n,x)=>n+Number(x.correct||0),0);
+  return a?Math.round(ok/a*100):0;
+}
+function mhqXcProfile(ctx,l){
+  const stats=lectureMCQStats(l),ext=mhqXcExt(ctx,l.id);
+  const coverage=Math.round((l.steps||[]).filter(Boolean).length/4*100);
+  const attempts=(l.mcqs||[]).map(m=>parseMCQScore(m.score)).filter(Boolean);
+  const cst=lectureCardStats(l);
+  const totalQuestions=stats.questions+ext.questions+cst.reviewed*CARD_WEIGHT;
+  const avg=totalQuestions?Math.round((stats.correct+ext.correct+cst.recalled*CARD_WEIGHT)/totalQuestions*100):null;
+  const internalLatest=latestMCQ(l),internalLatestDate=internalLatest?.dateKey||null;
+  const latestExternal=ctx.tests.filter(t=>Number(t.lectureId)===Number(l.id)).sort((a,b)=>String(a.dateKey).localeCompare(String(b.dateKey))).at(-1);
+  const latestPct=latestExternal?latestExternal.percent:(internalLatest?parseMCQScore(internalLatest.score)?.percent:null);
+  const hasEvidence=avg!=null;
+  const weightedKnowledge=hasEvidence?Math.round((latestPct==null?avg:latestPct)*0.6+avg*0.4):null;
+  const cv=(l.mcqs||[]).map(m=>Number(m.confidence)).filter(n=>n>=1&&n<=5).map(n=>n*20);
+  if(ext.confidence!=null)cv.push(ext.confidence);
+  const confidence=cv.length?Math.round(cv.reduce((a,b)=>a+b,0)/cv.length):null;
+  const lastDate=[internalLatestDate,ext.lastDate,cst.lastDate,l.completionDate].filter(Boolean).sort().at(-1)||null;
+  const daysSince=lastDate?Math.max(0,Math.round((new Date(todayKey+'T00:00:00')-new Date(lastDate+'T00:00:00'))/86400000)):999;
+  const recency=lastDate?Math.max(0,Math.round(100*Math.exp(-daysSince/21))):0;
+  const retention=avg==null?null:Math.round((latestPct==null?avg:latestPct)*0.55+recency*0.45);
+  const available={knowledge:weightedKnowledge,retention,coverage,application:mhqXcApplication(ctx,l),confidence,recency};
+  const weights={knowledge:.35,retention:.2,coverage:.2,application:.15,confidence:.1};
+  let total=0,weight=0;
+  Object.entries(weights).forEach(([k,w])=>{const v=available[k];if(v!=null){total+=v*w;weight+=w}});
+  let mastery=weight?Math.round(total/weight):0;
+  if(!hasEvidence)mastery=Math.min(35,Math.round(coverage*0.35));
+  mastery=Math.max(0,Math.min(100,mastery));
+  return {...available,mastery,attempts:attempts.length+ext.sessions+cst.sessions,externalSessions:ext.sessions,daysSince};
+}
+function mhqXcExam(ctx,id){return ctx.upcoming.find(e=>(e.lectureIds||[]).includes(id)&&ctx.valid.has(id))||null}
+function mhqXcReview(ctx,l,p){
+  if(p.attempts===0)return {state:'untested',label:'Needs testing',days:null,nextDate:null,interval:null};
+  let interval=1;
+  if(p.mastery>=90)interval=30;else if(p.mastery>=82)interval=21;else if(p.mastery>=74)interval=14;else if(p.mastery>=65)interval=7;else if(p.mastery>=55)interval=4;else if(p.mastery>=45)interval=2;
+  if(p.confidence!=null&&p.confidence<50)interval=Math.max(1,Math.round(interval*.65));
+  if(p.recency<35)interval=Math.max(1,Math.round(interval*.7));
+  const ex=mhqXcExam(ctx,l.id);
+  if(ex)interval=Math.max(1,Math.min(interval,Math.ceil(examDaysLeft(ex)/3)));
+  const r=ctx.cards[l.id];
+  let nextDate=r?.nextDate;
+  if(!nextDate&&l.mcqs?.length){const latest=[...l.mcqs].reverse().find(m=>m.dateKey)?.dateKey||todayKey;nextDate=addDaysToDate(latest,interval)}
+  if(!nextDate)return {state:'due',label:'Review today',days:0,overdueDays:0,nextDate:todayKey,interval};
+  if(nextDate<=todayKey){
+    const overdueDays=Math.max(0,Math.floor((new Date(todayKey+'T00:00:00')-new Date(nextDate+'T00:00:00'))/86400000));
+    return {state:'due',label:overdueDays?`Review overdue by ${overdueDays} day${overdueDays===1?'':'s'}`:`Review today`,days:0,overdueDays,nextDate,interval};
+  }
+  const d=Math.ceil((new Date(nextDate+'T00:00:00')-new Date(todayKey+'T00:00:00'))/86400000);
+  return {state:'scheduled',label:`Review ${formatReviewDate(nextDate)} · in ${d} day${d===1?'':'s'}`,days:d,overdueDays:0,nextDate,interval};
+}
+function mhqXcPriority(ctx,l,p,r){
+  const ex=mhqXcExam(ctx,l.id),dl=ex?examDaysLeft(ex):0;
+  const bonus=ex?(dl<=3?30:dl<=7?24:dl<=14?16:dl<=30?9:4):0;
+  const importanceBonus=(l.importance==="A"?18:l.importance==="C"?-8:0)+bonus;
+  const weakness=Math.max(0,100-p.mastery)*0.55;
+  const overdue=r.state==="due"?(20+Math.min(25,(r.overdueDays||0)*2)):0;
+  const uncertainty=p.confidence==null?10:Math.max(0,70-p.confidence)*0.12;
+  const stale=p.attempts?Math.min(18,p.daysSince*0.45):12;
+  const untested=p.attempts===0?18:0;
+  return Math.round((weakness+overdue+uncertainty+stale+untested+importanceBonus)*10)/10;
+}
+function mhqXcStatus(l,p,priority,mcq){
+  if(!mcq.attempts)return {label:"NEEDS TESTING",className:"status-test",priority,reason:"No MCQ evidence yet."};
+  if(p.mastery<55)return {label:"WEAK",className:"status-weak",priority,reason:`Mastery ${p.mastery}% · knowledge ${p.knowledge}%.`};
+  if(p.mastery<75)return {label:"REVIEW",className:"status-review",priority,reason:`Mastery ${p.mastery}% · retention ${p.retention}%.`};
+  return {label:"STRONG",className:"status-strong",priority,reason:`Mastery ${p.mastery}% · knowledge ${p.knowledge}%.`};
+}
+/* one saved course -> normalized lecture entries. Pure read of the two stored documents; returns null (course skipped) when either is missing, unreadable or damaged. */
+function mhqXcReadCourse(id){
+  const S=window.mhqStore;
+  const cs=S.raw.get(S.key("mhqCourseV59",id)),rs=S.raw.get(S.key("medicalHQ",id));
+  const ck=(cs||"")+"\u0001"+(rs||"")+"\u0001"+todayKey,hit=MHQ_XC_CACHE.get(id);
+  if(hit&&hit.k===ck)return hit.v;
+  let out=null;
+  try{
+    const c=cs?JSON.parse(cs):null;
+    if(!c||typeof c!=="object"||Array.isArray(c)||!Array.isArray(c.lectures)||!c.lectures.length)throw new Error("no course");
+    let s=null;
+    if(rs!==null&&rs!==undefined){s=JSON.parse(rs);if(!s||typeof s!=="object"||Array.isArray(s))throw new Error("damaged state")}
+    const fresh=c.lectures.map((l,i)=>({id:i+1,title:String(l.title),subject:String(l.subject||"General"),steps:[false,false,false,false],stepDates:[null,null,null,null],completionDate:null,mastery:0,importance:"B",college:null,masteryProfile:{knowledge:0,retention:0,coverage:0,application:null,confidence:null,recency:0},mcqs:[],cards:[]}));
+    const buckets=new Map();
+    (s&&Array.isArray(s.data)?s.data:[]).map(normalizeSavedLecture).forEach(it=>{const k=it.title+"\u0000"+it.subject;if(!buckets.has(k))buckets.set(k,[]);buckets.get(k).push(it)});
+    const lectures=fresh.map(it=>{
+      const old=buckets.get(it.title+"\u0000"+it.subject)?.shift();
+      const l=old?{...it,steps:old.steps,stepDates:old.stepDates,completionDate:old.completionDate,mastery:old.mastery,mcqs:old.mcqs,cards:old.cards,importance:old.importance,college:old.college||null}:it;
+      if(!["A","B","C"].includes(l.importance))l.importance="B";
+      l.mcqs.forEach(m=>{if(m.confidence!=null)m.confidence=Math.max(1,Math.min(5,Number(m.confidence)||3))});
+      return l;
+    });
+    const exams=(s&&Array.isArray(s.exams)?s.exams:[]).map(normalizeExam).filter(Boolean);
+    const ctx={
+      tests:(s&&Array.isArray(s.externalTests))?s.externalTests.filter(x=>x&&x.dateKey&&Number(x.total)>0):[],
+      cards:(s&&s.reviewCards&&typeof s.reviewCards==="object")?s.reviewCards:{},
+      cstate:(s&&s.clinicalState&&typeof s.clinicalState==="object")?s.clinicalState:{},
+      cases:Array.isArray(c.clinicalCases)?c.clinicalCases:[],
+      valid:new Set(lectures.map(l=>l.id)),
+      upcoming:exams.filter(e=>examDaysLeft(e)>=0&&e.status!=="cancelled").sort((a,b)=>a.date.localeCompare(b.date)||a.name.localeCompare(b.name))
+    };
+    const entries=lectures.map(l=>{const profile=mhqXcProfile(ctx,l),review=mhqXcReview(ctx,l,profile),priority=mhqXcPriority(ctx,l,profile,review),mcq=lectureMCQStats(l);return {lecture:l,profile,review,priority,status:mhqXcStatus(l,profile,priority,mcq),mcq}});
+    out={short:String(c.short||c.name||id),name:String(c.name||c.short||id),entries};
+  }catch(e){out=null}
+  MHQ_XC_CACHE.set(id,{k:ck,v:out});
+  return out;
+}
+/* every lecture of every course, normalized: { courseId, courseShort, courseName, isCurrent, lecture, profile, review, priority } (+ status, mcq).
+   The active course is read live from memory; the others are parsed read-only from their saved documents and skipped when unreadable. */
+function mhqAllCoursesEvidence(){
+  const out=[],S=window.mhqStore;
+  if(!S||S.blocked||!S.registry)return out;
+  let reg=null;try{reg=S.registry()}catch(e){return out}
+  reg.list.forEach(id=>{
+    try{
+      if(id===S.active){
+        const short=String(COURSE.short||COURSE.name||id),name=String(COURSE.name||short);
+        data.forEach(l=>{const profile=learningProfile(l),review=reviewStatus(l),priority=lecturePriority(l);out.push({courseId:id,courseShort:short,courseName:name,isCurrent:true,lecture:l,profile,review,priority,status:lectureStatus(l),mcq:lectureMCQStats(l)})});
+      }else{
+        const c=mhqXcReadCourse(id);if(!c)return;
+        c.entries.forEach(e=>out.push(Object.assign({courseId:id,courseShort:c.short,courseName:c.name,isCurrent:false},e)));
+      }
+    }catch(e){}
+  });
+  return out;
+}
+const mhqXcAttr=s=>JSON.stringify(s).replace(/"/g,'&quot;');
+const mhqXcBadge=e=>`<span class="hq-mod">${escapeHtml(e.courseShort)}</span>`;
+const mhqXcBtn=(e,label,cls)=>`<button class="${cls}" onclick="openCrossCourseLecture(${mhqXcAttr(e.courseId)},${Number(e.lecture.id)})">${label}</button>`;
+function mhqRenderAdaptiveAll(el){
+  const ev=mhqAllCoursesEvidence(),items=[],seen=new Set();
+  ev.forEach(e=>{if(e.review.state==="due"){if(e.isCurrent)seen.add(e.lecture.id);items.push({e,label:e.lecture.title,meta:`${mhqXcBadge(e)} ${escapeHtml(e.lecture.subject)} · ${escapeHtml(e.review.label)}`,rank:e.profile.mastery})}});
+  const cur=ev.find(e=>e.isCurrent);
+  try{externalDueItems().forEach(o=>{
+    if(o.kind==="lecture"){if(seen.has(o.lecture.id))return;const e=ev.find(x=>x.isCurrent&&x.lecture.id===o.lecture.id);if(!e)return;items.push({e,label:o.label,meta:`${mhqXcBadge(e)} ${escapeHtml(o.meta)} · evidence ${o.percent}%`,rank:o.percent});return}
+    items.push({ext:o,label:o.label,meta:`${cur?mhqXcBadge(cur)+" ":""}${escapeHtml(o.meta)} · evidence ${o.percent}%`,rank:o.percent});
+  })}catch(e){}
+  items.sort((a,b)=>a.rank-b.rank);
+  const count=document.getElementById("hqDueCount");
+  if(count)count.textContent=items.length?items.length+" due":"All clear";
+  if(!items.length){el.innerHTML='<div class="empty">Nothing due right now in any course. Log an MCQ or a test and the next review is scheduled automatically.</div>';return}
+  el.innerHTML=items.slice(0,3).map(o=>`<div class="adaptive-row"><div class="adaptive-main"><b>${o.e?"📚":"🧪"} ${escapeHtml(o.label)}</b><div class="adaptive-meta">${o.meta}</div></div><div class="adaptive-action">${o.e?mhqXcBtn(o.e,"REVIEW","primary"):`<button onclick="showView('externalTestsView')">OPEN TESTS</button>`}</div></div>`).join("")
+    +(items.length>3?`<button type="button" class="more-link" onclick="showView('reviewView')">See all ${items.length} due reviews →</button>`:"");
+}
+function mhqRenderReviewQueueAll(el){
+  const ev=mhqAllCoursesEvidence();
+  const due=ev.filter(o=>o.review.state==="due").sort((a,b)=>a.profile.mastery-b.profile.mastery);
+  const upcoming=ev.filter(o=>o.review.state==="scheduled").sort((a,b)=>a.review.days-b.review.days);
+  const weak=ev.filter(o=>o.review.state!=="untested"&&o.profile.mastery<65).sort((a,b)=>a.profile.mastery-b.profile.mastery);
+  const dueHere=due.filter(o=>o.isCurrent).length;
+  if(dueHere){const k=`${todayKey}:${dueHere}`;if(window.MHQ_REVIEW_SOUND_KEY!==k){window.MHQ_REVIEW_SOUND_KEY=k;setTimeout(()=>playSfx("review_alert",.38),140)}}
+  if(!due.length&&!upcoming.length){el.innerHTML='<div class="empty">No scheduled reviews yet in any course. Log an MCQ to start building your review schedule.</div>';return}
+  const row=(o,icon,button="REVIEW")=>`<div class="review-row"><div><b>${icon} ${escapeHtml(o.lecture.title)}</b><div class="meta">${mhqXcBadge(o)} ${escapeHtml(o.lecture.subject)} · ${o.profile.mastery}% mastery · ${o.mcq.average==null?"—":o.mcq.average+"%"} MCQ · <b>${escapeHtml(o.review.label)}</b></div></div>${mhqXcBtn(o,button,button==="REVIEW"?"primary":"")}</div>`;
+  el.innerHTML=`
+    ${weak.length?`<div class="label" style="margin-bottom:8px">WEAK / NEEDS EARLY REVIEW</div>${weak.map(o=>row(o,o.review.state==="due"?"🔴":"🟠")).join("")}`:""}
+    ${due.length?`<div class="label" style="margin:18px 0 8px">DUE NOW</div>${due.map(o=>row(o,"🔴")).join("")}`:""}
+    ${upcoming.length?`<div class="label" style="margin:18px 0 8px">UPCOMING REVIEWS</div>${upcoming.map(o=>row(o,"🟢","VIEW")).join("")}`:""}`;
+}
+function mhqRenderWeaknessAll(){
+  const all=mhqAllCoursesEvidence();
+  const list=all.filter(o=>o.status.priority>0).sort((a,b)=>b.status.priority-a.status.priority);
+  const priority=list.filter(o=>o.status.label!=="NEEDS TESTING"),untested=all.filter(o=>o.status.label==="NEEDS TESTING"),strong=all.filter(o=>o.status.label==="STRONG");
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
+  set("weakPriorityCount",priority.length);set("weakUntestedCount",untested.length);set("weakStrongCount",strong.length);
+  const box=document.getElementById("weaknessList");if(!box)return;
+  const display=list.slice(0,10);
+  box.innerHTML=display.length?display.map(o=>{
+    const l=o.lecture,s=o.status;
+    return `<div class="weak-item"><div class="weak-main"><div class="weak-title">Lecture ${l.id}: ${escapeHtml(l.title)}</div><div class="meta">${mhqXcBadge(o)} ${escapeHtml(l.subject)} · Priority ${s.priority} · <span class="${s.className}">${s.label}</span>${o.review.state==="due"?` · ${escapeHtml(o.review.label)}`:""}</div><div class="weak-bar"><div class="weak-fill" style="width:${o.profile.mastery}%"></div></div><div class="weak-reason">${s.reason}${o.mcq.attempts?` · ${o.mcq.attempts} attempt${o.mcq.attempts===1?"":"s"}`:""} · Importance ${l.importance||"B"}</div></div><div><div class="weak-score">${o.profile.mastery}%</div>${mhqXcBtn(o,"REVIEW","").replace('<button class=""','<button style="margin-top:7px"')}</div></div>`;
+  }).join(""):'<div class="empty">No priority topics right now in any course. Keep testing yourself — your next weak point will surface automatically.</div>';
+}
+/* This Course | All Courses (shown only with 2+ courses); one shared in-memory scope = the HQ module scope */
+function mhqPaintRevScopes(){
+  const multi=mhqRevList().length>=2,on=mhqRevAllOn()?"all":"active";
+  const html='<button type="button" class="'+(on==="active"?"active":"")+'" aria-pressed="'+(on==="active")+'" onclick="mhqRevScope(\'active\')">This Course</button><button type="button" class="'+(on==="all"?"active":"")+'" aria-pressed="'+(on==="all")+'" onclick="mhqRevScope(\'all\')">All Courses</button>';
+  ["hqRevScope","reviewScope","weaknessScope"].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    if(!multi){el.hidden=true;if(el.dataset.h){el.innerHTML="";el.dataset.h=""}return}
+    el.hidden=false;if(el.dataset.h!==html){el.innerHTML=html;el.dataset.h=html}
+  });
+}
+window.mhqRevRefresh=function(){
+  try{renderAdaptiveReview()}catch(e){}try{renderReviewQueue()}catch(e){}try{renderWeaknessView()}catch(e){}try{mhqPaintRevScopes()}catch(e){}
+};
+window.mhqRevScope=function(m){
+  window.__hqScope=m==="all"?"all":"active";
+  try{window.renderHQ&&window.renderHQ()}catch(e){}
+  window.mhqRevRefresh();
+};
+/* 1-tap launch: the active course opens the lecture sheet directly; another course is made active (same steps as the course switcher), the app reloads and boot opens that exact lecture */
+function openCrossCourseLecture(courseId,lectureId){
+  const S=window.mhqStore;
+  if(!S||S.blocked||courseId===S.active){openLecture(lectureId);return}
+  let reg=null;try{reg=S.registry()}catch(e){return}
+  if(reg.list.indexOf(courseId)<0)return;
+  try{sessionStorage.setItem(MHQ_PENDING_OPEN_KEY,JSON.stringify({courseId:courseId,lectureId:Number(lectureId)}))}catch(e){}
+  try{save()}catch(e){}
+  S.saveRegistry({...reg,active:courseId});
+  S.freeze();
+  location.reload();
+}
+function mhqConsumePendingOpen(){
+  let v=null;
+  try{v=sessionStorage.getItem(MHQ_PENDING_OPEN_KEY);sessionStorage.removeItem(MHQ_PENDING_OPEN_KEY)}catch(e){}
+  if(!v)return false;
+  try{const t=JSON.parse(v);if(t&&t.courseId===window.mhqStore.active&&Number.isInteger(Number(t.lectureId))){openLecture(Number(t.lectureId));return true}}catch(e){}
+  return false;
+}
 
 /* ---------- V3.0 Clinical Mode ---------- */
 const clinicalCases = Array.isArray(COURSE.clinicalCases)?COURSE.clinicalCases:[];
@@ -3954,6 +4193,8 @@ function getPriorityLecture(){
   return data.slice().sort((a,b)=>lecturePriority(b)-lecturePriority(a))[0]||null;
 }
 function renderWeaknessView(){
+  try{mhqPaintRevScopes()}catch(e){}
+  if(mhqRevAllOn()){mhqRenderWeaknessAll();return}
   const all=data.map(x=>({lecture:x,status:lectureStatus(x)}));
   const list=all.filter(o=>o.status.priority>0).sort((a,b)=>b.status.priority-a.status.priority);
   const priority=list.filter(o=>o.status.label!=="NEEDS TESTING");
@@ -5105,6 +5346,7 @@ renderExtraViews();
 updateAudioUI();
 window.MHQ_LAST_VIEW="homeView";
 syncTopNav("homeView");
+mhqConsumePendingOpen();
 document.addEventListener("pointerdown",()=>{ensureAudioContext();},{once:true,passive:true});
 document.getElementById("modal").addEventListener("click",e=>{if(e.target.id==="modal")closeModal();});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
@@ -8146,7 +8388,7 @@ function buddy(sp,mo,sk,stg,anim){
    }catch(e){return}
    out.push({id:id,short:hqModName(id),n:n})});
   return out}
- window.mhqHqScope=function(m){window.__hqScope=m==='all'?'all':'active';try{window.renderHQ()}catch(e){}};
+ window.mhqHqScope=function(m){window.__hqScope=m==='all'?'all':'active';try{window.renderHQ()}catch(e){}try{window.mhqRevRefresh&&window.mhqRevRefresh()}catch(e){}};
  function hqAllHtml(){
   var S=window.mhqStore,act=S.active,nx=null,due=hqDueByModule(),tot=0,best=null,html='';
   try{nx=window.mhqAssess.list().filter(function(a){return a.status==='upcoming'})[0]||null}catch(e){nx=null}
