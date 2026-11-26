@@ -2089,6 +2089,18 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
 .section-switcher{overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scroll-snap-type:none}
 .section-switcher button{white-space:nowrap;min-height:40px}
 .section-switcher button.active{font-weight:800}
+/* v9.6.0 mobile UX polish: solo-user declutter, 4-step bar in lecture rows, thumb-reachable Done on the lecture sheet */
+#studyCirclePill[hidden],#cloudNotice[hidden]{display:none!important}
+#cloudNotice.v96-compact .acct-chip,#cloudNotice.v96-compact .protect-card{margin:0 0 6px;padding:5px 10px;gap:6px;border-radius:10px;font-size:var(--fs-12)}
+#cloudNotice.v96-compact .acct-chip button,#cloudNotice.v96-compact .protect-card button{min-height:30px;padding:2px 10px}
+.lecture .meta.v96-m{font-size:var(--fs-12);line-height:1.4;margin-top:2px;overflow-wrap:anywhere}
+.v96-steps{display:flex;align-items:center;gap:3px;margin-top:7px;max-width:260px}
+.v96-steps i{display:block;flex:1;min-width:0;height:6px;border-radius:99px;background:var(--line)}
+.v96-steps i.on{background:var(--good)}
+.lecture>div:last-child{flex-wrap:wrap;min-width:0}
+@media(max-width:360px){.lecture>div:last-child button{padding:6px 12px}.lecture>div:last-child .v81-col{padding:6px 8px}}
+.v96-steps b{flex:none;margin-left:6px;font-size:var(--fs-11);font-weight:700;color:var(--muted);white-space:nowrap}
+.sheet .v96-done{position:sticky;bottom:0;display:block;width:100%;min-height:52px;margin:16px 0 0;font-size:var(--fs-15,16px);font-weight:800;border-radius:14px;background:var(--accent);border-color:var(--accent);color:var(--accent-ink);box-shadow:0 -12px 14px -6px var(--surface)}
 .hq-acts{flex:none;display:flex;flex-direction:column;gap:6px;align-items:stretch}
 #hq81 .hq-nx2 .hq-q1{min-height:36px;padding:6px 12px;font-size:var(--fs-13);font-weight:700;white-space:nowrap;background:transparent;color:var(--text);border:1.5px solid var(--accent);box-shadow:none;border-radius:12px}
 #hq81 .hq-nx2 .hq-q1:active{background:var(--soft)}
@@ -2146,7 +2158,7 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v9.5.0</span></small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v9.6.0</span></small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -2600,6 +2612,7 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
     </div>
     <div class="mcq-list" id="cardHistory"></div>
   </div>
+  <button type="button" class="v96-done" id="v96Done" onclick="closeModal()">Done</button>
 </div></div>
 <div class="toast" id="toast"></div>
 
@@ -3890,7 +3903,9 @@ function renderLectureList(){
   document.getElementById("list").innerHTML=visible.map(x=>{
     const p=Math.round(x.steps.filter(Boolean).length/4*100);
     const ws=lectureStatus(x);
-    return `<div class="lecture"${mhqScAttr(x.subject)}><div class="num">${x.id}</div><div><div class="title">${x.title}</div><div class="meta">${x.subject} · ${p}% study progress · Mastery ${x.mastery}% · <span class="${ws.className}">${ws.label}</span>${mhqStageBadge(x)}</div></div><div><span class="badge ${p===100?'done':''}">${p===100?'COMPLETED':p+'%'}</span> <button onclick="openLecture(${x.id})">OPEN</button></div></div>`
+    const SN=["Watched","Read","Questions","Revision"],sd=SN.map((n,i)=>!!x.steps[i]),sn=sd.filter(Boolean).length;
+    const bar=`<div class="v96-steps" role="img" aria-label="Steps done: ${sn} of 4 (${SN.map((n,i)=>n+(sd[i]?" done":" pending")).join(", ")})">${sd.map((d,i)=>`<i class="${d?"on":""}" title="${SN[i]}${d?" ✓":""}"></i>`).join("")}<b>${sn}/4</b></div>`;
+    return `<div class="lecture"${mhqScAttr(x.subject)}><div class="num">${x.id}</div><div><div class="title">${x.title}</div><div class="meta v96-m">${x.subject} · Mastery ${x.mastery}% · <span class="${ws.className}">${ws.label}</span>${mhqStageBadge(x)}</div>${bar}</div><div><span class="badge ${p===100?'done':''}">${p===100?'COMPLETED':p+'%'}</span> <button onclick="openLecture(${x.id})">OPEN</button></div></div>`
   }).join("")||'<div class="empty">No lectures match these filters.<br><button type="button" style="margin-top:10px" onclick="resetLectureFilters(true)">Clear filters</button></div>';
   document.querySelectorAll("#statusSeg button").forEach(b=>b.classList.toggle("active",b.dataset.s===statusFilter));mhqPaintStatusCounts();
   const clr=document.getElementById("lectureSearchClear");if(clr)clr.hidden=!searchQuery;
@@ -3970,7 +3985,7 @@ const VIEW_SECTIONS={
   homeView:"home",
   curriculumView:"study",todayView:"study",weaknessView:"study",reviewView:"study",examsView:"study",practicalView:"study",
   clinicalView:"testing",externalTestsView:"testing",
-  campaignView:"campaign",bossView:"campaign",bodyMapView:"campaign",mistakesView:"study",calendarView:"progress",
+  campaignView:"campaign",bossView:"campaign",bodyMapView:"campaign",mistakesView:"testing",calendarView:"progress",
   studyView:"focus",
   rpgView:"progress",achievementsView:"progress",statsView:"progress",dataView:"progress"
 };
@@ -8285,15 +8300,15 @@ function buddy(sp,mo,sk,stg,anim){
  /* ---------- new views and navigation ---------- */
  function mkView(id){if($(id))return $(id);var ref=$('rpgView'),v=document.createElement('div');v.id=id;v.className='view';ref.parentNode.insertBefore(v,ref.nextSibling);var br=ref.querySelector(':scope > .mhq-back-row');if(br)v.appendChild(br.cloneNode(true));return v}
  var G={
-  study:[['curriculumView','📚 Curriculum'],['reviewView','🧠 Reviews'],['weaknessView','🎯 Weaknesses'],['mistakesView','📓 Mistakes'],['examsView','📅 Exams'],['practicalView','🧪 Practical'],['todayView','⚡ Today']],
-  testing:[['clinicalView','🩺 Clinical Cases'],['externalTestsView','🧪 External Tests']],
+  study:[['curriculumView','📚 Curriculum'],['reviewView','🧠 Reviews'],['weaknessView','🎯 Weaknesses'],['examsView','📅 Exams'],['practicalView','🧪 Practical'],['todayView','⚡ Today']],
+  testing:[['clinicalView','🩺 Clinical Cases'],['externalTestsView','🧪 External Tests'],['mistakesView','📓 Mistake Notebook']],
   campaign:[['campaignView','🗺️ Map'],['bossView','🐉 Bosses'],['bodyMapView','🫀 Body Map'],['courseMapView','🧭 Course Map']],
   focus:[['studyView','⏱ Timer'],['insightsView','📈 Insights']],
   me:[['rpgView','🏆 RPG Profile'],['rewardsView','🏅 Rewards & Achievements'],['statsView','📊 Stats & Calendar'],['dataView','⚙️ Data & System']]};
  var REMAP={achievementsView:'rewardsView',calendarView:'statsView'};
  function buildNav(){
   ['courseMapView','insightsView','rewardsView'].forEach(mkView);
-  try{VIEW_SECTIONS.courseMapView='campaign';VIEW_SECTIONS.insightsView='focus';VIEW_SECTIONS.rewardsView='progress';VIEW_SECTIONS.mistakesView='study'}catch(e){}
+  try{VIEW_SECTIONS.courseMapView='campaign';VIEW_SECTIONS.insightsView='focus';VIEW_SECTIONS.rewardsView='progress';VIEW_SECTIONS.mistakesView='testing'}catch(e){}
   document.querySelectorAll('.section-switcher').forEach(function(s){s.remove()});
   Object.keys(G).forEach(function(k){G[k].forEach(function(it){
    var host=$(it[0]);if(!host)return;
@@ -8776,10 +8791,10 @@ function buddy(sp,mo,sk,stg,anim){
  }
  function renderPill(){
   var host=$("studyCirclePill");if(!host)return;var S=state(),h="";
-  if(S.signedIn&&S.enabled&&S.count>0){
+  if(S.signedIn&&S.enabled&&(S.count>0||S.nudges.length>0)){
    var best=0;S.friends.forEach(function(f){best=Math.max(best,f.friendStreak)});
    h='<button type="button" class="sc-pill" id="scPill" data-sc="open" aria-label="Study Circle: '+S.count+' friend'+(S.count===1?'':'s')+(S.nudges.length?', '+S.nudges.length+' new':'')+'"><span>🤝 '+S.count+' friend'+(S.count===1?'':'s')+'</span><span>🤝🔥 '+best+'</span>'+(S.nudges.length?'<b class="sc-dot">'+S.nudges.length+' new</b>':'')+'</button>'}
-  if(host.dataset.h!==h){host.innerHTML=h;host.dataset.h=h}}
+  if(host.dataset.h!==h){host.innerHTML=h;host.dataset.h=h}host.hidden=!h}
  function render(){try{renderCard();renderPill()}catch(e){}}
  function flash(t){ST.msg=t||"";render()}
  function arm(key){var n=Date.now();if(ST.armed&&ST.armed.k===key&&n-ST.armed.t<3500){ST.armed=null;return true}ST.armed={k:key,t:n};return false}
@@ -8820,6 +8835,20 @@ function buddy(sp,mo,sk,stg,anim){
 })();
 </script>
 <script id="mhq-subject-colors">window.mhqRepaintSubjectColors&&window.mhqRepaintSubjectColors()</script>
+<script id="mhq-v96-polish">
+(function(){
+ /* v9.6.0: HQ cloud notice. Healthy signed-in sync shows nothing on HQ (status lives in the Data Tools account panel); a problem chip stays, compact. Display only: no storage, no sync code touched. */
+ function signed(){try{var a=window.mhqCloudAccount;return !!(a&&a.status&&a.status().user)}catch(e){return false}}
+ function paint(){try{var n=document.getElementById('cloudNotice');if(!n)return;
+  var empty=!(n.textContent||'').trim()&&!n.querySelector('button');
+  n.hidden=empty;n.classList.toggle('v96-compact',signed())}catch(e){}}
+ function wire(){var n=document.getElementById('cloudNotice');if(!n)return;paint();
+  if(window.MutationObserver)new MutationObserver(paint).observe(n,{childList:true,subtree:true,characterData:true});
+  setTimeout(paint,600);setTimeout(paint,2500)}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire);else wire();
+ window.mhqV96PaintNotice=paint;
+})();
+</script>
 <script id="mhq-fade">
 (function(){
  var SEL='.section-switcher,.filters,.subj-strip,#statusSeg';
