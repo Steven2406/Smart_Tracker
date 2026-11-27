@@ -2100,6 +2100,25 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
 .lecture>div:last-child{flex-wrap:wrap;min-width:0}
 @media(max-width:360px){.lecture>div:last-child button{padding:6px 12px}.lecture>div:last-child .v81-col{padding:6px 8px}}
 .v96-steps b{flex:none;margin-left:6px;font-size:var(--fs-11);font-weight:700;color:var(--muted);white-space:nowrap}
+/* v9.7.0: Sweep mode, Exam Hall cram sheet, floating Next pill */
+.v97-sweeping .lecture .v81-col{display:none}
+#v97SweepBar{position:sticky;top:calc(var(--topH,0px) + var(--v97-top,52px));z-index:25;display:flex;gap:6px;align-items:center;overflow-x:auto;scrollbar-width:none;margin:8px 0;padding:8px;background:var(--surface);border:1.5px solid var(--accent);border-radius:14px}
+#v97SweepBar::-webkit-scrollbar{display:none}
+.v97-sl{flex:none;font-weight:800;font-size:var(--fs-12);color:var(--accent)}
+#v97SweepBar button{flex:none;min-height:40px;padding:6px 12px;border-radius:99px;white-space:nowrap;font-size:var(--fs-13)}
+#v97SweepBar .v97-sp.active{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:800}
+#v97SweepBar .v97-sd{margin-left:auto;font-weight:800}
+.lecture>div:last-child .v97-tg{min-height:48px;min-width:128px;padding:8px 14px;border-radius:14px;font-weight:800;font-size:var(--fs-14);color:var(--accent);border:1.5px solid var(--accent);background:var(--surface);margin-left:auto}
+.lecture>div:last-child .v97-tg.on{background:var(--accent);color:var(--accent-ink)}
+#v97FloatNext{position:fixed;right:14px;bottom:calc(88px + env(safe-area-inset-bottom));z-index:40;min-height:46px;padding:8px 16px;border-radius:99px;border:0;background:var(--accent);color:var(--accent-ink);font-weight:800;box-shadow:0 6px 18px rgba(0,0,0,.28)}
+#v97FloatNext[hidden]{display:none}
+.exam-card-actions{flex-wrap:wrap}.exam-card-actions button{min-width:calc(50% - 8px)}
+.v97-cram h2{margin:6px 0 2px}
+.v97-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--accent);margin-right:7px}
+.v97-les{padding:8px 0;border-top:1px solid var(--line)}
+.v97-note{font-size:var(--fs-14);line-height:1.45;margin-top:6px;overflow-wrap:anywhere}
+.v97-tag{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:99px;font-size:var(--fs-11);font-weight:800;background:var(--soft,var(--line));color:var(--text)}
+.v97-cram .exam-weak{overflow-wrap:anywhere}
 .sheet .v96-done{position:sticky;bottom:0;display:block;width:100%;min-height:52px;margin:16px 0 0;font-size:var(--fs-15,16px);font-weight:800;border-radius:14px;background:var(--accent);border-color:var(--accent);color:var(--accent-ink);box-shadow:0 -12px 14px -6px var(--surface)}
 .hq-acts{flex:none;display:flex;flex-direction:column;gap:6px;align-items:stretch}
 #hq81 .hq-nx2 .hq-q1{min-height:36px;padding:6px 12px;font-size:var(--fs-13);font-weight:700;white-space:nowrap;background:transparent;color:var(--text);border:1.5px solid var(--accent);box-shadow:none;border-radius:12px}
@@ -2158,7 +2177,7 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v9.6.0</span></small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v9.7.0</span></small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -2236,7 +2255,7 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
       <button type="button" class="lt-next" id="nextUnfinishedBtn" hidden onclick="mhqJumpNextUnfinished()">⚡ Next Unfinished</button>
     </div>
     <div class="subj-strip" id="subjStrip" role="group" aria-label="Subject progress" hidden></div>
-    <div class="seg" id="statusSeg" role="group" aria-label="Stage, college and select filter"><button type="button" class="active" data-s="all" onclick="setLectureStatus('all')">All</button><button type="button" hidden data-s="todo" onclick="setLectureStatus('todo')">Not completed</button><button type="button" data-s="untouched" onclick="setLectureStatus('untouched')">Untouched</button><button type="button" data-s="watched" onclick="setLectureStatus('watched')">Just watched</button><button type="button" data-s="progress" onclick="setLectureStatus('progress')">In progress</button><button type="button" data-s="done" onclick="setLectureStatus('done')">Completed</button><button type="button" class="v94-x" data-x="taken" aria-pressed="false" onclick="mhqV94Taken()">🏫 Taken<i class="v93-n"></i></button><button type="button" class="v94-x" data-x="select" aria-pressed="false" onclick="mhqV94Select()">☑ Select</button></div>
+    <div class="seg" id="statusSeg" role="group" aria-label="Stage, college and select filter"><button type="button" class="active" data-s="all" onclick="setLectureStatus('all')">All</button><button type="button" hidden data-s="todo" onclick="setLectureStatus('todo')">Not completed</button><button type="button" data-s="untouched" onclick="setLectureStatus('untouched')">Untouched</button><button type="button" data-s="watched" onclick="setLectureStatus('watched')">Just watched</button><button type="button" data-s="progress" onclick="setLectureStatus('progress')">In progress</button><button type="button" data-s="done" onclick="setLectureStatus('done')">Completed</button><button type="button" class="v94-x" data-x="taken" aria-pressed="false" onclick="mhqV94Taken()">🏫 Taken<i class="v93-n"></i></button><button type="button" class="v94-x" data-x="select" aria-pressed="false" onclick="mhqV94Select()">☑ Select</button><button type="button" class="v94-x v97-sw" data-x="sweep" aria-pressed="false" onclick="mhqV97Sweep()">⚡ Sweep</button></div>
     <div class="filters" id="filters"></div>
     <div class="card" id="list"></div>
   </div>
@@ -5058,7 +5077,7 @@ function renderExams(){
       <div style="margin-top:10px">${examPaceHtml(s)}</div>
       ${s.weakest.length?`<div class="label" style="margin-top:14px">Focus on</div>${s.weakest.map(l=>`<div class="exam-weak"><span>L${l.id} · ${escapeHtml(l.title)} <span class="meta">${inferredMastery(l)}%</span></span><button type="button" onclick="openLecture(${l.id})">OPEN</button></div>`).join("")}`:""}
       ${examAnalyticsHtml(e)}
-      <div class="exam-card-actions">${pick?`<button type="button" class="primary" onclick="openLecture(${pick.id})">STUDY NEXT</button>`:""}<button type="button" data-gt="${e.id}" onclick="mhqGauntlet('${e.id}')">⚔️ GAUNTLET</button><button type="button" onclick="openExamEditor('${e.id}')">EDIT</button></div><div class="gaunt-host" data-eid="${e.id}"></div></div>`;
+      <div class="exam-card-actions">${pick?`<button type="button" class="primary" onclick="openLecture(${pick.id})">STUDY NEXT</button>`:""}<button type="button" class="v97-cb" onclick="mhqV97Cram('${e.id}')">⚡ CRAM SHEET</button><button type="button" data-gt="${e.id}" onclick="mhqGauntlet('${e.id}')">⚔️ GAUNTLET</button><button type="button" onclick="openExamEditor('${e.id}')">EDIT</button></div><div class="gaunt-host" data-eid="${e.id}"></div></div>`;
   };
   list.innerHTML=(up.length?up.map(card).join(""):`<div class="empty">No upcoming exams. Tap ADD EXAM to set a date and choose the lectures it covers.</div>`)
     +(past.length?`<div class="label" style="margin:18px 0 8px">Past exams</div>${past.map(e=>`<div class="card exam-past"><div><b>${escapeHtml(e.name)}</b><div class="meta">${fmtExamDate(e.date)} · ${examLectureIds(e).length} lectures</div></div><button type="button" class="row-del" onclick="deleteExam('${e.id}')">🗑 Delete</button></div>`).join("")}`:"");
@@ -8847,6 +8866,113 @@ function buddy(sp,mo,sk,stg,anim){
   setTimeout(paint,600);setTimeout(paint,2500)}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire);else wire();
  window.mhqV96PaintNotice=paint;
+})();
+</script>
+<script id="mhq-v97-sweep-cram">
+(function(){
+ /* v9.7.0: Curriculum Sweep Mode, Exam Hall Cram Sheet, swipe-down sheet dismiss, floating Next pill. Everything is transient (memory only): no storage access of any kind. */
+ var ST={on:false,step:0},SN=['Watched','Read','Questions','Revision'];
+ function $(i){return document.getElementById(i)}
+ function selOn(){return !!document.querySelector('#v81Tools .v81-sel.on')}
+ function curOn(){var v=$('curriculumView');return !!(v&&v.classList.contains('active'))}
+ function modalOpen(){var m=$('modal');return !!(m&&m.classList.contains('open'))}
+ /* ---------- 1. Sweep Mode ---------- */
+ function paintBtn(){var b=document.querySelector('#statusSeg [data-x="sweep"]');if(b){b.classList.toggle('active',ST.on);b.setAttribute('aria-pressed',ST.on?'true':'false')}}
+ function paintBar(){
+  var b=$('v97SweepBar');
+  if(!ST.on){if(b)b.remove();document.body.classList.remove('v97-sweeping');return}
+  document.body.classList.add('v97-sweeping');
+  var host=$('list');if(!host)return;
+  if(!b){b=document.createElement('div');b.id='v97SweepBar';b.setAttribute('role','group');b.setAttribute('aria-label','Sweep: choose the step to tick');host.parentNode.insertBefore(b,host)}
+  var h='<span class="v97-sl">⚡ Sweep</span>'+SN.map(function(n,i){return '<button type="button" class="v97-sp'+(ST.step===i?' active':'')+'" data-i="'+i+'" aria-pressed="'+(ST.step===i)+'" onclick="mhqV97Step('+i+')">'+(i+1)+' · '+n+'</button>'}).join('')+'<button type="button" class="v97-sd" onclick="mhqV97Sweep(false)">Done</button>';
+  if(b.dataset.h!==h){b.innerHTML=h;b.dataset.h=h}
+  var sw=document.querySelector('#curriculumView > .section-switcher');b.style.setProperty('--v97-top',(sw?sw.offsetHeight:0)+'px')}
+ function enhance(){
+  if(!ST.on)return;
+  document.querySelectorAll('#list .lecture').forEach(function(row){
+   var n=row.querySelector('.num');if(!n)return;var id=parseInt(n.textContent,10),l=data.find(function(x){return x.id===id});if(!l)return;
+   var side=row.lastElementChild,open=side&&side.querySelector('button[onclick^="openLecture"]');if(!open)return;
+   var on=!!l.steps[ST.step],b=document.createElement('button');b.type='button';b.className='v97-tg'+(on?' on':'');b.dataset.lid=id;b.setAttribute('aria-pressed',on?'true':'false');
+   b.setAttribute('aria-label',(on?'Undo ':'Mark ')+SN[ST.step]+' for lecture '+id);b.textContent=(on?'✓ ':'+ ')+SN[ST.step];b.onclick=function(){tap(id)};
+   open.replaceWith(b)})}
+ /* the canonical pipeline: quickCompleteStep -> applyStepChange (steps, stepDates, completionDate, mastery, todaySteps, ledger, XP, sound, toast) -> save() -> render(); the lecture sheet is never opened. A second tap undoes through the same applyStepChange. */
+ function tap(id){
+  var l=data.find(function(x){return x.id===Number(id)});if(!l||!ST.on)return false;
+  var i=ST.step,ok=false;
+  if(!l.steps[i])ok=quickCompleteStep(l.id,i);
+  else{var prev=current;current=l;try{ok=applyStepChange(i,false);if(ok){save();render()}}finally{current=prev||null}}
+  return ok}
+ function sweep(on){
+  on=!!on;if(on===ST.on)return;
+  if(on&&selOn()){try{window.mhqSelMode(false)}catch(e){}}
+  ST.on=on;if(on&&modalOpen()){try{closeModal()}catch(e){}}
+  paintBtn();paintBar();try{renderLectureList()}catch(e){}paintFloat()}
+ window.mhqV97Sweep=function(on){sweep(typeof on==='boolean'?on:!ST.on)};
+ window.mhqV97Step=function(i){i=Number(i);if(!(i>=0&&i<4))return;ST.step=i;paintBar();try{renderLectureList()}catch(e){}};
+ window.mhqV97Tap=tap;
+ window.mhqV97State=function(){return{on:ST.on,step:ST.step}};
+ var sm=window.mhqSelMode;if(typeof sm==='function')window.mhqSelMode=function(on){if(on&&ST.on)sweep(false);return sm.apply(this,arguments)};   /* Sweep and bulk Select are mutually exclusive */
+ var rl=window.renderLectureList;if(typeof rl==='function')window.renderLectureList=function(){var r=rl.apply(this,arguments);try{paintBtn();paintBar();enhance();paintFloat()}catch(e){}return r};
+ /* ---------- 2. Exam Hall Cram Sheet ---------- */
+ function lab(v){var o=document.querySelector('#mcqError option[value="'+v+'"]');return o?o.textContent.trim():''}
+ function dot(s){var c='';try{c=window.mhqSubjectColor?window.mhqSubjectColor(s):''}catch(e){}return '<i class="v97-dot"'+(c?' style="background:'+c+'"':'')+'></i>'}
+ function cramClose(){var m=$('v97CramSheet');if(m)m.remove();document.body.style.overflow=''}
+ window.mhqV97CramClose=cramClose;
+ window.mhqV97CramOpen=function(id){cramClose();try{openLecture(Number(id))}catch(e){}};
+ window.mhqV97Cram=function(eid){
+  var e=exams.find(function(x){return String(x.id)===String(eid)});if(!e)return;
+  cramClose();
+  var ls=examLectureIds(e).map(function(id){return data.find(function(l){return l.id===id})}).filter(Boolean).sort(function(a,b){return a.id-b.id});
+  var cleared=ls.filter(function(l){return l.steps.every(Boolean)}).length,avs=ls.map(function(l){return lectureMCQStats(l).average}).filter(function(a){return a!=null});
+  var avg=avs.length?Math.round(avs.reduce(function(a,b){return a+b},0)/avs.length)+'%':'—',days=examDaysLeft(e);
+  var les=ls.map(function(l){var notes=(l.mcqs||[]).filter(function(m){return m&&typeof m.note==='string'&&m.note.trim()}).slice().reverse();
+   if(!notes.length)return '';
+   return '<div class="v97-les" data-lid="'+l.id+'"><b>'+dot(l.subject)+'L'+l.id+' · '+escapeHtml(l.title)+'</b>'+notes.map(function(m){var t=m.errorType?lab(m.errorType):'';return '<div class="v97-note">• '+escapeHtml(m.note.trim())+(t?'<span class="v97-tag">'+escapeHtml(t)+'</span>':'')+'</div>'}).join('')+'</div>'}).join('');
+  var wl=ls.filter(function(l){return l.importance==='A'||inferredMastery(l)<65||learningProfile(l).attempts===0}).sort(function(a,b){return lecturePriority(b)-lecturePriority(a)||a.id-b.id});
+  var wlh=wl.map(function(l){var m=inferredMastery(l),tags=(l.importance==='A'?'<span class="v97-tag">A · High-yield</span>':'')+(learningProfile(l).attempts===0?'<span class="v97-tag">Untested</span>':'')+'<span class="meta"> '+m+'%</span>';
+   return '<div class="exam-weak v97-wl" data-lid="'+l.id+'"><span>'+dot(l.subject)+'L'+l.id+' · '+escapeHtml(l.title)+' '+tags+'</span><button type="button" onclick="mhqV97CramOpen('+l.id+')">OPEN</button></div>'}).join('');
+  var m=document.createElement('div');m.className='modal open';m.id='v97CramSheet';m.setAttribute('role','dialog');m.setAttribute('aria-modal','true');m.setAttribute('aria-label','Cram sheet: '+e.name);
+  m.innerHTML='<div class="sheet v97-cram"><button class="close" type="button" aria-label="Close" onclick="mhqV97CramClose()">×</button>'
+   +'<div class="label">⚡ CRAM SHEET</div><h2>'+escapeHtml(e.name)+'</h2><div class="meta">'+fmtExamDate(e.date)+' · '+ls.length+' lecture'+(ls.length===1?'':'s')+'</div>'
+   +'<div class="mini-grid" style="margin-top:12px"><div class="card"><div class="label">Days left</div><b id="v97CramDays">'+examDaysLabel(days)+'</b></div><div class="card"><div class="label">Cleared</div><b id="v97CramCleared">'+cleared+'/'+ls.length+'</b></div><div class="card"><div class="label">Avg MCQ</div><b id="v97CramAvg">'+avg+'</b></div></div>'
+   +'<div class="label" style="margin-top:16px">YOUR MCQ LESSONS</div><div id="v97CramLessons">'+(les||'<div class="empty">No one-line lessons logged on this exam’s lectures yet. Add one when you log an MCQ attempt.</div>')+'</div>'
+   +'<div class="label" style="margin-top:16px">HIGH-YIELD &amp; WEAK WATCHLIST</div><div id="v97CramWatch">'+(wlh||'<div class="empty">Nothing flagged: no Importance A lectures, nothing under 65%, nothing untested.</div>')+'</div>'
+   +'<button type="button" class="v96-done" onclick="mhqV97CramClose()">Done</button></div>';
+  m.addEventListener('click',function(ev){if(ev.target===m)cramClose()});
+  document.body.appendChild(m);document.body.style.overflow='hidden';paintFloat()};
+ document.addEventListener('keydown',function(e){if(e.key==='Escape'&&$('v97CramSheet'))cramClose()});
+ /* ---------- 3a. swipe-down dismiss (lecture sheet + cram sheet) ---------- */
+ var G=null;
+ function sheetOf(t){return t&&t.closest?t.closest('#modal .sheet,#v97CramSheet .sheet'):null}
+ function reset(sh){sh.style.transition='transform .18s ease';sh.style.transform='';setTimeout(function(){sh.style.transition=''},220)}
+ function dismiss(sh){
+  sh.style.transition='transform .16s ease-in';sh.style.transform='translateY(100%)';
+  setTimeout(function(){if(sh.closest('#v97CramSheet'))cramClose();else closeModal();sh.style.transition='';sh.style.transform=''},170)}
+ document.addEventListener('touchstart',function(e){
+  G=null;if(!e.touches||e.touches.length!==1)return;
+  var sh=sheetOf(e.target);if(!sh||sh.scrollTop>0)return;
+  if(e.target.closest&&e.target.closest('input[type=range],textarea,select'))return;
+  G={sh:sh,y:e.touches[0].clientY,x:e.touches[0].clientX,dy:0,live:false}},{passive:true});
+ document.addEventListener('touchmove',function(e){
+  if(!G||!e.touches||!e.touches.length)return;
+  var dy=e.touches[0].clientY-G.y,dx=Math.abs(e.touches[0].clientX-G.x);
+  if(G.sh.scrollTop>0||dy<=0||dx>dy){if(G.live)reset(G.sh);G=null;return}
+  G.dy=dy;G.live=true;G.sh.style.transition='none';G.sh.style.transform='translateY('+Math.round(Math.min(dy,320)*.6)+'px)'},{passive:true});
+ document.addEventListener('touchend',function(){var g=G;G=null;if(!g)return;if(g.dy>75)dismiss(g.sh);else if(g.live)reset(g.sh)},{passive:true});
+ document.addEventListener('touchcancel',function(){if(G){if(G.live)reset(G.sh);G=null}},{passive:true});
+ /* ---------- 3b. floating thumb-zone Next pill ---------- */
+ var raf=0;
+ function paintFloat(){
+  var b=$('v97FloatNext'),l=null;
+  try{l=typeof nextUnfinishedLecture==='function'?nextUnfinishedLecture():null}catch(e){}
+  if(!b){b=document.createElement('button');b.type='button';b.id='v97FloatNext';b.hidden=true;b.textContent='⚡ Next';b.onclick=function(){try{mhqJumpNextUnfinished()}catch(e){}};document.body.appendChild(b)}
+  b.hidden=!(l&&curOn()&&window.scrollY>260&&!modalOpen()&&!ST.on&&!selOn()&&!$('v97CramSheet'));
+  if(l){b.title='Open lecture '+l.id+': '+l.title;b.setAttribute('aria-label','Next Unfinished: open lecture '+l.id+', '+l.title)}}
+ function soon(){if(raf)return;raf=requestAnimationFrame(function(){raf=0;try{paintFloat()}catch(e){}})}
+ window.addEventListener('scroll',soon,{passive:true});window.addEventListener('resize',soon);
+ try{var mo=new MutationObserver(soon);['modal','curriculumView'].forEach(function(i){var e=$(i);if(e)mo.observe(e,{attributes:true,attributeFilter:['class']})})}catch(e){}
+ var sv=window.showView;if(typeof sv==='function')window.showView=function(){var r=sv.apply(this,arguments);soon();return r};
+ paintBtn();soon();
 })();
 </script>
 <script id="mhq-fade">
