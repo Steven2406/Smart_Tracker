@@ -2119,6 +2119,19 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
 .v97-note{font-size:var(--fs-14);line-height:1.45;margin-top:6px;overflow-wrap:anywhere}
 .v97-tag{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:99px;font-size:var(--fs-11);font-weight:800;background:var(--soft,var(--line));color:var(--text)}
 .v97-cram .exam-weak{overflow-wrap:anywhere}
+/* v9.8.0: Calm / Exam Week mode, demo banner, hidden pills */
+.header-calm{width:36px;height:36px;min-height:0;padding:0;border-radius:50%;font-size:var(--fs-14);display:grid;place-items:center;position:relative}
+.header-calm::after{content:"";position:absolute;inset:-4px -3px}
+.header-calm.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.section-switcher button[hidden]{display:none}
+#v98CalmBar{display:none}
+html[data-calm="1"] #v98CalmBar{display:flex;gap:6px;margin:8px 0}
+#v98CalmBar button{flex:1 1 0;min-width:0;min-height:44px;padding:6px 8px;border-radius:12px;font-weight:800;font-size:var(--fs-13)}
+html[data-calm="1"] #buddyCard,html[data-calm="1"] #hqTop .hq-av,html[data-calm="1"] #hqTop .hq-bub,html[data-calm="1"] #seasonCard,html[data-calm="1"] #hqSeason,html[data-calm="1"] .hq-season,html[data-calm="1"] #roundsCard,html[data-calm="1"] #weeklyCard,html[data-calm="1"] #hqQuests,html[data-calm="1"] .hq-qs,html[data-calm="1"] #trophyShelf,html[data-calm="1"] #verseCard,html[data-calm="1"] #hqBottom,html[data-calm="1"] #studyCirclePill{display:none!important}
+html[data-calm="1"] #mhqFx,html[data-calm="1"] #mhqFx i{display:none!important;animation:none!important}
+#v98DemoBanner{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin:0 0 8px;padding:6px 10px;border-radius:12px;background:var(--surface);border:1.5px dashed var(--accent);font-size:var(--fs-13)}
+#v98DemoBanner span{flex:1 1 130px;min-width:0}
+#v98DemoBanner button{min-height:36px;padding:4px 12px;border-radius:99px;font-size:var(--fs-12)}
 .sheet .v96-done{position:sticky;bottom:0;display:block;width:100%;min-height:52px;margin:16px 0 0;font-size:var(--fs-15,16px);font-weight:800;border-radius:14px;background:var(--accent);border-color:var(--accent);color:var(--accent-ink);box-shadow:0 -12px 14px -6px var(--surface)}
 .hq-acts{flex:none;display:flex;flex-direction:column;gap:6px;align-items:stretch}
 #hq81 .hq-nx2 .hq-q1{min-height:36px;padding:6px 12px;font-size:var(--fs-13);font-weight:700;white-space:nowrap;background:transparent;color:var(--text);border:1.5px solid var(--accent);box-shadow:none;border-radius:12px}
@@ -2173,15 +2186,17 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
 .dr-hint{font-size:var(--fs-13);line-height:1.5;color:var(--muted);padding:10px 12px;background:var(--surface2);border-radius:12px;border:1px solid var(--line)}
 </style>
 <script>try{window.mhqSyncThemeColor&&window.mhqSyncThemeColor()}catch(e){}document.addEventListener('DOMContentLoaded',function(){try{window.mhqSyncThemeColor&&window.mhqSyncThemeColor()}catch(e){}})</script>
+<script>try{if(sessionStorage.getItem('mhqCalmModeV1')==='1')document.documentElement.dataset.calm='1'}catch(e){}</script>
 </head>
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v9.7.0</span></small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v9.8.0</span></small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
     <button class="theme-toggle" id="themeToggle" type="button" onclick="mhqToggleTheme()" title="Switch light/dark mode" aria-label="Switch light/dark mode">🌙</button>
+    <button class="header-calm" id="calmToggle" type="button" aria-pressed="false" onclick="mhqCalmToggle()" title="Exam Week mode" aria-label="Exam Week mode: off">🧘</button>
     <button class="header-data" type="button" onclick="openDataTools()" title="Data, backup and system tools" aria-label="Data, backup and system tools">⚙</button>
   </div>
 </header>
@@ -2659,6 +2674,13 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
     return (hasHead?rows.slice(1):rows).map(r=>({title:clean(r[ti],220),subject:clean(si>=0?r[si]:"",40)||"General",territory:clean(gi>=0?r[gi]:"",60)})).filter(x=>x.title).slice(0,1000);
   }
   function shortOf(name){const n=name.trim();if(n.length<=16)return n;const w=n.split(/\s+/)[0];return w.slice(0,16)}
+  function demoCourse(){
+    const L=(t,s,g)=>({title:t,subject:s,territory:g});
+    return {format:"medical-hq-course",version:1,name:"Cardiovascular System (Demo)",short:"CVS",isDemo:true,demoSeed:1,
+      lectures:[L("Cardiac cycle","Physiology","Heart"),L("Heart sounds and murmurs","Physiology","Heart"),L("ECG basics","Physiology","Heart"),L("Heart failure","Pathology","Heart"),
+                L("Blood pressure regulation","Physiology","Vessels"),L("Atherosclerosis","Pathology","Vessels"),L("Hypertension","Pathology","Vessels"),L("Aortic aneurysm","Pathology","Vessels")],
+      territories:[{name:"Heart"},{name:"Vessels"}]};
+  }
   window.mhqExportCourse=function(){
     const c=stored();if(!c)return;
     const blob=new Blob([JSON.stringify({format:"medical-hq-course",version:1,...c},null,2)],{type:"application/json"});
@@ -2685,12 +2707,12 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
       <div class="meta">Format: <b>Title | Subject | Group</b>. Subject and group are optional. Groups become territories on your campaign map; without them the map splits your lectures into parts automatically. You can also paste rows straight from a spreadsheet. Import file also accepts a course pack or a backup.</div>
       <div class="setup-count" id="suCount"></div>
       <div class="setup-msg" id="suMsg" hidden></div>
-      <div class="setup-actions"><button type="button" class="primary" id="suSave">${add?"Add to my course":edit?"Save changes":"Create my course"}</button><button type="button" id="suImport">Import file</button>${edit||add||isNew?'<button type="button" id="suCancel">Cancel</button>':""}</div>
+      <div class="setup-actions"><button type="button" class="primary" id="suSave">${add?"Add to my course":edit?"Save changes":"Create my course"}</button><button type="button" id="suImport">Import file</button>${!add&&!edit&&!isNew?'<button type="button" id="suDemo">✨ Try Demo Course</button>':""}${edit||add||isNew?'<button type="button" id="suCancel">Cancel</button>':""}</div>
       <input type="file" id="suFile" accept=".json,.csv,.txt,.tsv" hidden>
     </div>`;
     document.body.appendChild(el);document.body.style.overflow="hidden";
     const $=id=>el.querySelector("#"+id);
-    if(cur&&!add){$("suName").value=cur.name||"";$("suShort").value=cur.short||"";$("suText").value=cur.lectures.map(l=>[l.title,l.subject||"General",l.territory||""].join(" | ").replace(/( \| )+$/,"")).join("\n")}
+    if(cur&&!add&&!(edit&&cur.isDemo)){$("suName").value=cur.name||"";$("suShort").value=cur.short||"";$("suText").value=cur.lectures.map(l=>[l.title,l.subject||"General",l.territory||""].join(" | ").replace(/( \| )+$/,"")).join("\n")}
     const msg=t=>{$("suMsg").textContent=t;$("suMsg").hidden=!t};
     const count=()=>{const l=parseLines($("suText").value);$("suCount").textContent=l.length?`${l.length} lecture${l.length===1?"":"s"} · ${new Set(l.map(x=>x.subject)).size} subject${new Set(l.map(x=>x.subject)).size===1?"":"s"} · ${new Set(l.map(x=>x.territory).filter(Boolean)).size} group${new Set(l.map(x=>x.territory).filter(Boolean)).size===1?"":"s"}`:""};
     $("suText").addEventListener("input",()=>{count();msg("")});count();
@@ -2704,16 +2726,18 @@ html[data-skin=atlas] .fs-art .a2::before{content:"";position:absolute;left:50%;
       if(add){
         if(!lectures.length){msg("Add at least one lecture.");return}
         if(cur.lectures.length+lectures.length>1000){msg("A course can hold up to 1000 lectures.");return}
-        commit({...cur,lectures:[...cur.lectures,...lectures]});return;
+        {const nc={...cur,lectures:[...cur.lectures,...lectures]};delete nc.isDemo;delete nc.demoSeed;commit(nc)}return;
       }
       if(!name){msg("Please enter a course name.");$("suName").focus();return}
       if(!lectures.length){msg("Add at least one lecture.");return}
       const short=clean($("suShort").value,16)||shortOf(name);
       const names=new Set(lectures.map(l=>l.territory).filter(Boolean));
       const course={...(cur||{}),format:"medical-hq-course",version:1,name,short,lectures,territories:((cur&&cur.territories)||[]).filter(t=>names.has(t.name))};
+      delete course.isDemo;delete course.demoSeed;
       commit(course);
     };
     $("suImport").onclick=()=>$("suFile").click();
+    if($("suDemo"))$("suDemo").onclick=()=>commit(demoCourse());
     if($("suCancel"))$("suCancel").onclick=()=>{el.remove();document.body.style.overflow=""};
     $("suFile").onchange=e=>{
       const f=e.target.files[0];if(!f)return;const r=new FileReader();
@@ -8973,6 +8997,64 @@ function buddy(sp,mo,sk,stg,anim){
  try{var mo=new MutationObserver(soon);['modal','curriculumView'].forEach(function(i){var e=$(i);if(e)mo.observe(e,{attributes:true,attributeFilter:['class']})})}catch(e){}
  var sv=window.showView;if(typeof sv==='function')window.showView=function(){var r=sv.apply(this,arguments);soon();return r};
  paintBtn();soon();
+})();
+</script>
+<script id="mhq-v98-calm-demo">
+(function(){
+ /* v9.8.0: Calm / Exam Week mode (sessionStorage only), smart Testing routing, demo-course banner + one-time quiet seed. No localStorage keys are added: the demo flag lives inside the existing mhqCourseV59 course record. */
+ var CK='mhqCalmModeV1',DK='mhqDemoBannerV1';
+ function $(i){return document.getElementById(i)}
+ function ss(k){try{return sessionStorage.getItem(k)}catch(e){return null}}
+ function sset(k,v){try{if(v==null)sessionStorage.removeItem(k);else sessionStorage.setItem(k,v)}catch(e){}}
+ /* ---------- 1. Calm / Exam Week mode ---------- */
+ function calmOn(){return document.documentElement.dataset.calm==='1'}
+ function paintCalm(){var b=$('calmToggle');if(!b)return;var on=calmOn();b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false');b.title=on?'Exam Week mode is on: tap to bring back the buddy, season and quests':'Exam Week mode: hide buddy, season, quests and other extras';b.setAttribute('aria-label',on?'Exam Week mode: on':'Exam Week mode: off')}
+ function calm(on){if(on)document.documentElement.dataset.calm='1';else delete document.documentElement.dataset.calm;sset(CK,on?'1':null);paintCalm();try{window.renderHQ&&window.renderHQ()}catch(e){}}
+ window.mhqCalmToggle=function(){calm(!calmOn())};
+ function paintRev(){var b=$('v98Rev'),c=$('hqDueCount');if(!b)return;var t=c?(c.textContent||'').trim():'';b.textContent='🧠 Reviews'+(t?' · '+t:'');b.setAttribute('aria-label','Reviews'+(t?': '+t:''))}
+ function ensureBar(){
+  var ex=$('hq81');if(!ex)return;if($('v98CalmBar')){paintRev();return}
+  var bar=document.createElement('div');bar.id='v98CalmBar';bar.setAttribute('role','group');bar.setAttribute('aria-label','Exam week shortcuts');
+  bar.innerHTML='<button type="button" id="v98Cram" onclick="mhqV98Cram()">⚡ Cram Sheet</button><button type="button" id="v98Rev" onclick="showView(\'reviewView\')">🧠 Reviews</button><button type="button" onclick="showView(\'studyView\')">⏱ Focus timer</button>';
+  ex.parentNode.insertBefore(bar,ex);paintRev()}   /* sits just above the HQ stack (outside #hq81, so its card order is untouched) */
+ window.mhqV98Cram=function(){
+  var X=null;try{X=window.mhqExamInfo&&window.mhqExamInfo()}catch(e){}
+  if(X&&X.e&&typeof window.mhqV97Cram==='function'){window.mhqV97Cram(X.e.id)}else showView('examsView')};
+ /* ---------- 2. Smart empty-state routing for Testing ---------- */
+ function nCases(){try{return clinicalCases.length}catch(e){return 0}}
+ function paintPills(){document.querySelectorAll('.section-switcher button[data-target-view="clinicalView"]').forEach(function(b){var h=b.closest('.view');b.hidden=!nCases()&&!(h&&h.id==='clinicalView')})}
+ var sv=window.showView;
+ if(typeof sv==='function')window.showView=function(id,btn){
+  if(btn&&btn.dataset&&btn.dataset.section==='testing'&&(id==='clinicalView'||id==='externalTestsView'))id=nCases()?'clinicalView':'externalTestsView';
+  var r=sv.call(this,id,btn);try{paintPills();paintRev()}catch(e){}return r};
+ /* ---------- 3. Demo course: banner + one-time quiet seed ---------- */
+ function isDemo(){try{return COURSE&&COURSE.isDemo===true}catch(e){return false}}
+ window.mhqV98Replace=function(){try{mhqOpenCourseSetup(true)}catch(e){}};
+ window.mhqV98Dismiss=function(){sset(DK,'1');var b=$('v98DemoBanner');if(b)b.remove()};
+ function paintDemo(){
+  var hv=$('homeView');if(!hv)return;var b=$('v98DemoBanner');
+  if(!isDemo()||ss(DK)==='1'){if(b)b.remove();return}
+  if(b)return;b=document.createElement('div');b.id='v98DemoBanner';b.setAttribute('role','status');
+  b.innerHTML='<span>✨ <b>Exploring Demo Course</b></span><button type="button" onclick="mhqV98Replace()">Replace with my course</button><button type="button" aria-label="Dismiss demo banner" onclick="mhqV98Dismiss()">Dismiss</button>';
+  hv.insertBefore(b,hv.firstChild)}
+ function seedDemo(){
+  var rc=null;try{rc=readCourse()}catch(e){}
+  if(!rc||rc.isDemo!==true||!rc.demoSeed)return;
+  try{if(typeof MHQ_LOAD_PROTECT!=='undefined'&&MHQ_LOAD_PROTECT.active)return}catch(e){}
+  var L1=data.find(function(l){return l.id===1}),L2=data.find(function(l){return l.id===2});if(!L1||!L2)return;
+  var t0=window.toast,p0=window.playSfx,prev=current;window.toast=function(){};window.playSfx=function(){};
+  try{
+   current=L1;applyStepChange(0,true);applyStepChange(1,true);current=L2;applyStepChange(0,true);   /* canonical step pipeline: 2 lectures partially completed */
+   current=L1;var pr=parseMCQScore('6/10'),src='Demo question bank',note='Isovolumetric contraction: all valves closed, pressure rises, volume does not change.';
+   L1.mcqs.push({score:'6/10',source:src,date:new Date().toLocaleDateString(),dateKey:todayKey,percent:pr.percent,confidence:2,errorType:'forgot',note:note,reviewDue:false});   /* same record addMcq writes */
+   recordActivity('mcq','lecture',L1.id,{score:'6/10',percent:pr.percent,got:pr.got,max:pr.max,source:src,confidence:2,errorType:'forgot'});
+   var g=lectureMcqXp(L1).slice(-1)[0]||{xp:5};recordXP(g.xp);L1.mastery=inferredMastery(L1);scheduleReview(L1);
+   delete rc.demoSeed;localStorage.setItem(COURSE_KEY,JSON.stringify(rc));   /* the seed runs once: the flag lives inside the existing course record */
+   save();render()
+  }catch(e){}finally{window.toast=t0;window.playSfx=p0;current=prev||null}}
+ try{seedDemo()}catch(e){}
+ ensureBar();paintCalm();paintPills();paintDemo();
+ try{var rh=window.renderHQ;if(typeof rh==='function')window.renderHQ=function(){var r=rh.apply(this,arguments);try{ensureBar()}catch(e){}return r}}catch(e){}
 })();
 </script>
 <script id="mhq-fade">
