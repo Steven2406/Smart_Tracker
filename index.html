@@ -2132,6 +2132,34 @@ html[data-calm="1"] #mhqFx,html[data-calm="1"] #mhqFx i{display:none!important;a
 #v98DemoBanner{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin:0 0 8px;padding:6px 10px;border-radius:12px;background:var(--surface);border:1.5px dashed var(--accent);font-size:var(--fs-13)}
 #v98DemoBanner span{flex:1 1 130px;min-width:0}
 #v98DemoBanner button{min-height:36px;padding:4px 12px;border-radius:99px;font-size:var(--fs-12)}
+/* v9.9.0: unified Log Practice sheet */
+.v99-entry{margin:0 0 10px}.v99-log{width:100%;min-height:52px;font-size:var(--fs-16);font-weight:800;border-radius:14px}
+#v99LogBtn,.v99-tags,.v99-note{overflow-wrap:anywhere}
+.v99-tags{font-size:var(--fs-12);color:var(--muted);margin-top:4px}
+.v99-note{font-size:var(--fs-13);margin-top:4px;font-style:italic;overflow-wrap:anywhere}
+.v99-sheet h2{margin:6px 0}
+.v99-sheet label{display:flex;flex-direction:column;gap:4px;min-width:0;font-size:var(--fs-13)}
+.v99-sheet input,.v99-sheet select{width:100%;min-width:0;min-height:46px;box-sizing:border-box}
+.v99-seg{display:flex;gap:6px;margin:10px 0}
+.v99-seg button{flex:1;min-height:46px;border-radius:99px;font-weight:800}
+.v99-seg button.active{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.v99-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.v99-prev{margin:10px 0;padding:8px 12px;border-radius:12px;background:var(--surface);border:1px solid var(--line);font-size:var(--fs-14)}
+.v99-lh{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:12px 0 6px}
+.v99-picker{max-height:210px;overflow-y:auto;overscroll-behavior:contain;border:1px solid var(--line);border-radius:12px;margin-top:8px}
+.v99-lec{flex-direction:row!important;align-items:center;gap:10px!important;padding:8px 10px;border-bottom:1px solid var(--line);min-height:44px}
+.v99-lec[hidden]{display:none!important}
+.v99-lec input{width:22px;min-height:22px;flex:none}
+.v99-lec span{min-width:0;overflow-wrap:anywhere}
+.v99-details{margin:12px 0;border:1px solid var(--line);border-radius:12px;padding:0 10px}
+.v99-details summary{min-height:46px;display:flex;align-items:center;font-weight:800;cursor:pointer}
+.v99-dg{display:grid;gap:10px;padding:0 0 12px}
+.v99-err3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.v99-err3[hidden],#v99ErrOne[hidden],#v99PanelMcq[hidden],#v99PanelCards[hidden],.v99-msg[hidden]{display:none}
+.v99-wide{margin-top:10px}
+.v99-msg{margin:8px 0;padding:8px 10px;border-radius:10px;border:1px solid var(--danger);font-size:var(--fs-13)}
+.v99-submit{width:100%;min-height:52px;margin-top:12px;font-weight:800;border-radius:14px;position:sticky;bottom:0}
+@media(max-width:379px){#v98CalmBar{flex-wrap:wrap}#v98CalmBar button{flex:1 1 calc(50% - 6px)}}
 .sheet .v96-done{position:sticky;bottom:0;display:block;width:100%;min-height:52px;margin:16px 0 0;font-size:var(--fs-15,16px);font-weight:800;border-radius:14px;background:var(--accent);border-color:var(--accent);color:var(--accent-ink);box-shadow:0 -12px 14px -6px var(--surface)}
 .hq-acts{flex:none;display:flex;flex-direction:column;gap:6px;align-items:stretch}
 #hq81 .hq-nx2 .hq-q1{min-height:36px;padding:6px 12px;font-size:var(--fs-13);font-weight:700;white-space:nowrap;background:transparent;color:var(--text);border:1.5px solid var(--accent);box-shadow:none;border-radius:12px}
@@ -2191,7 +2219,7 @@ html[data-calm="1"] #mhqFx,html[data-calm="1"] #mhqFx i{display:none!important;a
 <body>
 <div class="app">
   <header class="top">
-  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v9.8.0</span></small></span></button>
+  <button type="button" class="brand" onclick="mhqOpenCourses()" aria-label="Switch course"><span class="brand-mark" aria-hidden="true">⚕</span><span class="brand-text"><b>Medical HQ</b><small><span class="bt-c">GIT campaign</span><span class="bt-v"> · v9.9.0</span></small></span></button>
   <div class="top-actions">
     <div class="level" title="Your level"><span>Lv <b id="level">1</b></span><span class="dot">·</span><span class="rank" id="rank">Medical Student</span></div>
     <button class="header-audio" id="audioToggle" type="button" onclick="toggleAudio()" title="Toggle sound effects" aria-label="Toggle sound effects">🔊</button>
@@ -2401,6 +2429,7 @@ html[data-calm="1"] #mhqFx,html[data-calm="1"] #mhqFx i{display:none!important;a
       <div class="sub">Turn the tests you solve outside Medical HQ into evidence the system can actually use — score, error pattern, confidence, mastery and review timing.</div>
     </div>
 
+    <div class="section v99-entry"><button type="button" class="primary v99-log" id="v99LogBtn" onclick="mhqOpenPracticeSheet({})">➕ Log Practice (Quick / Multi-Lecture)</button></div>
     <div class="section">
       <div id="externalTestStats" class="mini-grid"></div>
     </div>
@@ -3018,8 +3047,15 @@ function scheduleReview(lecture){
 }
 
 function externalTestsForLecture(lectureId){
-  return externalTests.filter(t=>Number(t.lectureId)===Number(lectureId));
+  return externalTests.filter(t=>Number(t.lectureId)===Number(lectureId)||(Array.isArray(t.lectureIds)&&t.lectureIds.includes(Number(lectureId))));
 }
+function externalTestLectureIds(t){const s=new Set();if(t&&Number(t.lectureId))s.add(Number(t.lectureId));if(t&&Array.isArray(t.lectureIds))t.lectureIds.forEach(i=>{if(Number(i))s.add(Number(i))});return [...s]}
+function mhqExtTagLine(t){
+  let h="";const ids=Array.isArray(t.lectureIds)?t.lectureIds.map(Number).filter(Boolean):[];
+  if(ids.length){const ls=ids.map(i=>data.find(x=>x.id===i)).filter(Boolean),subs=[...new Set(ls.map(l=>l.subject))];
+    h+=`<div class="meta v99-tags" title="${escapeHtml(ls.map(l=>"L"+l.id+" "+l.title).join(" · "))}">${ids.length} lecture${ids.length===1?"":"s"}${subs.length?" · "+escapeHtml(subs.join(", ")):""}</div>`}
+  const n=String(t.note||"").trim();if(n)h+=`<div class="v99-note">“${escapeHtml(n)}”</div>`;
+  return h}
 function externalStatsForLecture(lectureId){
   const rows=externalTestsForLecture(lectureId); if(!rows.length)return {sessions:0,average:null,correct:0,questions:0,confidence:null,lastDate:null};
   const questions=rows.reduce((n,t)=>n+safeNumber(t.total,0),0),correct=rows.reduce((n,t)=>n+safeNumber(t.correct,0),0);
@@ -3034,13 +3070,13 @@ function externalReviewInterval(percent,confidence){
 function scheduleExternalReview(test){
   const interval=externalReviewInterval(test.percent,test.confidence);
   const next=addDaysToDate(test.dateKey,interval);
-  if(test.lectureId){
-    const existing=reviewCards[test.lectureId];
+  externalTestLectureIds(test).forEach(lid=>{   /* every tagged lecture gets its review; the test's XP is still counted once (one externalTests record) */
+    const existing=reviewCards[lid];
     const currentNext=existing?.nextDate;
     if(!currentNext || next<currentNext || test.percent<60){
-      reviewCards[test.lectureId]={nextDate:next,interval,lastReview:test.dateKey,source:"external-test",evidencePercent:test.percent};
+      reviewCards[lid]={nextDate:next,interval,lastReview:test.dateKey,source:"external-test",evidencePercent:test.percent};
     }
-  }
+  });
   const key=test.scope==="subject"?`subject:${test.subject}`:test.scope==="module"?"module:GIT":null;
   if(key){
     const existing=externalReviewCards[key];
@@ -3131,7 +3167,7 @@ function renderExternalTests(){
   const dueEl=document.getElementById("externalDueReviews");
   if(dueEl){const dueRows=externalDueItems();dueEl.innerHTML=dueRows.length?dueRows.map(o=>`<div class="external-due-row"><div><b>${o.kind==="lecture"?"📚":"🧪"} ${escapeHtml(o.label)}</b><div class="meta">${escapeHtml(o.meta)} · ${o.percent}% evidence</div></div>${o.kind==="lecture"?`<button class="primary" onclick="openLecture(${o.lecture.id})">REVIEW</button>`:`<button onclick="showView('externalTestsView')">VIEW TESTS</button>`}</div>`).join(""):'<div class="empty">Nothing from external testing is due today.</div>';}
   const hist=document.getElementById("externalTestHistory"),count=document.getElementById("externalHistoryCount"); if(count)count.textContent=externalTests.length+` session${externalTests.length===1?"":"s"}`;
-  if(hist){const rows=externalTests.slice().reverse().slice(0,20);hist.innerHTML=rows.length?rows.map(t=>{const cls=t.percent<60?"test-score-low":t.percent<=85?"test-score-mid":"test-score-high";const err=Number(t.errors?.knowledgeGap||0)+Number(t.errors?.misread||0)+Number(t.errors?.clinicalReasoning||0);return `<div class="test-history-row"><div><b>${escapeHtml(t.topic||t.scopeLabel||"External test")}</b><div class="meta">${escapeHtml(t.date)} · ${escapeHtml(t.source)} · ${t.total} questions${t.confidence?` · confidence ${t.confidence}/5`:''}</div><div style="margin-top:6px"><span class="test-pill">🧠 ${t.errors?.knowledgeGap||0} gap</span> <span class="test-pill">👀 ${t.errors?.misread||0} misread</span> <span class="test-pill">🩺 ${t.errors?.clinicalReasoning||0} reasoning</span>${err< t.total-t.correct?` <span class="test-pill">${t.total-t.correct-err} unclassified</span>`:""}</div></div><div style="text-align:right"><div class="test-history-score ${cls}">${t.percent}%</div><div class="meta">+${t.xp} XP</div><button type="button" class="row-del" aria-label="Delete this test" onclick="deleteExternalTest('${t.id}')">🗑 Delete</button></div></div>`}).join(""):'<div class="empty">No external test sessions yet. Your first test can become the first piece of adaptive evidence.</div>';}
+  if(hist){const rows=externalTests.slice().reverse().slice(0,20);hist.innerHTML=rows.length?rows.map(t=>{const cls=t.percent<60?"test-score-low":t.percent<=85?"test-score-mid":"test-score-high";const err=Number(t.errors?.knowledgeGap||0)+Number(t.errors?.misread||0)+Number(t.errors?.clinicalReasoning||0);return `<div class="test-history-row"><div><b>${escapeHtml(t.topic||t.scopeLabel||"External test")}</b><div class="meta">${escapeHtml(t.date)} · ${escapeHtml(t.source)} · ${t.total} questions${t.confidence?` · confidence ${t.confidence}/5`:''}</div>${mhqExtTagLine(t)}<div style="margin-top:6px"><span class="test-pill">🧠 ${t.errors?.knowledgeGap||0} gap</span> <span class="test-pill">👀 ${t.errors?.misread||0} misread</span> <span class="test-pill">🩺 ${t.errors?.clinicalReasoning||0} reasoning</span>${err< t.total-t.correct?` <span class="test-pill">${t.total-t.correct-err} unclassified</span>`:""}</div></div><div style="text-align:right"><div class="test-history-score ${cls}">${t.percent}%</div><div class="meta">+${t.xp} XP</div><button type="button" class="row-del" aria-label="Delete this test" onclick="deleteExternalTest('${t.id}')">🗑 Delete</button></div></div>`}).join(""):'<div class="empty">No external test sessions yet. Your first test can become the first piece of adaptive evidence.</div>';}
 }
 
 function renderReviewQueue(){
@@ -4131,7 +4167,7 @@ function studyTargetLecture(){const id=Number(document.getElementById("studyLect
 function updateStudyTarget(){
   const box=document.getElementById("studyTarget"),l=studyTargetLecture(); if(!box||!l)return;
   const status=lectureStatus(l),stats=lectureMCQStats(l),labels=["Watched / listened","Read","Solved questions","Revision"],next=labels.find((_,i)=>!l.steps[i]);
-  box.innerHTML=`<div class="study-target-head"><div><div class="label">CURRENT TARGET</div><div class="study-target-title">Lecture ${l.id}: ${l.title}</div><div class="meta">${l.subject} · <span class="${status.className}">${status.label}</span> · ${l.mastery}% mastery</div></div><div class="weak-score">${l.mastery}%</div></div><div class="meta" style="margin-top:8px">${stats.attempts?`MCQ average: ${stats.average}% · ${stats.attempts} attempt${stats.attempts===1?"":"s"}`:"No MCQ attempts yet"}${next?` · Next task: <b>${next}</b>`:" · All 4 study steps complete"}</div><div class="study-target-actions"><button onclick="openLecture(${l.id})">OPEN LECTURE</button></div>`;
+  box.innerHTML=`<div class="study-target-head"><div><div class="label">CURRENT TARGET</div><div class="study-target-title">Lecture ${l.id}: ${l.title}</div><div class="meta">${l.subject} · <span class="${status.className}">${status.label}</span> · ${l.mastery}% mastery</div></div><div class="weak-score">${l.mastery}%</div></div><div class="meta" style="margin-top:8px">${stats.attempts?`MCQ average: ${stats.average}% · ${stats.attempts} attempt${stats.attempts===1?"":"s"}`:"No MCQ attempts yet"}${next?` · Next task: <b>${next}</b>`:" · All 4 study steps complete"}</div><div class="study-target-actions"><button onclick="openLecture(${l.id})">OPEN LECTURE</button><button type="button" class="v99-focuslog" onclick="mhqOpenPracticeSheet({lectureId:${l.id}})">🧪 Log Practice</button></div>`;
 }
 function updateStudyUI(){
   const clock=document.getElementById("studyClock"),state=document.getElementById("studyState"),btn=document.getElementById("studyStartBtn");
@@ -4896,8 +4932,7 @@ async function deleteExternalTest(id){
   externalTests.splice(idx,1);
   removeLedgerEntry(e=>e.type==="external-test"&&e.details?.testId===id);
   rebuildExternalReviews();
-  const l=t.lectureId?data.find(x=>x.id===Number(t.lectureId)):null;
-  if(l){l.mastery=inferredMastery(l);rebuildLectureReview(l);}
+  externalTestLectureIds(t).forEach(i=>{const l=data.find(x=>x.id===i);if(l){l.mastery=inferredMastery(l);rebuildLectureReview(l);}});
   save();render();renderExternalTests();
   toast("🗑 Deleted. XP, mastery and reviews updated.");
 }
@@ -8952,6 +8987,7 @@ function buddy(sp,mo,sk,stg,anim){
   var les=ls.map(function(l){var notes=(l.mcqs||[]).filter(function(m){return m&&typeof m.note==='string'&&m.note.trim()}).slice().reverse();
    if(!notes.length)return '';
    return '<div class="v97-les" data-lid="'+l.id+'"><b>'+dot(l.subject)+'L'+l.id+' · '+escapeHtml(l.title)+'</b>'+notes.map(function(m){var t=m.errorType?lab(m.errorType):'';return '<div class="v97-note">• '+escapeHtml(m.note.trim())+(t?'<span class="v97-tag">'+escapeHtml(t)+'</span>':'')+'</div>'}).join('')+'</div>'}).join('');
+  var tn=typeof mhqCramTestNotes==='function'?mhqCramTestNotes(ls):'';
   var wl=ls.filter(function(l){return l.importance==='A'||inferredMastery(l)<65||learningProfile(l).attempts===0}).sort(function(a,b){return lecturePriority(b)-lecturePriority(a)||a.id-b.id});
   var wlh=wl.map(function(l){var m=inferredMastery(l),tags=(l.importance==='A'?'<span class="v97-tag">A · High-yield</span>':'')+(learningProfile(l).attempts===0?'<span class="v97-tag">Untested</span>':'')+'<span class="meta"> '+m+'%</span>';
    return '<div class="exam-weak v97-wl" data-lid="'+l.id+'"><span>'+dot(l.subject)+'L'+l.id+' · '+escapeHtml(l.title)+' '+tags+'</span><button type="button" onclick="mhqV97CramOpen('+l.id+')">OPEN</button></div>'}).join('');
@@ -8960,22 +8996,23 @@ function buddy(sp,mo,sk,stg,anim){
    +'<div class="label">⚡ CRAM SHEET</div><h2>'+escapeHtml(e.name)+'</h2><div class="meta">'+fmtExamDate(e.date)+' · '+ls.length+' lecture'+(ls.length===1?'':'s')+'</div>'
    +'<div class="mini-grid" style="margin-top:12px"><div class="card"><div class="label">Days left</div><b id="v97CramDays">'+examDaysLabel(days)+'</b></div><div class="card"><div class="label">Cleared</div><b id="v97CramCleared">'+cleared+'/'+ls.length+'</b></div><div class="card"><div class="label">Avg MCQ</div><b id="v97CramAvg">'+avg+'</b></div></div>'
    +'<div class="label" style="margin-top:16px">YOUR MCQ LESSONS</div><div id="v97CramLessons">'+(les||'<div class="empty">No one-line lessons logged on this exam’s lectures yet. Add one when you log an MCQ attempt.</div>')+'</div>'
-   +'<div class="label" style="margin-top:16px">HIGH-YIELD &amp; WEAK WATCHLIST</div><div id="v97CramWatch">'+(wlh||'<div class="empty">Nothing flagged: no Importance A lectures, nothing under 65%, nothing untested.</div>')+'</div>'
+   +tn+'<div class="label" style="margin-top:16px">HIGH-YIELD &amp; WEAK WATCHLIST</div><div id="v97CramWatch">'+(wlh||'<div class="empty">Nothing flagged: no Importance A lectures, nothing under 65%, nothing untested.</div>')+'</div>'
    +'<button type="button" class="v96-done" onclick="mhqV97CramClose()">Done</button></div>';
   m.addEventListener('click',function(ev){if(ev.target===m)cramClose()});
   document.body.appendChild(m);document.body.style.overflow='hidden';paintFloat()};
  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&$('v97CramSheet'))cramClose()});
  /* ---------- 3a. swipe-down dismiss (lecture sheet + cram sheet) ---------- */
  var G=null;
- function sheetOf(t){return t&&t.closest?t.closest('#modal .sheet,#v97CramSheet .sheet'):null}
+ function sheetOf(t){return t&&t.closest?t.closest('#modal .sheet,#v97CramSheet .sheet,#v99PracticeSheet .sheet'):null}
  function reset(sh){sh.style.transition='transform .18s ease';sh.style.transform='';setTimeout(function(){sh.style.transition=''},220)}
  function dismiss(sh){
   sh.style.transition='transform .16s ease-in';sh.style.transform='translateY(100%)';
-  setTimeout(function(){if(sh.closest('#v97CramSheet'))cramClose();else closeModal();sh.style.transition='';sh.style.transform=''},170)}
+  setTimeout(function(){if(sh.closest('#v97CramSheet'))cramClose();else if(sh.closest('#v99PracticeSheet')&&window.mhqV99Close)window.mhqV99Close();else closeModal();sh.style.transition='';sh.style.transform=''},170)}
  document.addEventListener('touchstart',function(e){
   G=null;if(!e.touches||e.touches.length!==1)return;
   var sh=sheetOf(e.target);if(!sh||sh.scrollTop>0)return;
   if(e.target.closest&&e.target.closest('input[type=range],textarea,select'))return;
+  var pk=e.target.closest&&e.target.closest('.v99-picker');if(pk&&pk.scrollTop>0)return;
   G={sh:sh,y:e.touches[0].clientY,x:e.touches[0].clientX,dy:0,live:false}},{passive:true});
  document.addEventListener('touchmove',function(e){
   if(!G||!e.touches||!e.touches.length)return;
@@ -8990,7 +9027,7 @@ function buddy(sp,mo,sk,stg,anim){
   var b=$('v97FloatNext'),l=null;
   try{l=typeof nextUnfinishedLecture==='function'?nextUnfinishedLecture():null}catch(e){}
   if(!b){b=document.createElement('button');b.type='button';b.id='v97FloatNext';b.hidden=true;b.textContent='⚡ Next';b.onclick=function(){try{mhqJumpNextUnfinished()}catch(e){}};document.body.appendChild(b)}
-  b.hidden=!(l&&curOn()&&window.scrollY>260&&!modalOpen()&&!ST.on&&!selOn()&&!$('v97CramSheet'));
+  b.hidden=!(l&&curOn()&&window.scrollY>260&&!modalOpen()&&!ST.on&&!selOn()&&!$('v97CramSheet')&&!$('v99PracticeSheet'));
   if(l){b.title='Open lecture '+l.id+': '+l.title;b.setAttribute('aria-label','Next Unfinished: open lecture '+l.id+', '+l.title)}}
  function soon(){if(raf)return;raf=requestAnimationFrame(function(){raf=0;try{paintFloat()}catch(e){}})}
  window.addEventListener('scroll',soon,{passive:true});window.addEventListener('resize',soon);
@@ -9015,7 +9052,7 @@ function buddy(sp,mo,sk,stg,anim){
  function ensureBar(){
   var ex=$('hq81');if(!ex)return;if($('v98CalmBar')){paintRev();return}
   var bar=document.createElement('div');bar.id='v98CalmBar';bar.setAttribute('role','group');bar.setAttribute('aria-label','Exam week shortcuts');
-  bar.innerHTML='<button type="button" id="v98Cram" onclick="mhqV98Cram()">⚡ Cram Sheet</button><button type="button" id="v98Rev" onclick="showView(\'reviewView\')">🧠 Reviews</button><button type="button" onclick="showView(\'studyView\')">⏱ Focus timer</button>';
+  bar.innerHTML='<button type="button" id="v98Cram" onclick="mhqV98Cram()">⚡ Cram Sheet</button><button type="button" id="v98Rev" onclick="showView(\'reviewView\')">🧠 Reviews</button><button type="button" onclick="showView(\'studyView\')">⏱ Focus timer</button><button type="button" id="v98Log" onclick="mhqOpenPracticeSheet({})">🧪 Log</button>';
   ex.parentNode.insertBefore(bar,ex);paintRev()}   /* sits just above the HQ stack (outside #hq81, so its card order is untouched) */
  window.mhqV98Cram=function(){
   var X=null;try{X=window.mhqExamInfo&&window.mhqExamInfo()}catch(e){}
@@ -9055,6 +9092,134 @@ function buddy(sp,mo,sk,stg,anim){
  try{seedDemo()}catch(e){}
  ensureBar();paintCalm();paintPills();paintDemo();
  try{var rh=window.renderHQ;if(typeof rh==='function')window.renderHQ=function(){var r=rh.apply(this,arguments);try{ensureBar()}catch(e){}return r}}catch(e){}
+})();
+</script>
+<script id="mhq-v99-practice">
+(function(){
+ /* v9.9.0: unified "+ Log Practice" sheet. Single-lecture MCQs and flashcards go through the same record shapes and calls as the lecture sheet; a multi-lecture block becomes ONE externalTests record tagged with lectureIds (XP once). No storage access of its own: everything is saved by save(). */
+ function $(i){return document.getElementById(i)}
+ function esc(s){return escapeHtml(String(s==null?'':s))}
+ var ST={mode:'mcq'};
+ var SOURCES=['Q-Bank','Past Papers','Mock Exam','End of Chapter','Self-Assessment','Other'];
+ function sel(){return [].slice.call(document.querySelectorAll('#v99Picker input:checked')).map(function(c){return Number(c.value)})}
+ function lec(id){return data.find(function(l){return l.id===Number(id)})}
+ function errOptions(){var s=$('mcqError');return s?s.innerHTML:'<option value="">Error type</option>'}
+ function close(){var m=$('v99PracticeSheet');if(m)m.remove();document.body.style.overflow='';}
+ window.mhqV99Close=close;
+ function num(id){var e=$(id);return e?Math.floor(Number(e.value)||0):0}
+ /* ---- live previews (pure: nothing is stored) ---- */
+ function mcqPreview(){
+  var t=num('v99Total'),c=num('v99Correct'),el=$('v99Preview'),ids=sel();if(!el)return;
+  if(!t||c<0||c>t){el.innerHTML='<span>Score</span> <b>—</b> <span>· XP</span> <b>—</b>';return}
+  var pct=Math.round(c/t*100),xp=0;
+  if(ids.length===1){var l=lec(ids[0]),probe={score:c+'/'+t,source:'',date:'',dateKey:todayKey,percent:pct,confidence:null,errorType:'',note:'',reviewDue:false};l.mcqs.push(probe);try{xp=(lectureMcqXp(l).slice(-1)[0]||{xp:5}).xp}catch(e){xp=mcqSetXp(c,t)}finally{l.mcqs.pop()}}
+  else xp=mcqSetXp(c,t);
+  var cls=pct<60?'test-score-low':pct<=85?'test-score-mid':'test-score-high';
+  el.innerHTML='<span>Score</span> <b class="'+cls+'">'+pct+'%</b> <span>· XP</span> <b>+'+xp+'</b>'+(ids.length>1?' <small>(once for the whole block)</small>':'')}
+ function cardPreview(){
+  var r=num('v99Reviewed'),k=$('v99Recalled')&&$('v99Recalled').value!==''?num('v99Recalled'):-1,el=$('v99CardPreview'),id=Number($('v99CardLecture')&&$('v99CardLecture').value);if(!el)return;
+  if(r<1||k<0||k>r){el.innerHTML='<span>Recall</span> <b>—</b> <span>· XP</span> <b>—</b>';return}
+  var l=lec(id),xp=0;if(l){if(!Array.isArray(l.cards))l.cards=[];var e={reviewed:r,recalled:k,source:'',date:'',dateKey:todayKey,ts:new Date().toISOString(),reviewDue:false};l.cards.push(e);try{xp=(cardXpList().find(function(o){return o.c===e})||{xp:0}).xp}catch(x){}finally{l.cards.pop()}}
+  el.innerHTML='<span>Recall</span> <b>'+Math.round(k/r*100)+'%</b> <span>· XP</span> <b>+'+xp+'</b>'}
+ function paintSel(){
+  var n=sel().length,b=$('v99SelCount');if(b)b.textContent=n+' lecture'+(n===1?'':'s')+' selected';
+  var one=n===1,many=n>1,e1=$('v99ErrOne'),e2=$('v99ErrMany');if(e1)e1.hidden=!one;if(e2)e2.hidden=!many;
+  var s=$('v99Submit');if(s&&ST.mode==='mcq')s.textContent=many?'Log '+n+'-lecture block':'Log MCQs';
+  mcqPreview()}
+ function filter(){var q=($('v99Search').value||'').trim().toLowerCase();[].forEach.call(document.querySelectorAll('#v99Picker .v99-lec'),function(r){r.hidden=!!q&&r.dataset.q.indexOf(q)<0})}
+ function mode(m){
+  ST.mode=m;var a=$('v99TabMcq'),b=$('v99TabCards');
+  [[a,m==='mcq'],[b,m==='cards']].forEach(function(p){p[0].classList.toggle('active',p[1]);p[0].setAttribute('aria-selected',p[1]?'true':'false')});
+  $('v99PanelMcq').hidden=m!=='mcq';$('v99PanelCards').hidden=m!=='cards';
+  $('v99Submit').textContent=m==='cards'?'Log flashcards':'Log MCQs';if(m==='mcq')paintSel();else cardPreview()}
+ window.mhqV99Mode=mode;
+ /* ---- open ---- */
+ window.mhqOpenPracticeSheet=function(opts){
+  opts=opts||{};if(!data.length){try{toast('Add lectures first')}catch(e){}return}
+  close();try{closeModal()}catch(e){}
+  var pre=(Array.isArray(opts.lectureIds)?opts.lectureIds:(opts.lectureId?[opts.lectureId]:[])).map(Number);
+  var m=document.createElement('div');m.className='modal open';m.id='v99PracticeSheet';m.setAttribute('role','dialog');m.setAttribute('aria-modal','true');m.setAttribute('aria-label','Log practice');
+  var rows=data.map(function(l){return '<label class="v99-lec" data-q="'+esc(('l'+l.id+' '+l.title+' '+l.subject).toLowerCase())+'"><input type="checkbox" value="'+l.id+'"'+(pre.indexOf(l.id)>=0?' checked':'')+'><span><b>L'+l.id+'</b> · '+esc(l.title)+' <small>'+esc(l.subject)+'</small></span></label>'}).join('');
+  var lopts=data.map(function(l){return '<option value="'+l.id+'"'+(pre[0]===l.id?' selected':'')+'>Lecture '+l.id+' · '+esc(l.title)+'</option>'}).join('');
+  m.innerHTML='<div class="sheet v99-sheet"><button class="close" type="button" aria-label="Close" onclick="mhqV99Close()">×</button>'
+   +'<div class="label">🧪 LOG PRACTICE</div>'
+   +'<div class="v99-seg" role="tablist" aria-label="Practice type"><button type="button" role="tab" id="v99TabMcq" class="active" aria-selected="true" onclick="mhqV99Mode(\'mcq\')">MCQs</button><button type="button" role="tab" id="v99TabCards" aria-selected="false" onclick="mhqV99Mode(\'cards\')">Flashcards</button></div>'
+   +'<div id="v99PanelMcq"><div class="v99-row"><label><span>Correct</span><input id="v99Correct" type="number" inputmode="numeric" min="0" placeholder="e.g. 14"></label><label><span>Total</span><input id="v99Total" type="number" inputmode="numeric" min="1" placeholder="e.g. 20"></label></div>'
+   +'<div id="v99Preview" class="v99-prev" aria-live="polite"></div>'
+   +'<div class="v99-lh"><span class="label">LECTURES</span><span id="v99SelCount" class="v97-tag">0 lectures selected</span></div>'
+   +'<input id="v99Search" type="search" placeholder="Search lectures…" aria-label="Search lectures" autocomplete="off"><div id="v99Picker" class="v99-picker" role="group" aria-label="Lectures covered">'+rows+'</div>'
+   +'<details id="v99Details" class="v99-details"><summary>Details &amp; Lesson</summary><div class="v99-dg">'
+   +'<label><span>Source</span><select id="v99Source">'+SOURCES.map(function(s){return '<option>'+s+'</option>'}).join('')+'</select></label>'
+   +'<label><span>Confidence</span><select id="v99Conf"><option value="">—</option><option value="1">1 · Guessing</option><option value="2">2 · Low</option><option value="3">3 · Moderate</option><option value="4">4 · High</option><option value="5">5 · Certain</option></select></label>'
+   +'<label id="v99ErrOne" hidden><span>Error type</span><select id="v99ErrType">'+errOptions()+'</select></label>'
+   +'<div id="v99ErrMany" class="v99-err3" hidden><label><span>Knowledge gap</span><input id="v99Gap" type="number" inputmode="numeric" min="0" value="0"></label><label><span>Misread</span><input id="v99Mis" type="number" inputmode="numeric" min="0" value="0"></label><label><span>Clinical reasoning</span><input id="v99Clin" type="number" inputmode="numeric" min="0" value="0"></label></div>'
+   +'<label class="v99-wide"><span>One-line lesson</span><input id="v99Note" maxlength="160" placeholder="One-line lesson (optional)" autocomplete="off"></label></div></details></div>'
+   +'<div id="v99PanelCards" hidden><div class="v99-row"><label><span>Reviewed</span><input id="v99Reviewed" type="number" inputmode="numeric" min="1" placeholder="e.g. 40"></label><label><span>Recalled</span><input id="v99Recalled" type="number" inputmode="numeric" min="0" placeholder="e.g. 31"></label></div>'
+   +'<div id="v99CardPreview" class="v99-prev" aria-live="polite"></div>'
+   +'<label class="v99-wide"><span>Lecture</span><select id="v99CardLecture">'+lopts+'</select></label><label class="v99-wide"><span>Deck / source (optional)</span><input id="v99Deck" placeholder="e.g. Anki CVS deck" autocomplete="off"></label></div>'
+   +'<div id="v99Msg" class="v99-msg" role="alert" hidden></div>'
+   +'<button type="button" class="primary v99-submit" id="v99Submit">Log MCQs</button></div>';
+  m.addEventListener('click',function(ev){if(ev.target===m)close()});
+  document.body.appendChild(m);document.body.style.overflow='hidden';
+  ['v99Correct','v99Total'].forEach(function(i){$(i).addEventListener('input',mcqPreview)});
+  ['v99Reviewed','v99Recalled'].forEach(function(i){$(i).addEventListener('input',cardPreview)});$('v99CardLecture').addEventListener('change',cardPreview);
+  $('v99Picker').addEventListener('change',paintSel);$('v99Search').addEventListener('input',filter);$('v99Submit').addEventListener('click',submit);
+  paintSel();cardPreview();mode(opts.mode==='cards'?'cards':'mcq');
+  };
+ document.addEventListener('keydown',function(e){if(e.key==='Escape'&&$('v99PracticeSheet'))close()});
+ function msg(t){var e=$('v99Msg');if(!e)return;e.textContent=t?'⚠ '+t:'';e.hidden=!t;try{if(t)toast('⚠ '+t)}catch(x){}}
+ function sfx(p){try{if(p<55){playSfx('mcq_low_voice',.86);setTimeout(function(){playSfx(p<30?'mcq_laugh':'mcq_deep_womp',p<30?.6:.5)},4950)}else if(p<70)playSfx('mcq_recovery',.6);else if(p<80)playSfx('study_step',.58);else if(p<95)playSfx('mcq_correct',.68);else playSfx('mcq_perfect',.82)}catch(e){}}
+ /* ---- submission ---- */
+ function submit(){
+  if(ST.mode==='cards')return submitCards();
+  var t=num('v99Total'),c=num('v99Correct'),ids=sel(),src=$('v99Source').value||'Other',conf=Number($('v99Conf').value)||null,note=($('v99Note').value||'').trim().slice(0,160);
+  if(t<1)return msg('Enter the total number of questions.');
+  if(c<0||c>t)return msg('Correct answers must be between 0 and the total questions.');
+  if(!ids.length)return msg('Pick at least one lecture.');
+  var pct=Math.round(c/t*100);
+  if(ids.length===1){
+   var l=lec(ids[0]),score=c+'/'+t,parsed=parseMCQScore(score);if(!parsed)return msg('Enter a valid score.');
+   var wasDue=(function(){try{return reviewStatus(l).state==='due'}catch(e){return false}})();
+   l.mcqs.push({score:score,source:src,date:new Date().toLocaleDateString(),dateKey:todayKey,percent:parsed.percent,confidence:conf,errorType:$('v99ErrType').value||'',note:note,reviewDue:wasDue});
+   sfx(parsed.percent);
+   recordActivity('mcq','lecture',l.id,{score:score,percent:parsed.percent,got:parsed.got,max:parsed.max,source:src,confidence:conf,errorType:$('v99ErrType').value||''});
+   var gain=lectureMcqXp(l).slice(-1)[0]||{xp:5,parts:[]};
+   recordXP(gain.xp);l.mastery=inferredMastery(l);scheduleReview(l);
+   try{toast('+'+gain.xp+' XP'+(gain.parts&&gain.parts.length?' ('+gain.parts.join(', ')+')':'')+' — MCQ logged! Next review: '+formatReviewDate(reviewCards[l.id].nextDate)+'.')}catch(e){}
+   close();save();render();try{renderExtraViews()}catch(e){}return}
+  var gap=num('v99Gap'),mis=num('v99Mis'),clin=num('v99Clin');
+  if(gap<0||mis<0||clin<0||gap+mis+clin>t-c)return msg('Error breakdown cannot exceed '+(t-c)+' incorrect questions.');
+  var ls=ids.map(lec).filter(Boolean),subs=[].concat.apply([],ls.map(function(l){return [l.subject]})).filter(function(s,i,a){return a.indexOf(s)===i}),xp=mcqSetXp(c,t);
+  var topic=ls.length+' lectures · '+subs.join(', ');
+  var test={id:'ext_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),dateKey:todayKey,date:new Date().toLocaleDateString(),timestamp:new Date().toISOString(),source:src,scope:'multi',scopeLabel:topic,topic:topic,subject:subs.join(', '),lectureId:null,lectureIds:ids.slice(),total:t,correct:c,percent:pct,xp:xp,confidence:conf,errors:{knowledgeGap:gap,misread:mis,clinicalReasoning:clin},note:note};
+  externalTests.push(test);
+  recordActivity('external-test','external',null,{testId:test.id,score:c+'/'+t,percent:pct,source:src,scope:'multi',topic:topic,subject:test.subject,errors:test.errors,confidence:conf,lectureIds:ids.slice()});
+  recordXP(xp);          /* markStudyActivity; the XP itself is derived once from this one externalTests record */
+  scheduleExternalReview(test);   /* review dates for every tagged lecture */
+  ls.forEach(function(l){l.mastery=inferredMastery(l)});
+  sfx(pct);
+  try{toast('🧪 '+ids.length+'-lecture block logged · '+pct+'% · +'+xp+' XP (once)')}catch(e){}
+  close();save();render();try{renderExtraViews()}catch(e){}}
+ function submitCards(){
+  var r=num('v99Reviewed'),raw=$('v99Recalled').value,k=Math.floor(Number(raw)),l=lec($('v99CardLecture').value),src=($('v99Deck').value||'').trim();
+  if(!l)return msg('Pick a lecture.');
+  if(r<1)return msg('Enter how many cards you reviewed.');
+  if(raw===''||!Number.isFinite(k)||k<0||k>r)return msg('Recalled must be between 0 and '+r+'.');
+  if(!Array.isArray(l.cards))l.cards=[];
+  var wasDue=(function(){try{return reviewStatus(l).state==='due'}catch(e){return false}})();
+  var entry={reviewed:r,recalled:k,source:src,date:new Date().toLocaleDateString(),dateKey:todayKey,ts:new Date().toISOString(),reviewDue:wasDue};
+  l.cards.push(entry);var pct=Math.round(k/r*100);
+  try{playSfx(pct>=85?'mcq_correct':pct>=60?'study_step':'mcq_recovery',.62)}catch(e){}
+  recordActivity('flashcards','lecture',l.id,{reviewed:r,recalled:k,percent:pct,source:src});
+  var gain=cardXpList().find(function(o){return o.c===entry})||{xp:0,parts:[]};
+  recordXP(gain.xp);l.mastery=inferredMastery(l);scheduleReview(l);
+  try{toast('+'+gain.xp+' XP'+(gain.parts.length?' ('+gain.parts.join(', ')+')':'')+' — flashcards logged! Next review: '+formatReviewDate(reviewCards[l.id].nextDate)+'.')}catch(e){}
+  close();save();render();try{renderExtraViews()}catch(e){}}
+ /* ---- Cram Sheet: the notes on multi-lecture (and single) test records that touch this exam ---- */
+ window.mhqCramTestNotes=function(ls){
+  var ids=ls.map(function(l){return l.id}),rows=externalTests.filter(function(t){return String(t.note||'').trim()&&externalTestLectureIds(t).some(function(i){return ids.indexOf(i)>=0})});
+  if(!rows.length)return '';
+  return '<div class="label" style="margin-top:16px">TEST LESSONS</div><div id="v97CramTests">'+rows.slice().reverse().map(function(t){var n=externalTestLectureIds(t).length;return '<div class="v97-les" data-tid="'+esc(t.id)+'"><div class="v97-note">• '+esc(String(t.note).trim())+'<span class="v97-tag">'+esc(t.source||'Test')+' · '+t.percent+'%'+(n>1?' · '+n+' lectures':'')+'</span></div></div>'}).join('')+'</div>'};
 })();
 </script>
 <script id="mhq-fade">
